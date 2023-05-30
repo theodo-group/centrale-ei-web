@@ -1,0 +1,36 @@
+.carrousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.carrousel button {
+  background-color: red;
+  border: 1px solid;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 15px;
+}
+
+.carrousel img {
+  width: 300px;
+  height: auto;
+  margin: 0 20px;
+  border-radius: 20px;
+  margin: 15;
+}
+
+.carrousel h3 {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.afficheTitre {
+ background-color: darkorange;
+ padding-top: 15px;
+ border-radius: 20px;
+ width: 345px;
+}
+
