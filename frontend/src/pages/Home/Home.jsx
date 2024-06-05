@@ -13,13 +13,13 @@ function Home() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Meilleur film de tous les temps</h1>
+        <h1>CINEMATICS</h1>
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.jsx</code> and save to reload.
+          Qu'allez-vous regarder aujourd'hui ? 
         </p>
-        <input name="Nom de Film" value={movie_name} onChange={e => set_movie_name(e.target.value)}/>
-        <div>
+        <input className="search" name="Nom de Film" value={movie_name} onChange={e => set_movie_name(e.target.value)}/>
+        <div className="movie-container">
           {listMovies}
         </div> 
         <a
