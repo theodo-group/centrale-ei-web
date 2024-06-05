@@ -4,11 +4,15 @@ export function Movie({ movie }) {
     <li>
       <p>
         <div class="image-container">
-          <img
-            src={`https://image.tmdb.org/t/p/w500` + movie.poster_path}
-            class="hover-image"
-            alt={movie.title}
-          />
+          <a href={`http://localhost:3000/about`}>
+            <img
+              src={`https://image.tmdb.org/t/p/w500` + movie.poster_path}
+              className="image"
+              alt={movie.title}
+              class="hover-image"
+              onClick={() => console.log('bonjour')}
+            />
+          </a>
           <div class="overlay">
             <strong>{movie.title}</strong>
             <br></br>

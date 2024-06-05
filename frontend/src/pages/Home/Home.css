@@ -1,6 +1,6 @@
 .App {
   text-align: center;
-  margin-top: 3000px;
+  margin-top: 3500px;
 }
 
 .App-logo {
@@ -51,7 +51,6 @@
   pointer-events: none;
 }
 
-
 .custom-select {
   display: inline-block;
   width: 200px;
@@ -80,14 +79,13 @@
   outline: none;
 }
 
-
 .navigation-buttons {
   display: flex;
   gap: 20px;
 }
 
 .nav-button {
-  background-color: #007BFF;
+  background-color: #007bff;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -105,15 +103,14 @@
 }
 
 .nav-button.previous::before {
-  content: "←";
+  content: '←';
   margin-right: 8px;
 }
 
 .nav-button.next::after {
-  content: "→";
+  content: '→';
   margin-left: 8px;
 }
-
 
 .input-container {
   width: 100%;
@@ -139,7 +136,7 @@
 }
 
 .styled-input:focus {
-  border-color: #007BFF;
+  border-color: #007bff;
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
   outline: none;
 }
