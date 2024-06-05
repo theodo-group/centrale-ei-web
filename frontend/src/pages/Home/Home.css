@@ -49,3 +49,96 @@
   height: 80vmin;
   pointer-events: none;
 }
+
+
+.custom-select {
+  display: inline-block;
+  width: 200px;
+  padding: 10px 15px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #444;
+  background-color: #fff;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNThweCIgaGVpZ2h0PSI1OHB4IiB2aWV3Qm94PSIwIDAgNTggNTgiIHZlcnNpb249IjEuMSIgd2lsbGZpbGw9IiMxODFCOEIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTI4IDQxYy0xLjEgMC0yLjMtMC4zLTMuMy0xLjFMMyAxOXYtNS41bDQuNiA0LjFjMS44IDEuNiA0LjIgMi41IDYuNyAyLjVoMTYuN2MyLjUgMCA1LS44IDYuNy0yLjVsNC42LTQuMXY1LjVMMzEgNDAuMWMtMC45IDEuMS0yLjEgMS4zLTMuMSAxLjNIMjhabTAtMjZsLTE2LjcgMTYuOEg5Yy0yLjUgMC01LTAuOC02LjctMi41TDVsLTQuNlYyMkgzTDcuMSAxNi42YzEuOCAxLjYgNC4yIDIuNSA2LjcgMi41aDE2LjdjMi41IDAgNS0wLjggNi43LTIuNWw0LjYtNC42eiIgZmlsbD0iIzE4MUI4QiIvPjwvc3ZnPg==');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.custom-select:hover {
+  border-color: #888;
+}
+
+.custom-select:focus {
+  border-color: #555;
+  outline: none;
+}
+
+
+.navigation-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-button {
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.nav-button:hover {
+  background-color: #0056b3;
+}
+
+.nav-button.previous::before {
+  content: "←";
+  margin-right: 8px;
+}
+
+.nav-button.next::after {
+  content: "→";
+  margin-left: 8px;
+}
+
+
+.input-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.styled-input {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 16px;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.styled-input::placeholder {
+  color: #aaa;
+}
+
+.styled-input:focus {
+  border-color: #007BFF;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+  outline: none;
+}

@@ -4,10 +4,13 @@ import axios from 'axios';
 
 export function useFetchMovies() {
   const [movies, setMovies] = useState([]);
-  const fetchMovies = (movie = null) => {
-    const req = movie
-      ? `https://api.themoviedb.org/3/search/movie?query=${movie}`
-      : 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1';
+  const fetchMovies = (movie = '', page = 1, sortBy = null) => {
+    const req =
+      movie.length > 0
+        ? `https://api.themoviedb.org/3/search/movie?query=${movie}&page=${page}`
+        : sortBy
+        ? `https://api.themoviedb.org/3/discover/movie?sort_by=${sortBy}&page=${page}`
+        : `https://api.themoviedb.org/3/movie/popular?language=en-US&page=${page}`;
     axios
       .get(req, {
         headers: {
@@ -18,6 +21,7 @@ export function useFetchMovies() {
       })
       .then((response) => {
         // Do something if call succeeded
+        console.log(req);
         console.log(response);
         const films = response.data.results;
         setMovies(films);
