@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import axios, {isCancel, AxiosError} from 'axios';
+import axios from 'axios';
 import { useState } from 'react';
 
 export function useFetchMovies() {
-    const [movie_list, set_movie_list] = useState([]);
+  const [movieList, setMovieList] = useState([]);
   const [serverUrl, setServerUrl] = useState('https://localhost:3000');
   
   useEffect(() => {
@@ -13,7 +13,7 @@ export function useFetchMovies() {
     Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo'
   }})
   .then((response) => {
-		set_movie_list(response.data.results);
+		setMovieList(response.data.results);
     console.log(response.data.results);
     console.log(response.data.results[0]);
     console.log(response.data.results[0]['title']);
@@ -23,5 +23,5 @@ export function useFetchMovies() {
 		console.log(error)
   });
   }, []);
-  return {movie_list}
+  return {movieList}
 }

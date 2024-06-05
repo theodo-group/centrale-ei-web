@@ -5,10 +5,10 @@ import {useFetchMovies} from './useFetchMovies.jsx'
 import Movie from '../../components/Movie/Movie.jsx';
 
 function Home() {
-  const [movie_name, set_movie_name] = useState('');
-  const {movie_list} = useFetchMovies();
-  console.log(movie_list);
-  const listMovies = movie_list.map(movie => <Movie key={movie.id} data={movie}/>);
+  const [movieName, setMovieName] = useState('');
+  const {movieList} = useFetchMovies();
+  console.log(movieList);
+  const listMovies = movieList.map(movie => <Movie key={movie.id} data={movie}/>);
   
   return (
     <div className="App">
