@@ -2,13 +2,13 @@ import logo from './logo.svg';
 import './Home.css';
 import { useState } from 'react';
 import {useFetchMovies} from './useFetchMovies.jsx'
-import MovieCards from '../../components/Movie.jsx';
+import Movie from '../../components/Movie/Movie.jsx';
 
 function Home() {
   const [movie_name, set_movie_name] = useState('');
   const {movie_list} = useFetchMovies();
   console.log(movie_list);
-  const listMovies = movie_list.map(movie => <li key={movie.id}>{movie.title}</li>);
+  const listMovies = movie_list.map(movie => <Movie key={movie.id} data={movie}/>);
   
   return (
     <div className="App">
@@ -19,7 +19,9 @@ function Home() {
           Edit <code>src/App.jsx</code> and save to reload.
         </p>
         <input name="Nom de Film" value={movie_name} onChange={e => set_movie_name(e.target.value)}/>
-        <MovieCards movie_list={movie_list}/>
+        <div>
+          {listMovies}
+        </div> 
         <a
           className="App-link"
           href="https://react.dev"
