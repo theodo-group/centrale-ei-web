@@ -1,33 +1,68 @@
 import axios from 'axios';
-import { appDataSource } from './datasource.js';
+import { DataSource, In } from 'typeorm';
 import Movie from '../entities/movie.js';
+import Genre from '../entities/genre.js';
 
-appDataSource.initialize().then(() => {
-  console.log('Data Source has been initialized!');
+export const appDataSource = new DataSource({
+  type: 'sqlite',
+  database: '../database.sqlite3',
+  synchronize: false,
+  entities: ['../entities/*.js'],
+  migrations: ['migrations/*.js'],
+  cli: {
+    migrationsDir: 'migrations',
+  },
 });
-axios
-  .get('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', {
+
+await appDataSource.initialize();
+console.log('Data Source has been initialized!');
+const response_genres = await axios.get(
+  'https://api.themoviedb.org/3/genre/movie/list?language=en',
+  {
     headers: {
       Authorization:
         'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
       accept: 'application/json',
     },
-  })
-  .then((response) => {
-    // Do something if call succeeded
-    const films = response.data.results;
-    appDataSource
-      .createQueryBuilder()
-      .insert()
-      .into(Movie)
-      .values(films.map())
-      .execute();
-  })
-  .catch((error) => {
-    // Do something if call failed
-    console.log(error);
+  }
+);
+const genres = response_genres.data.genres;
+await appDataSource
+  .createQueryBuilder()
+  .insert()
+  .into(Genre)
+  .values(
+    genres.map((genre) => ({
+      id: genre.id,
+      genre_name: genre.name,
+    }))
+  )
+  .execute();
+const response_movies = await axios.get(
+  'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1',
+  {
+    headers: {
+      Authorization:
+        'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
+      accept: 'application/json',
+    },
+  }
+);
+const films = response_movies.data.results;
+for (const movie of films) {
+  const movieRepository = appDataSource.getRepository(Movie);
+  const genreRepository = appDataSource.getRepository(Genre);
+  const movieGenres = await genreRepository.find({
+    where: { id: In(movie.genre_ids) },
   });
-
-// 1: se connecter à la base de donnée (voir dans server.js)
-// call axios pour récupérer une liste de films (voir côté front)
-// avec la liste faire un batch insert dans la base de données (internet)
+  const newMovie = movieRepository.create({
+    id: movie.id,
+    title: movie.title,
+    release_date: movie.release_date,
+    original_language: movie.original_language,
+    overview: movie.overview,
+    poster_path: movie.poster_path,
+    genres: movieGenres,
+  });
+  movieRepository.save(newMovie);
+}
