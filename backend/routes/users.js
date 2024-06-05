@@ -30,10 +30,10 @@ router.post('/new', function (req, res) {
       });
     })
     .catch(function (error) {
-      console.error(error);
-      if (error.code === '23505') {
+      console.error('error', error);
+      if (error.code === 'SQLITE_CONSTRAINT') {
         res.status(400).json({
-          message: `User with email "${newUser.email}" already exists`,
+          message: `User with email '${newUser.email}' already exists`,
         });
       } else {
         res.status(500).json({ message: 'Error while creating the user' });
