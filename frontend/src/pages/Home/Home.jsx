@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { useEffect } from 'react';
-import axios from 'axios';
 import { Movie } from '../../components/Movie/Movie';
 import logo from './logo.svg';
 import './Home.css';
@@ -8,7 +6,7 @@ import { useFetchMovies } from './useFetchMovies';
 
 function Home() {
   const [movieName, setMovieName] = useState('');
-  const movies = useFetchMovies();
+  const { movies, fetchMovies } = useFetchMovies();
 
   return (
     <div className="App">
@@ -21,6 +19,7 @@ function Home() {
           value={movieName}
           onChange={(event) => {
             setMovieName(event.target.value);
+            fetchMovies(event.target.value);
           }}
         ></input>
         <p>{movieName}</p>

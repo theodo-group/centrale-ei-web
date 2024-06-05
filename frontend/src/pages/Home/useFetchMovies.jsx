@@ -4,9 +4,12 @@ import axios from 'axios';
 
 export function useFetchMovies() {
   const [movies, setMovies] = useState([]);
-  const fetchMovies = () => {
+  const fetchMovies = (movie = null) => {
+    const req = movie
+      ? `https://api.themoviedb.org/3/search/movie?query=${movie}`
+      : 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1';
     axios
-      .get('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', {
+      .get(req, {
         headers: {
           Authorization:
             'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
@@ -26,5 +29,5 @@ export function useFetchMovies() {
   };
   useEffect(() => fetchMovies(), []);
 
-  return movies;
+  return { movies, fetchMovies };
 }
