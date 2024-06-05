@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './Home.css';
 import { useState } from 'react';
-import {useFetchMovies} from './useFetchMovies.jsx'
+import { useFetchMovies } from './useFetchMovies.jsx'
 import Movie from '../../components/Movie/Movie.jsx';
 
 function Home() {
@@ -19,7 +19,7 @@ function Home() {
           Edit <code>src/App.jsx</code> and save to reload.
         </p>
         <input name="Nom de Film" value={movieName} onChange={e => setMovieName(e.target.value)}/>
-        <div>
+        <div className="">
           {listMovies}
         </div> 
         <a
