@@ -38,6 +38,7 @@ await appDataSource
     }))
   )
   .execute();
+for ()
 const response_movies = await axios.get(
   'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1',
   {
@@ -62,6 +63,7 @@ for (const movie of films) {
     original_language: movie.original_language,
     overview: movie.overview,
     poster_path: movie.poster_path,
+    like: 0,
     genres: movieGenres,
   });
   movieRepository.save(newMovie);
