@@ -24,17 +24,29 @@ function DetailsMovie(props) {
       }, []);
 
     return (
-      <div>
-        <span> ID : {idMovie} </span> <br/>
-        <span> Titre : {movieData.title} </span> <br/>
-        <span> Date de sortie : {movieData.release_date} </span> <br/>
-        <span> Bugdet : ${movieData.budget}  </span> <br/>
-        <span> Durée : {movieData.runtime} min </span> <br/>
+      <div className="details" /*style={{backgroundImage:`url("https://image.tmdb.org/t/p/w500${movieData.backdrop_path}")`}*/>
+        <div className="details-image-container">
+          <img className="details-image" src={`https://image.tmdb.org/t/p/w500${movieData.poster_path}`} alt="img"/>
+        </div>
+        <div className="details-info-container">
+          <span className="details-title"> {movieData.title} </span> <br/>
+          <span className="details-date"> Date de sortie : {movieData.release_date} </span> <br/>
+          <span className="details-genre"> 
+             {movieData.genres?.map(genre => <span key={genre.id}> -{genre.name}- </span>)} </span> <br/>
+          <span className="details-description"> <p>{movieData.overview}</p> </span> <br/>
+          <span className="details-duration"> Durée : {movieData.runtime} min </span> <br/>
+        </div>
+        
+        
+        
+        {/*<span> Bugdet : ${movieData.budget}  </span> <br/>
+        
         <span> Langue d'origine : {movieData.original_language} </span> <br/>
-        <span> Genres : <ul> {movieData.genres?.map(genre => <li key={genre.id}> {genre.name} </li>)} </ul> </span> <br/>
-        <span> Description : <p>{movieData.overview}</p> </span> <br/>
-        <img src={`https://image.tmdb.org/t/p/w500${movieData.poster_path}`} alt="img"/>
+        
+        
+
         <img src={`https://image.tmdb.org/t/p/w500${movieData.backdrop_path}`} alt="img"/>
+    */}
       </div>
     );
   }
