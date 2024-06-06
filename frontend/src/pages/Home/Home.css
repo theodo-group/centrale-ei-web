@@ -1,10 +1,8 @@
 .App {
   text-align: center;
-  margin-top: 3500px;
 }
 
 .App-logo {
-  height: 40vmin;
   pointer-events: none;
 }
 
@@ -46,9 +44,6 @@
   list-style-type: none;
 }
 
-.image {
-  height: 80vmin;
-}
 
 .custom-select {
   display: inline-block;

@@ -40,7 +40,7 @@ function AboutMovie() {
       console.log(response);
 
       setAbout(
-        <div>
+        <div class="image-about">
           <h1>Détails du Film : {id}</h1>
           <img
             src={`https://image.tmdb.org/t/p/w500` + movie.poster_path}

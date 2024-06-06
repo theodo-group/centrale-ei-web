@@ -1,12 +1,4 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #f0f0f0;
-}
+
 
 .button-container {
     display: flex;
@@ -44,4 +36,10 @@ button {
 
 button:hover {
     opacity: 0.8;
+}
+
+.image-about {
+    width: 40%; /* Adjust the width to scale the image */
+    height: auto; /* Maintain aspect ratio */
+    transition: transform 0.3s ease; /* Smooth transition for scaling */
 }
