@@ -11,7 +11,7 @@ function Home() {
   const [sortBy, setSortBy] = useState('popularity.desc');
 
   return (
-    <div className="App">
+    <div class="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <div>Films les plus populaires</div>
