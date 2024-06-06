@@ -3,6 +3,8 @@ import { appDataSource } from '../datasource.js';
 import Movie from '../entities/movies.js';
 const router = express.Router();
 
+const { Like } = require('typeorm');
+
 router.get('/', function (req, res) {
     appDataSource
       .getRepository(Movie)
@@ -84,4 +86,20 @@ router.delete('/id', function (req, res) {
         res.status(404).json({ message: 'Error while deleting the user' });
       });
   });
+
+
+  router.get('/search/:title', function (req, res) {
+    appDataSource
+    .getRepository(Movie)
+    .find({where : {title: Like(`%${req.params.title}%`)}})
+    .then(function (movies) {
+      res.json({ movies: movies });
+    }).catch(function (error) {
+      res.status(404).json({ error: 'Not found!' });
+    });
+  });
+
+  
+
+
 export default router;
