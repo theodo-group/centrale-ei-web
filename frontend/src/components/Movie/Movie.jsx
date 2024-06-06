@@ -17,9 +17,9 @@ export function Movie({ movie }) {
               <br></br>
               <br></br>
               <span class="description">
-                {movie.overview.length > 200
+                {movie.overview.length > 165
                   ? movie.overview
-                      .slice(0, 200)
+                      .slice(0, 165)
                       .split(' ')
                       .slice(0, -1)
                       .join(' ') + '...'
