@@ -48,7 +48,6 @@
 
 .image {
   height: 80vmin;
-  pointer-events: none;
 }
 
 .custom-select {

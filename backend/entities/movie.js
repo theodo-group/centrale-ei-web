@@ -13,6 +13,22 @@ const Movie = new typeorm.EntitySchema({
       unique: true,
     },
     release_date: { type: String },
+    original_language: { type: String },
+    overview: { type: String },
+    poster_path: { type: String },
+    like: { type: Number },
+  },
+  relations: {
+    genres: {
+      type: 'many-to-many',
+      target: 'Genre',
+      joinTable: true,
+    },
+    scores: {
+      target: 'Score',
+      type: 'one-to-many',
+      inverseSide: 'movie.id',
+    },
   },
 });
 
