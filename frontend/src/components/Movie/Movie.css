@@ -1,0 +1,36 @@
+
+
+.movie-card {
+    display: flex; 
+    flex-direction: column;
+    justify-content: center;
+    align-content: flex-start;
+    align-items: center;
+    margin : 2px;
+    border : 1px solid green;
+    width:200px;
+  
+}
+.movie-title {
+    color: white;
+    font-size: 12px;
+    width : 230px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.movie-date {
+    color:aliceblue;
+    font-size: 18px;
+    margin: 0px;
+    padding: 0px;
+    
+}
+
+.movie-image {
+    width : 200px;
+
+}
+
+
+
