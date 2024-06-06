@@ -46,6 +46,7 @@ function Home() {
           <option value="Aventure">Pertinence</option>
           <option value="Action">Action</option>
         </select>
+        <br></br>
         <div class="navigation-buttons">
           <button
             class="nav-button previous"
@@ -73,22 +74,38 @@ function Home() {
         </div>
         <p key="title">{movieName}</p>
         <div className="movielist">
-          {movies.map((movie) => (
+          {movies.slice(21 * page, 21 * (page + 1)).map((movie) => (
             <Movie movie={movie} />
           ))}
         </div>
-        <p>
-          Edit <code>src/App.jsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://react.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <br></br>
+        <div class="navigation-buttons">
+          <button
+            class="nav-button previous"
+            onClick={() => {
+              if (page > 1) {
+                fetchMovies(movieName, page - 1, sortBy);
+                setPage(page - 1);
+              }
+            }}
+          >
+            {' '}
+            Page précédente{' '}
+          </button>
+          Page {page}
+          <button
+            class="nav-button next"
+            onClick={() => {
+              fetchMovies(movieName, page + 1, sortBy);
+              setPage(page + 1);
+            }}
+          >
+            {' '}
+            Page suivante{' '}
+          </button>
+        </div>
       </header>
+      <br></br>
     </div>
   );
 }
