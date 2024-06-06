@@ -4,6 +4,7 @@
 
 .App-logo {
   pointer-events: none;
+  height: 200px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -43,7 +44,6 @@
   justify-content: space-around;
   list-style-type: none;
 }
-
 
 .custom-select {
   display: inline-block;

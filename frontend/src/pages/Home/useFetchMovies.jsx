@@ -7,6 +7,7 @@ export function useFetchMovies() {
   const fetchMovies = (movie = '', page = 1, sortBy = null) => {
     axios
       .get('http://localhost:8000/movies')
+      .where()
       .then((response) => {
         // Do something if call succeeded
         console.log(response);

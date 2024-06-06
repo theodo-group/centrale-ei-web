@@ -39,7 +39,7 @@ await appDataSource
   )
   .execute();
 
-for (let page = 1; page < 10; page++) {
+for (let page = 1; page < 50; page++) {
   const response_movies = await axios.get(
     `https://api.themoviedb.org/3/movie/popular?language=en-US&page=${page}`,
     {
@@ -64,7 +64,8 @@ for (let page = 1; page < 10; page++) {
       original_language: movie.original_language,
       overview: movie.overview,
       poster_path: movie.poster_path,
-      like: 0,
+      popularity: movie.popularity,
+      vote_average: movie.vote_average,
       genres: movieGenres,
     });
     movieRepository.save(newMovie);

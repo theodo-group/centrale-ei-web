@@ -16,7 +16,8 @@ const Movie = new typeorm.EntitySchema({
     original_language: { type: String },
     overview: { type: String },
     poster_path: { type: String },
-    like: { type: Number },
+    popularity: { type: Number },
+    vote_average: { type: Number },
   },
   relations: {
     genres: {
