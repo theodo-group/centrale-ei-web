@@ -6,6 +6,26 @@ import { useState } from 'react';
 function AboutMovie() {
   const { id } = useParams();
   const [about, setAbout] = useState(<div></div>);
+  const [likeActive, setLikeActive] = useState(false);
+  const [dislikeActive, setDislikeActive] = useState(false);
+
+  const handleLike = () => {
+    setLikeActive(!likeActive);
+    if (dislikeActive) {
+      setDislikeActive(false);
+    }
+    //METTRE A JOUR LA DB
+  };
+
+  const handleDislike = () => {
+    setDislikeActive(!dislikeActive);
+    if (likeActive) {
+      setLikeActive(false);
+    }
+    alert('You disliked this!');
+    //METTRE A JOUR LA DB
+  };
+
   axios
     .get(`https://api.themoviedb.org/3/movie/${id}`, {
       headers: {
@@ -22,14 +42,31 @@ function AboutMovie() {
       setAbout(
         <div>
           <h1>Détails du Film : {id}</h1>
-          <p>Film ID: {id}</p>
           <img
             src={`https://image.tmdb.org/t/p/w500` + movie.poster_path}
             className="image"
             alt={movie.title}
             class="hover-image"
+            a
           />
-          
+          <strong>{movie.title}</strong>
+          <br></br><br></br>
+          <span>{movie.overview}</span>
+
+          <div className="button-container">
+            <button
+              className={`like-button ${likeActive ? 'active' : ''}`}
+              onClick={handleLike}
+            >
+              Like
+            </button>
+            <button
+              className={`dislike-button ${dislikeActive ? 'active' : ''}`}
+              onClick={handleDislike}
+            >
+              Dislike
+            </button>
+          </div>
         </div>
       );
     })
