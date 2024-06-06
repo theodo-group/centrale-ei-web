@@ -1,6 +1,6 @@
-import typeorm from 'typeorm';
+import { EntitySchema } from 'typeorm';
 
-const User = new typeorm.EntitySchema({
+const User = new EntitySchema({
   name: 'User',
   columns: {
     id: {
@@ -14,6 +14,14 @@ const User = new typeorm.EntitySchema({
     },
     firstname: { type: String },
     lastname: { type: String },
+  },
+  relations: {
+    ratings: {
+      type: 'one-to-many',
+      target: 'Rating',
+      inverseSide: 'user',
+      cascade: true,
+    },
   },
 });
 

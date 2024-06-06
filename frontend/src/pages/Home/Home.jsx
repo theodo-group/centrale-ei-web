@@ -7,7 +7,6 @@ import MovieCards from '../../components/Movie.jsx';
 function Home() {
   const [movie_name, set_movie_name] = useState('');
   const {movie_list} = useFetchMovies();
-  console.log(movie_list);
   const listMovies = movie_list.map(movie => <li key={movie.id}>{movie.title}</li>);
   
   return (
