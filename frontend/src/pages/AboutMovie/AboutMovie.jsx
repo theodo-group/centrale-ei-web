@@ -50,7 +50,8 @@ function AboutMovie() {
             a
           />
           <strong>{movie.title}</strong>
-          <br></br><br></br>
+          <br></br>
+          <br></br>
           <span>{movie.overview}</span>
 
           <div className="button-container">
