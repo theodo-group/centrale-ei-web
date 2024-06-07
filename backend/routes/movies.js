@@ -15,7 +15,10 @@ export default router;
 router.get('/', function (req, res) {
   appDataSource
     .getRepository(Movie)
-    .find({})
+    .find({
+      relations: { genres: true },
+      where: { genres: { genre_name: req.params.genre } },
+    })
     .then(function (movies) {
       res.json({ movies });
     });

@@ -6,16 +6,18 @@ import { useFetchMovies } from './useFetchMovies';
 
 function Home() {
   const [movieName, setMovieName] = useState('');
-  const { movies, fetchMovies } = useFetchMovies();
   const [page, setPage] = useState(1);
   const [genre, setGenre] = useState('Genre');
   const [sortBy, setSortBy] = useState('popularity.desc');
+  const { movies } = useFetchMovies(movieName, page, sortBy, genre);
 
   return (
     <div class="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <div>Films les plus populaires</div>
+        <div>
+          <strong>Movies</strong>
+        </div>
         <br />
         <div class="input-container">
           <input
@@ -24,7 +26,6 @@ function Home() {
             value={movieName}
             onChange={(event) => {
               setMovieName(event.target.value);
-              fetchMovies(event.target.value, page, sortBy, genre);
             }}
           ></input>
         </div>
@@ -33,7 +34,6 @@ function Home() {
           class="custom-select"
           name="order"
           onChange={(e) => {
-            fetchMovies(movieName, page, e.target.value, genre);
             setSortBy(e.target.value);
           }}
         >
@@ -42,13 +42,13 @@ function Home() {
           <option value="primary_release_date.desc">Récent</option>
           <option value="primary_release_date.asc">Ancien</option>
           <option value="vote_average.desc">Note</option>
+          <option value="recommended">Recommendé pour vous</option>
         </select>
         <br></br>
         <select
           class="custom-select"
           name="genre"
           onChange={(e) => {
-            fetchMovies(movieName, page, sortBy, e.target.value);
             setGenre(e.target.value);
           }}
         >
@@ -67,7 +67,7 @@ function Home() {
           <option value="Music">Music</option>
           <option value="Mystery">Mystery</option>
           <option value="Romance">Romance</option>
-          <option value="Science fiction">Science fiction</option>
+          <option value="Science Fiction">Science Fiction</option>
           <option value="TV Movie">TV Movie</option>
           <option value="Thriller">Thriller</option>
           <option value="War">War</option>
@@ -80,7 +80,6 @@ function Home() {
             class="nav-button previous"
             onClick={() => {
               if (page > 1) {
-                fetchMovies(movieName, page - 1, sortBy, genre);
                 setPage(page - 1);
               }
             }}
@@ -92,7 +91,6 @@ function Home() {
           <button
             class="nav-button next"
             onClick={() => {
-              fetchMovies(movieName, page + 1, sortBy, genre);
               setPage(page + 1);
             }}
           >
@@ -102,7 +100,7 @@ function Home() {
         </div>
         <br></br>
         <div className="movielist">
-          {movies.slice(21 * page, 21 * (page + 1)).map((movie) => (
+          {movies.slice(21 * (page - 1), 21 * page).map((movie) => (
             <Movie movie={movie} />
           ))}
         </div>
@@ -112,7 +110,6 @@ function Home() {
             class="nav-button previous"
             onClick={() => {
               if (page > 1) {
-                fetchMovies(movieName, page - 1, sortBy, genre);
                 setPage(page - 1);
               }
             }}
@@ -124,7 +121,6 @@ function Home() {
           <button
             class="nav-button next"
             onClick={() => {
-              fetchMovies(movieName, page + 1, sortBy, genre);
               setPage(page + 1);
             }}
           >

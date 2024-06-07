@@ -58,19 +58,28 @@ function AboutMovie() {
 
   return (
     <div>
-      <h1>Détails du Film : {id}</h1>
-      <img
-        src={`https://image.tmdb.org/t/p/w500` + movie?.poster_path}
-        className="image"
-        alt={movie?.title}
-        class="hover-image"
-        a
-      />
+      <h1>Détails du Film :</h1>
+      <div class="image-about">
+        <img
+          src={`https://image.tmdb.org/t/p/w500` + movie?.poster_path}
+          className="image"
+          alt={movie?.title}
+          class="hover-image"
+        />
+      </div>
       <strong>{movie?.title}</strong>
       <br></br>
       <br></br>
       <span>{movie?.overview}</span>
+      <br></br>
+      <br></br>
+      <strong>{'Popularity: ' + movie?.popularity}</strong>
+      <br></br>
+      <br></br>
+      <strong>{'Average Note: ' + movie?.vote_average}</strong>
 
+      <br></br>
+      <br></br>
       <div className="button-container">
         <button
           className={`like-button ${likeActive ? 'active' : ''}`}
