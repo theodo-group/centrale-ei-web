@@ -1,4 +1,3 @@
-
 .App-header {
   background-color: #282c34;
   display: flex;
@@ -7,39 +6,124 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  padding: 20px;
+}
+
+/* Section des contrôles (recherche + filtre) */
+.controls-section {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Input de recherche */
+.search-input {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  min-width: 250px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #007bff;
+}
+
+/* Select pour le tri */
+.sort-select {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.3s ease;
+  min-width: 200px;
+}
+
+.sort-select:focus {
+  border-color: #007bff;
+}
+
+.sort-select:hover {
+  border-color: #007bff;
+}
+
+/* Grille des films */
+.movies-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .movie-item {
   display: flex;
-  margin-bottom: 20px;
+  flex-direction: column;
+  margin-bottom: 0;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.movie-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .movie-poster {
-  width: 150px;
+  width: 120px;
   height: auto;
-  margin-right: 15px;
+  margin: 0 auto 10px auto;
   border-radius: 4px;
 }
 
 .movie-info {
   flex: 1;
+  text-align: center;
+}
+
+.movie-info h3 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.movie-info p {
+  color: #666;
+  margin: 5px 0;
+  font-size: 14px;
 }
 
 .movie-overview {
-  color: white;
-  font-size: 14px;
+  color: #666;
+  font-size: 12px;
   margin: 10px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .movie-rating {
   font-weight: bold;
   color: #f39c12;
+  background-color: rgba(243, 156, 18, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 * {
   list-style: none;
 }
-

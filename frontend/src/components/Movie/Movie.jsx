@@ -18,7 +18,7 @@ function Movie({ movie }) {
         <p>Date de sortie : {movie.release_date || 'Date indisponible'}</p>
         {movie.overview && <p className="movie-overview">{movie.overview}</p>}
         {movie.vote_average > 0 && (
-          <p className="movie-rating">⭐ {movie.vote_average}/10</p>
+          <p className="movie-rating">⭐ {movie.vote_average.toFixed(2)}/10</p>
         )}
       </div>
     </div>
