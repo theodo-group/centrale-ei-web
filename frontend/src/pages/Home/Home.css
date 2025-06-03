@@ -124,6 +124,12 @@
   display: inline-block;
 }
 
+.movie-vote_count {
+  color: black;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
 * {
   list-style: none;
 }

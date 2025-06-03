@@ -20,6 +20,9 @@ function Movie({ movie }) {
         {movie.vote_average > 0 && (
           <p className="movie-rating">⭐ {movie.vote_average.toFixed(2)}/10</p>
         )}
+        {movie.vote_count && (
+          <p className="movie-vote_count">{movie.vote_count} votes</p>
+        )}
       </div>
     </div>
   );
