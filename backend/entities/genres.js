@@ -1,6 +1,6 @@
-import typeorm from 'typeorm';
+import { EntitySchema } from 'typeorm';
 
-const Genre = new typeorm.EntitySchema({
+const Genre = new EntitySchema({
   name: 'Genre',
   tableName: 'Genre',
   columns: {

@@ -63,7 +63,7 @@ def insert_movies_with_genres(cursor, movies):
 
         for genre_id in movie.get("genre_ids", []):
             cursor.execute("""
-                INSERT OR IGNORE INTO Movie_genres (MovieId, GenreId) VALUES (?, ?)
+                INSERT OR IGNORE INTO Movies_genres (MovieId, GenreId) VALUES (?, ?)
             """, (movie["id"], genre_id))
 
 

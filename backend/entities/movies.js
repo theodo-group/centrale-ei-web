@@ -57,8 +57,19 @@ const Movie = new typeorm.EntitySchema({
     genres: {
       target: 'Genre',
       type: 'many-to-many',
-      joinTable: true,
       eager: true,
+      cascade: true,
+      joinTable: {
+        name: 'Movies_genres',         // Nom personnalisé de la table de jointure
+        joinColumn: {
+          name: 'MovieId',
+          referencedColumnName: 'id',
+        },
+        inverseJoinColumn: {
+          name: 'GenreId',
+          referencedColumnName: 'id',
+        },
+      },
     },
   },
 });
