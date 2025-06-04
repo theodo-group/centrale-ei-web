@@ -2,7 +2,6 @@
   "name": "centrale-ei-web",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "dotenv -- nodemon --experimental-modules ./server.js",
     "start": "dotenv -- node --experimental-modules ./server.js",

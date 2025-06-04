@@ -1,0 +1,24 @@
+.movie-card {
+  width: 200px;
+  text-align: center;
+  position: relative;
+  color: white;
+}
+
+.movie-poster {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.rank-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: #e50914;
+  color: white;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 1rem;
+  z-index: 10;
+}
