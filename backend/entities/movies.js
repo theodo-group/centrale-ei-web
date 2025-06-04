@@ -60,7 +60,7 @@ const Movie = new typeorm.EntitySchema({
       eager: true,
       cascade: true,
       joinTable: {
-        name: 'Movies_genres',         // Nom personnalisé de la table de jointure
+        name: 'Movies_genres',
         joinColumn: {
           name: 'MovieId',
           referencedColumnName: 'id',
