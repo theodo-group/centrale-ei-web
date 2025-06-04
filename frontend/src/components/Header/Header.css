@@ -1,16 +1,191 @@
+/* Container principal du header */
 .Header-container {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  padding: 5px;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  padding: 20px 40px;
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  border-bottom: 2px solid var(--card-border);
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Effet de particules en arrière-plan du header */
+.Header-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(0, 255, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(138, 43, 226, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Bordure supérieure animée */
+.Header-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-neon), var(--accent-purple), var(--accent-orange));
+  animation: borderFlow 3s ease-in-out infinite;
+}
+
+@keyframes borderFlow {
+  0%, 100% { 
+    background: linear-gradient(90deg, var(--accent-neon), var(--accent-purple), var(--accent-orange));
+  }
+  50% { 
+    background: linear-gradient(90deg, var(--accent-orange), var(--accent-neon), var(--accent-purple));
+  }
+}
+
+/* Espacement entre les éléments */
 .Header-container > :not(:last-child) {
-  margin-right: 10px;
+  margin-right: 30px;
 }
 
+/* Liens de navigation futuristes */
 .Link {
   font-weight: 700;
-  color: white;
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 12px 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Effet de glow au survol */
+.Link:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-neon);
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: 
+    0 0 20px rgba(0, 255, 255, 0.4),
+    inset 0 0 20px rgba(0, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Effet de survol avec bordure animée */
+.Link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.Link:hover::before {
+  left: 100%;
+}
+
+/* État actif pour le lien courant */
+.Link.active {
+  border-color: var(--accent-purple);
+  background: rgba(138, 43, 226, 0.2);
+  box-shadow: 
+    0 0 15px rgba(138, 43, 226, 0.4),
+    inset 0 0 15px rgba(138, 43, 226, 0.1);
+  color: var(--text-primary);
+}
+
+/* Séparateurs futuristes */
+.Header-container > div {
+  color: var(--accent-neon);
+  font-weight: 300;
+  font-size: 18px;
+  opacity: 0.7;
+  text-shadow: 0 0 10px var(--accent-neon);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 0.5;
+    text-shadow: 0 0 5px var(--accent-neon);
+  }
+  50% { 
+    opacity: 1;
+    text-shadow: 0 0 15px var(--accent-neon);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .Header-container {
+    padding: 15px 20px;
+    font-size: 14px;
+  }
+  
+  .Header-container > :not(:last-child) {
+    margin-right: 20px;
+  }
+  
+  .Link {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+  
+  .Header-container > div {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 580px) {
+  .Header-container {
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    padding: 15px;
+  }
+  
+  .Header-container > :not(:last-child) {
+    margin-right: 0;
+  }
+  
+  .Header-container > div {
+    display: none;
+  }
+  
+  .Link {
+    padding: 8px 14px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 400px) {
+  .Header-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .Link {
+    width: 100%;
+    text-align: center;
+    max-width: 200px;
+  }
 }
