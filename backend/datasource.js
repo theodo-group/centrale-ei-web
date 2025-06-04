@@ -1,7 +1,9 @@
 import { DataSource } from 'typeorm';
 import Movie from './entities/movies.js';
 import Genre from './entities/genres.js';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const appDataSource = new DataSource({
   type: 'sqlite',
