@@ -1,13 +1,336 @@
+/* Importation de la police futuriste Orbitron */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap');
+
+/* Variables CSS pour les couleurs */
+:root {
+  --primary-bg: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  --secondary-bg: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  --accent-neon: #00ffff;
+  --accent-purple: #8a2be2;
+  --accent-orange: #ff6b35;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b8c5;
+  --card-bg: rgba(26, 26, 46, 0.8);
+  --card-border: rgba(0, 255, 255, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --error-color: #ff4757;
+  --success-color: #2ed573;
+}
+
+/* Container principal des utilisateurs */
 .Users-container {
+  min-height: 100vh;
+  background: var(--primary-bg);
+  position: relative;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  padding: 40px 20px;
+  font-family: 'Exo 2', sans-serif;
+  color: var(--text-primary);
 }
 
+/* Effet de particules en arrière-plan */
+.Users-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 70%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Titre principal */
+.Users-container h1 {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 3rem;
+  background: linear-gradient(45deg, var(--accent-neon), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  margin-bottom: 40px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Espacement entre les éléments principaux */
 .Users-container > :not(:last-child) {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
+/* Style pour le formulaire d'ajout d'utilisateur */
+.Users-container .add-user-form,
+.Users-container form {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 30px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.Users-container .add-user-form::before,
+.Users-container form::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-neon), var(--accent-purple), var(--accent-orange));
+}
+
+/* Style pour les inputs dans le formulaire */
+.Users-container input[type="text"],
+.Users-container input[type="email"],
+.Users-container input[type="password"],
+.Users-container textarea,
+.Users-container select {
+  width: 100%;
+  padding: 15px 20px;
+  margin: 10px 0;
+  font-size: 16px;
+  font-family: 'Exo 2', sans-serif;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.Users-container input::placeholder,
+.Users-container textarea::placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.Users-container input:focus,
+.Users-container textarea:focus,
+.Users-container select:focus {
+  border-color: var(--accent-neon);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  background: rgba(0, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Style pour les boutons */
+.Users-container button {
+  padding: 15px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Exo 2', sans-serif;
+  background: linear-gradient(135deg, var(--accent-neon), var(--accent-purple));
+  color: var(--text-primary);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+  margin: 10px 5px;
+}
+
+.Users-container button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(0, 255, 255, 0.4);
+}
+
+/* Bouton de suppression spécifique */
+.Users-container button.delete-btn,
+.Users-container button[class*="delete"] {
+  background: linear-gradient(135deg, var(--error-color), #ff3742);
+  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.3);
+}
+
+.Users-container button.delete-btn:hover,
+.Users-container button[class*="delete"]:hover {
+  box-shadow: 0 15px 40px rgba(255, 71, 87, 0.4);
+}
+
+/* Style pour le tableau des utilisateurs */
+.Users-container table,
+.Users-container .users-table {
+  width: 100%;
+  max-width: 1200px;
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  border-collapse: collapse;
+}
+
+.Users-container table th,
+.Users-container table td {
+  padding: 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-primary);
+}
+
+.Users-container table th {
+  background: var(--glass-bg);
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-neon);
+}
+
+.Users-container table tr:hover {
+  background: rgba(0, 255, 255, 0.05);
+  transform: scale(1.01);
+  transition: all 0.3s ease;
+}
+
+.Users-container table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Message d'erreur futuriste */
 .users-loading-error {
-  color: red;
+  background: rgba(255, 71, 87, 0.1);
+  backdrop-filter: blur(15px);
+  border: 2px solid var(--error-color);
+  border-radius: 15px;
+  padding: 20px 30px;
+  color: var(--error-color);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2);
+  animation: errorPulse 2s ease-in-out infinite;
+}
+
+@keyframes errorPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Message de succès */
+.users-success-message {
+  background: rgba(46, 213, 115, 0.1);
+  backdrop-filter: blur(15px);
+  border: 2px solid var(--success-color);
+  border-radius: 15px;
+  padding: 20px 30px;
+  color: var(--success-color);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 10px 30px rgba(46, 213, 115, 0.2);
+}
+
+/* Message de chargement */
+.users-loading {
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-family: 'Orbitron', monospace;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Labels et textes */
+.Users-container label {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.Users-container p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 15px 0;
+}
+
+/* Container pour les actions */
+.Users-container .actions-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .Users-container {
+    padding: 20px 15px;
+  }
+  
+  .Users-container h1 {
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+  }
+  
+  .Users-container .add-user-form,
+  .Users-container form {
+    padding: 20px;
+  }
+  
+  .Users-container table,
+  .Users-container .users-table {
+    font-size: 14px;
+  }
+  
+  .Users-container table th,
+  .Users-container table td {
+    padding: 15px 10px;
+  }
+  
+  .Users-container button {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .Users-container h1 {
+    font-size: 1.8rem;
+  }
+  
+  .Users-container input,
+  .Users-container textarea,
+  .Users-container select {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+  
+  .Users-container table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
 }

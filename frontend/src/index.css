@@ -1,13 +1,32 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Importation de la police futuriste Orbitron */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap');
+
+/* Variables CSS pour les couleurs */
+:root {
+  --primary-bg: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  --secondary-bg: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  --accent-neon: #00ffff;
+  --accent-purple: #8a2be2;
+  --accent-orange: #ff6b35;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b8c5;
+  --card-bg: rgba(26, 26, 46, 0.8);
+  --card-border: rgba(0, 255, 255, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Reset et base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  list-style: none;
+}
+
+body {
+  font-family: 'Exo 2', sans-serif;
+  background: var(--primary-bg);
+  min-height: 100vh;
+  color: var(--text-primary);
 }
