@@ -7,6 +7,7 @@ import Movie from '../../components/Movie/Movie';
 const DEFAULT_FORM_VALUES = {
   name: '',
 };
+
 function Home() {
   const [movieName, setMovieName] = useState(DEFAULT_FORM_VALUES);
   const [movies, setMovies] = useState([]);
