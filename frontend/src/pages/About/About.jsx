@@ -31,12 +31,12 @@ function About() {
           </div>
           <h2>Notre Mission</h2>
           <p>
-            FilmRating est une plateforme révolutionnaire dédiée aux cinéphiles
-            qui souhaitent découvrir de nouveaux films et les noter. Notre
-            objectif est de créer une communauté où les utilisateurs peuvent
-            partager leurs passions et découvrir de nouveaux chefs-d'œuvre du
-            cinéma grâce à l'intelligence artificielle et aux technologies de
-            pointe.
+            Recommendé par ta mère est une plateforme révolutionnaire dédiée aux
+            cinéphiles qui souhaitent découvrir de nouveaux films et les noter.
+            Notre objectif est de créer une communauté où les utilisateurs
+            peuvent partager leurs passions et découvrir de nouveaux
+            chefs-d'œuvre du cinéma grâce à l'intelligence artificielle et aux
+            technologies de pointe.
           </p>
           <div className="stats">
             <div className="stat-item">
@@ -96,7 +96,7 @@ function About() {
               <div className="contact-details">
                 <strong>Email</strong>
                 <a href="mailto:contact@filmrating.com">
-                  contact@filmrating.com
+                  contact@recommendepartamere.com
                 </a>
               </div>
             </li>
@@ -112,11 +112,11 @@ function About() {
               <div className="contact-details">
                 <strong>Facebook</strong>
                 <a
-                  href="https://facebook.com/filmrating"
+                  href="https://facebook.com/recommendepartamere"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  facebook.com/filmrating
+                  facebook.com/recommendepartamere
                 </a>
               </div>
             </li>
@@ -125,11 +125,11 @@ function About() {
               <div className="contact-details">
                 <strong>Instagram</strong>
                 <a
-                  href="https://instagram.com/filmrating"
+                  href="https://instagram.com/recommendepartamere"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  instagram.com/filmrating
+                  instagram.com/recommendepartamere
                 </a>
               </div>
             </li>
