@@ -42,7 +42,6 @@ function Home() {
     <div className="App">
       <header className="App-header">
         <h1>Popcorn Advisor</h1>
-        <img src={logo} className="App-logo" alt="logo" />
       </header>
       <input
         type="text"
