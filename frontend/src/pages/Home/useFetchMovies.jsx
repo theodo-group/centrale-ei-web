@@ -10,28 +10,17 @@ export function useFetchMovies(searchTerm, page, type = 'movie') {
     setLoading(true);
     setError(null);
 
-    const baseUrl = searchTerm
-      ? `https://api.themoviedb.org/3/search/${type}`
-      : `https://api.themoviedb.org/3/${type}/popular`;
-
+    // Appel à ton backend (ex: http://localhost:8000/movies)
     axios
-      .get(baseUrl, {
+      .get('http://localhost:8000/movies', {
         params: {
+          search: searchTerm,
           page,
-          query: searchTerm || undefined,
-        },
-        headers: {
-          accept: 'application/json',
-          Authorization:
-            'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
+          type,
         },
       })
       .then((response) => {
-        if (page === 1) {
-          setItems(response.data.results);
-        } else {
-          setItems((prev) => [...prev, ...response.data.results]);
-        }
+        setItems(response.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -39,10 +28,6 @@ export function useFetchMovies(searchTerm, page, type = 'movie') {
         setLoading(false);
       });
   }, [searchTerm, page, type]);
-
-  useEffect(() => {
-    setItems([]); 
-  }, [searchTerm, type]);
 
   return { items, loading, error };
 }

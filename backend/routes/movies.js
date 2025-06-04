@@ -40,14 +40,18 @@ router.get('/seed', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  try {
-    const movieRepo = appDataSource.getRepository(Movie);
-    const movies = await movieRepo.find();
-    res.status(200).json({ movies });
-  } catch (err) {
-    console.error('Erreur lors de la récupération des films:', err);
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération des films.' });
+  const repo = appDataSource.getRepository(Movie);
+  const { search } = req.query;
+  let movies;
+  if (search) {
+    movies = await repo
+      .createQueryBuilder('movie')
+      .where('movie.title LIKE :search', { search: `%${search}%` })
+      .getMany();
+  } else {
+    movies = await repo.find();
   }
+  res.json(movies);
 });
 
 router.get('/:id', async (req, res) => {
