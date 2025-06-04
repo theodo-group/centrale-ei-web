@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import './Home.css';
 import Movie from '../../components/Movie/Movie';
@@ -57,7 +57,8 @@ function Home() {
         setMovies(response.data.results.slice(0, 50));
       } else {
         // Découverte avec filtres
-        const genreParam = selectedGenres.length > 0 ? selectedGenres.join(',') : undefined;
+        const genreParam =
+          selectedGenres.length > 0 ? selectedGenres.join(',') : undefined;
 
         const promises = Array.from({ length: PAGES_TO_FETCH }, (_, i) =>
           axios.get(`${baseUrl}/discover/movie`, {
@@ -73,7 +74,9 @@ function Home() {
         );
 
         const results = await Promise.all(promises);
-        const combinedMovies = results.flatMap((res) => res.data.results).slice(0, 50);
+        const combinedMovies = results
+          .flatMap((res) => res.data.results)
+          .slice(0, 50);
         setMovies(combinedMovies);
       }
     } catch (error) {
@@ -85,7 +88,9 @@ function Home() {
 
   // Déclenche la recherche avec un debounce pour éviter les appels trop fréquents
   useEffect(() => {
-    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
     debounceTimeout.current = setTimeout(() => {
       fetchMovies();
     }, 500); // délai de 500ms après la dernière frappe
@@ -95,7 +100,9 @@ function Home() {
 
   const handleGenreChange = (genreId) => {
     setSelectedGenres((prev) =>
-      prev.includes(genreId) ? prev.filter((id) => id !== genreId) : [...prev, genreId]
+      prev.includes(genreId)
+        ? prev.filter((id) => id !== genreId)
+        : [...prev, genreId]
     );
   };
 
@@ -129,7 +136,7 @@ function Home() {
         </select>
 
         <label htmlFor="direction" style={{ marginLeft: '10px' }}>
-          Ordre : 
+          Ordre :
         </label>
         <select
           id="direction"
@@ -169,7 +176,9 @@ function Home() {
       </div>
 
       <h2 style={{ marginTop: '20px' }}>
-        {searchTerm.trim() ? `Résultats de la recherche pour "${searchTerm}"` : 'Films'}
+        {searchTerm.trim()
+          ? `Résultats de la recherche pour "${searchTerm}"`
+          : 'Films'}
       </h2>
 
       {loading ? <p>Chargement...</p> : <Movie movies={movies} />}
