@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Details.css';
+import axios from 'axios';
 
 const posterURL = 'https://image.tmdb.org/t/p/w500';
 
@@ -66,25 +67,46 @@ function StarRating({ storageKey = 'userRating' }) {
   );
 }
 
-function Details() {
+function Details({ movieId }) {
+  const [movie, setMovie] = useState(null);
+  const [errorCase, setErrorCase] = useState(null);
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/movies/${movieId}`)
+      .then(response => {
+        setMovie(response.data);
+      })
+      .catch(error => {
+        console.error("Erreur lors du chargement du film :", error);
+        setErrorCase('Erreur lors du chargement du film');
+      });
+  }, [movieId]);
+
+  if (!movie) return <div>Chargement...</div>;
+  if (errorCase) return <div>{errorCase}</div>;
+  if (!movie.posterPath) {
+    return <div>Pas d'affiche disponible pour ce film.</div>;
+  }
+
+  const dateFr = new Date(movie.releaseDate).toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  });
+
   return (
     <div className="App-content">
       <img
         className="poster"
-        src={posterURL + '/fbxQ44VRdM2PVzHSNajUseUteem.jpg'}
+        src={'https://image.tmdb.org/t/p/w500' + movie.posterPath}
         alt="Affiche du film"
       />
       <div className="text-content">
-        <h1>Harry Potter à l'école des sorciers</h1>
-        <h2>Harry Potter and the Philosopher's Stone</h2>
+        <h1>{movie.title}</h1>
         <h3>{'Date de sortie : ' + dateFr}</h3>
-        <p>
-          {
-            "Orphelin, le jeune Harry Potter peut enfin quitter ses tyranniques oncle et tante Dursley lorsqu'un curieux messager lui révèle qu'il est un sorcier. À 11 ans, Harry va enfin pouvoir intégrer la légendaire école de sorcellerie de Poudlard, y trouver une famille digne de ce nom et des amis, développer ses dons, et préparer son glorieux avenir."
-          }
-        </p>
-        <h4>{'Note des spectateurs : ' + '3.95'}</h4>
-        <StarRating storageKey="noteHarryPotter" />
+        <p>{movie.overview}</p>
+        <h4>{'Note des spectateurs : ' + movie.voteAverage}</h4>
+        <StarRating storageKey={`noteFilm-${movie.id}`} />
       </div>
     </div>
   );
