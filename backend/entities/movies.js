@@ -7,6 +7,7 @@ const Movie = new typeorm.EntitySchema({
     id: {
       primary: true,
       type: Number,
+      generated: 'increment',
     },
     title: { type: String },
     originalTitle: {

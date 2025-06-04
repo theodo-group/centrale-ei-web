@@ -12,8 +12,7 @@ async function addMovie(movieData) {
     const savedMovie = await movieRepository.save(newMovie);
     console.log('Movie successfully created, id:', savedMovie.id);
   } catch (error) {
-    console.error('Error while creating the movie:', error);
-    // Gestion d'erreur similaire au routeur
+    console.error('Error while creating the movie:', error.message);
     if (error.code === 'SQLITE_CONSTRAINT' || error.code === '23505') {
       console.error(`Movie with id "${movieData.id}" already exists`);
     }
@@ -22,11 +21,26 @@ async function addMovie(movieData) {
   }
 }
 
-// Exemple d'appel
-const movieToAdd = {
-  id: 123, // Tu peux passer l'id ici si tu veux fixer celui de TMDB
-  title: 'Mon Film Test',
+//Exemple 1 : avec id
+const movieWithId = {
+  id: 123,
+  title: 'Film Avec ID',
   releaseDate: new Date('2024-01-01'),
 };
 
-addMovie(movieToAdd);
+//Exemple 2 : sans id (auto-incrémenté)
+const movieWithoutId = {
+  title: 'Film Sans ID',
+  releaseDate: new Date('2025-01-01'),
+};
+
+//Tester les deux ajouts
+async function run() {
+  console.log('--- Ajout avec id explicite ---');
+  await addMovie(movieWithId);
+
+  console.log('\n--- Ajout sans id (auto-généré) ---');
+  await addMovie(movieWithoutId);
+}
+
+run();
