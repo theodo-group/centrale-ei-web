@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import './Home.css';
 import Movie from '../../components/Movie/Movie';
@@ -6,7 +6,7 @@ import Movie from '../../components/Movie/Movie';
 const PAGES_TO_FETCH = 5;
 
 function Home() {
-  const [movieName, setMovieName] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [movies, setMovies] = useState([]);
   const [sortOption, setSortOption] = useState('popularity');
   const [sortDirection, setSortDirection] = useState('desc');
@@ -16,7 +16,9 @@ function Home() {
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [includeAdult, setIncludeAdult] = useState(false);
 
-  // Récupération de la liste des genres au montage
+  const debounceTimeout = useRef(null);
+
+  // Récupération des genres au montage
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -24,7 +26,7 @@ function Home() {
         const baseUrl = import.meta.env.VITE_TMDB_BASE_URL;
         const response = await axios.get(`${baseUrl}/genre/movie/list`, {
           headers: { Authorization: `Bearer ${apiKey}` },
-          params: { language: 'fr-FR' }, // langue fixe à français
+          params: { language: 'fr-FR' },
         });
         setGenresList(response.data.genres);
       } catch (error) {
@@ -34,24 +36,34 @@ function Home() {
     fetchGenres();
   }, []);
 
-  // Chargement des films quand filtres changent
-  useEffect(() => {
-    const fetchMovies = async () => {
-      setLoading(true);
-      try {
-        const apiKey = import.meta.env.VITE_TMDB_API_KEY;
-        const baseUrl = import.meta.env.VITE_TMDB_BASE_URL;
+  // Fonction pour chercher des films (search ou discover selon searchTerm)
+  const fetchMovies = async () => {
+    setLoading(true);
+    try {
+      const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+      const baseUrl = import.meta.env.VITE_TMDB_BASE_URL;
 
+      if (searchTerm.trim().length > 0) {
+        // Recherche par titre (search/movie)
+        const response = await axios.get(`${baseUrl}/search/movie`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+          params: {
+            query: searchTerm,
+            include_adult: includeAdult,
+            language: 'fr-FR',
+            page: 1,
+          },
+        });
+        setMovies(response.data.results.slice(0, 50));
+      } else {
+        // Découverte avec filtres
         const genreParam = selectedGenres.length > 0 ? selectedGenres.join(',') : undefined;
 
         const promises = Array.from({ length: PAGES_TO_FETCH }, (_, i) =>
           axios.get(`${baseUrl}/discover/movie`, {
-            headers: {
-              accept: 'application/json',
-              Authorization: `Bearer ${apiKey}`,
-            },
+            headers: { Authorization: `Bearer ${apiKey}` },
             params: {
-              language: 'fr-FR', // langue fixe
+              language: 'fr-FR',
               sort_by: `${sortOption}.${sortDirection}`,
               page: i + 1,
               with_genres: genreParam,
@@ -63,22 +75,27 @@ function Home() {
         const results = await Promise.all(promises);
         const combinedMovies = results.flatMap((res) => res.data.results).slice(0, 50);
         setMovies(combinedMovies);
-      } catch (error) {
-        console.error('Erreur lors de la récupération des films:', error);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des films:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchMovies();
-  }, [sortOption, sortDirection, selectedGenres, includeAdult, movieName]);
+  // Déclenche la recherche avec un debounce pour éviter les appels trop fréquents
+  useEffect(() => {
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      fetchMovies();
+    }, 500); // délai de 500ms après la dernière frappe
 
-  // Gestion de la sélection/désélection des genres
+    return () => clearTimeout(debounceTimeout.current);
+  }, [searchTerm, sortOption, sortDirection, selectedGenres, includeAdult]);
+
   const handleGenreChange = (genreId) => {
     setSelectedGenres((prev) =>
-      prev.includes(genreId)
-        ? prev.filter((id) => id !== genreId)
-        : [...prev, genreId]
+      prev.includes(genreId) ? prev.filter((id) => id !== genreId) : [...prev, genreId]
     );
   };
 
@@ -91,13 +108,14 @@ function Home() {
       <div>
         <input
           type="text"
-          value={movieName}
-          onChange={(e) => setMovieName(e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Rechercher un film..."
+          style={{ width: '100%', padding: '8px', fontSize: '16px' }}
         />
       </div>
 
-      <div>
+      <div style={{ marginTop: '10px' }}>
         <label htmlFor="sort">Trier par : </label>
         <select
           id="sort"
@@ -110,7 +128,9 @@ function Home() {
           <option value="vote_average">Note moyenne</option>
         </select>
 
-        <label htmlFor="direction">Ordre : </label>
+        <label htmlFor="direction" style={{ marginLeft: '10px' }}>
+          Ordre : 
+        </label>
         <select
           id="direction"
           value={sortDirection}
@@ -121,7 +141,7 @@ function Home() {
         </select>
       </div>
 
-      <div>
+      <div style={{ marginTop: '10px' }}>
         <fieldset>
           <legend>Genres :</legend>
           {genresList.map((genre) => (
@@ -137,7 +157,7 @@ function Home() {
         </fieldset>
       </div>
 
-      <div>
+      <div style={{ marginTop: '10px' }}>
         <label>
           <input
             type="checkbox"
@@ -148,7 +168,10 @@ function Home() {
         </label>
       </div>
 
-      <h2>Films</h2>
+      <h2 style={{ marginTop: '20px' }}>
+        {searchTerm.trim() ? `Résultats de la recherche pour "${searchTerm}"` : 'Films'}
+      </h2>
+
       {loading ? <p>Chargement...</p> : <Movie movies={movies} />}
     </div>
   );
