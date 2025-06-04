@@ -115,7 +115,7 @@ function Home() {
           zIndex: 1,
         }}
       >
-        {type === 'movie' ? 'Films populaires' : 'Séries TV populaires'}
+        {type === 'movie' ? 'Notre algorithme vous connaît mieux que votre meilleur pote cinéphile' : 'Séries TV populaires'}
       </h1>
 
       {loading && (
