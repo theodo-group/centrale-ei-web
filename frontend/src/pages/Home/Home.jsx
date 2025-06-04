@@ -1,57 +1,70 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import logo from './logo.svg';
 import './Home.css';
 import Movie from '../../components/Movie/Movie';
 
-const DEFAULT_FORM_VALUES = {
-  name: '',
-};
+const PAGES_TO_FETCH = 5;
+
+const DEFAULT_FORM_VALUES = { name: '' };
 
 function Home() {
   const [movieName, setMovieName] = useState(DEFAULT_FORM_VALUES);
   const [movies, setMovies] = useState([]);
-  const [sortOption, setSortOption] = useState('popular');
+  const [sortOption, setSortOption] = useState('popularity');
+  const [sortDirection, setSortDirection] = useState('desc');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log('Le composant Home est monté');
-    const options = {
-      method: 'GET',
-      url: 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1',
-      headers: {
-        accept: 'application/json',
-        Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo',
-      },
+    const fetchMovies = async () => {
+      setLoading(true);
+      try {
+        const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+        const baseUrl = import.meta.env.VITE_TMDB_BASE_URL;
+
+        const promises = Array.from({ length: PAGES_TO_FETCH }, (_, i) =>
+          axios.get(`${baseUrl}/discover/movie`, {
+            params: {
+              language: 'fr-FR',
+              sort_by: `${sortOption}.${sortDirection}`,
+              page: i + 1,
+            },
+            headers: {
+              accept: 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+            },
+          })
+        );
+
+        const results = await Promise.all(promises);
+        const combinedMovies = results.flatMap((res) => res.data.results).slice(0, 50);
+        setMovies(combinedMovies);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des films:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    axios
-      .request(options)
-      .then((response) => {
-        console.log('axios connected');
-        const top10 = response.data.results.slice(0, 18);
-        setMovies(top10);
-        console.log('Films reçus via axios :', top10);
-      })
-      .catch((error) => {
-        console.error('Erreur lors de l’appel à l’API TMDB :', error);
-      });
-  }, []);
+    fetchMovies();
+  }, [sortOption, sortDirection]);
 
   return (
     <div className="App">
       <header className="App-header">
         <h1>Popcorn Advisor</h1>
-        <img src={logo} className="App-logo" alt="logo" />
       </header>
-      <input
-        type="text"
-        value={movieName.name}
-        onChange={(event) =>
-          setMovieName({ ...movieName, name: event.target.value })
-        }
-      ></input>
-      <p>{movieName.name}</p>
+
+      <div>
+        <input
+          type="text"
+          value={movieName.name}
+          onChange={(event) =>
+            setMovieName({ ...movieName, name: event.target.value })
+          }
+          placeholder="Rechercher un film..."
+        />
+      </div>
+
       <div>
         <label htmlFor="sort">Trier par : </label>
         <select
@@ -59,14 +72,24 @@ function Home() {
           value={sortOption}
           onChange={(e) => setSortOption(e.target.value)}
         >
-          <option value="popular">Populaires</option>
-          <option value="top_rated">Les mieux notés</option>
-          <option value="upcoming">À venir</option>
-          <option value="now_playing">En salle</option>
+          <option value="popularity">Popularité</option>
+          <option value="release_date">Date de sortie</option>
+          <option value="title">Titre (Alphabétique)</option>
+          <option value="vote_average">Note moyenne</option>
+        </select>
+        <label htmlFor="direction">Direction : </label>
+        <select
+          id="direction"
+          value={sortDirection}
+          onChange={(e) => setSortDirection(e.target.value)}
+        >
+          <option value="desc">Décroissant</option>
+          <option value="asc">Croissant</option>
         </select>
       </div>
-      <h2>Films populaires du moment :</h2>
-      <Movie movies={movies} />
+
+      <h2>Films</h2>
+      {loading ? <p>Chargement...</p> : <Movie movies={movies} />}
     </div>
   );
 }
