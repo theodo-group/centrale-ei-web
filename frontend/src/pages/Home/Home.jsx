@@ -39,7 +39,7 @@ function Home() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Recommendation de films</h1>
+        <h1>Recommandation de films</h1>
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.jsx</code> and save to reload.
