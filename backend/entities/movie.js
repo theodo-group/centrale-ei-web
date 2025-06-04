@@ -4,6 +4,7 @@ const User = new typeorm.EntitySchema({
   name: 'Movie',
   columns: {
     id: {
+      generated: true,
         primary : true,
         type: Number
     },
