@@ -12,6 +12,10 @@ const Header = () => {
         Counter
       </Link>
       <div>|</div>
+      <Link className="Link" to="/details">
+        Details
+      </Link>
+      <div>|</div>
       <Link className="Link" to="/users">
         Users
       </Link>

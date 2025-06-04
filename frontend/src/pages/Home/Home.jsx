@@ -7,9 +7,11 @@ import Movie from '../../components/Movie/Movie';
 const DEFAULT_FORM_VALUES = {
   name: '',
 };
+
 function Home() {
   const [movieName, setMovieName] = useState(DEFAULT_FORM_VALUES);
   const [movies, setMovies] = useState([]);
+  const [sortOption, setSortOption] = useState('popular');
 
   useEffect(() => {
     console.log('Le composant Home est monté');
@@ -27,7 +29,7 @@ function Home() {
       .request(options)
       .then((response) => {
         console.log('axios connected');
-        const top10 = response.data.results.slice(0, 10);
+        const top10 = response.data.results.slice(0, 18);
         setMovies(top10);
         console.log('Films reçus via axios :', top10);
       })
@@ -39,19 +41,8 @@ function Home() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Recommendation de films</h1>
+        <h1>Popcorn Advisor</h1>
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.jsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://react.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
       <input
         type="text"
@@ -61,11 +52,25 @@ function Home() {
         }
       ></input>
       <p>{movieName.name}</p>
-
-      <h2>Top 10 des films populaires :</h2>
+      <div>
+        <label htmlFor="sort">Trier par : </label>
+        <select
+          id="sort"
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+        >
+          <option value="popular">Populaires</option>
+          <option value="top_rated">Les mieux notés</option>
+          <option value="upcoming">À venir</option>
+          <option value="now_playing">En salle</option>
+        </select>
+      </div>
+      <h2>Films populaires du moment :</h2>
       <Movie movies={movies} />
     </div>
   );
 }
+
+
 
 export default Home;
