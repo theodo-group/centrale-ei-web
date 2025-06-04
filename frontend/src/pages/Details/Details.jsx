@@ -6,6 +6,13 @@ const posterURL = 'https://image.tmdb.org/t/p/w500';
 // const DEFAULT_FORM_VALUES = {
 //   name: '',
 // };
+
+const dateFr = new Date('2001-11-16').toLocaleDateString('fr-FR', {
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric'
+});
+
 function Details() {
   // const [movieName, setMovieName] = useState(DEFAULT_FORM_VALUES);
   // const [movies, setMovies] = useState([]);
@@ -27,18 +34,22 @@ function Details() {
   // }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
+    <div className="App-content">
+      <img
+        className="poster"
+        src={posterURL + '/fbxQ44VRdM2PVzHSNajUseUteem.jpg'}
+        alt="Affiche du film"
+      />
+      <div className="text-content">
         <h1>Harry Potter à l'école des sorciers</h1>
-      </header>
-      <h2>Harry Potter and the Philosopher's Stone</h2>
-      <img src={posterURL + '/fbxQ44VRdM2PVzHSNajUseUteem.jpg'}></img>
-      <h3>{'Date de sortie : ' + '2001-11-16'}</h3>
-      <p>
-        {
-          "Orphelin, le jeune Harry Potter peut enfin quitter ses tyranniques oncle et tante Dursley lorsqu'un curieux messager lui révèle qu'il est un sorcier. À 11 ans, Harry va enfin pouvoir intégrer la légendaire école de sorcellerie de Poudlard, y trouver une famille digne de ce nom et des amis, développer ses dons, et préparer son glorieux avenir."
-        }
-      </p>
+        <h2>Harry Potter and the Philosopher's Stone</h2>
+        <h3>{'Date de sortie : ' + dateFr}</h3>
+        <p>
+          {
+            "Orphelin, le jeune Harry Potter peut enfin quitter ses tyranniques oncle et tante Dursley lorsqu'un curieux messager lui révèle qu'il est un sorcier. À 11 ans, Harry va enfin pouvoir intégrer la légendaire école de sorcellerie de Poudlard, y trouver une famille digne de ce nom et des amis, développer ses dons, et préparer son glorieux avenir."
+          }
+        </p>
+      </div>
     </div>
   );
 }
