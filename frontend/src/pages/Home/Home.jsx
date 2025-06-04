@@ -78,9 +78,6 @@ function Home() {
             <option value="vote_average">Meilleures notes</option>
             <option value="vote_count">Plus de votes</option>
             <option value="release_date">Plus récents</option>
-            <option value="popular">Films populaires</option>
-            <option value="top_rated">Mieux notés</option>
-            <option value="recent">Dernières sorties</option>
           </select>
         </div>
 
