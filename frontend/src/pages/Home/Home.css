@@ -1,11 +1,10 @@
 .App {
   text-align: center;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
@@ -14,7 +13,13 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #e95656 !important;
+  width: 100%;
+  height: 250px; /* hauteur de la bannière */
+  background-image: url('./cine_background.jpg');
+  background-size: cover;      /* adapte l'image à la taille */
+  background-position: center; /* centre l'image */
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -34,4 +39,9 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
 }
