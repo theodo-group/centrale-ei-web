@@ -8,6 +8,9 @@ const User = new typeorm.EntitySchema({
         primary : true,
         type: Number
     },
+    type : {
+      type : String, nullable: true 
+    },
     title: {
       type: String
     },
