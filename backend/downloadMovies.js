@@ -63,7 +63,115 @@ function getApiParams(sortOption) {
   }
 }
 
-// Fonction pour transformer les données API vers format base
+// Fonction pour comparer deux objets film (ignore les champs null/undefined)
+function hasMovieDataChanged(existingMovie, newMovieData) {
+  const fieldsToCompare = [
+    'title',
+    'release_date',
+    'poster_path',
+    'overview',
+    'popularity',
+    'vote_average',
+    'vote_count',
+    'media_type',
+    'original_language',
+    'backdrop_path',
+    'adult',
+    'genre_ids',
+  ];
+
+  for (const field of fieldsToCompare) {
+    const existingValue = existingMovie[field];
+    const newValue = newMovieData[field];
+
+    // Ignorer si la nouvelle valeur est null/undefined
+    if (newValue == null) {
+      continue;
+    }
+
+    // Comparer les valeurs (avec conversion en string pour éviter les problèmes de type)
+    if (String(existingValue) !== String(newValue)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// Fonction pour sauvegarder un batch de films avec mise à jour
+async function saveMovieBatch(movies, movieRepository) {
+  const transformedMovies = movies.map(transformMovieData);
+  const savedMovies = [];
+  const updatedMovies = [];
+
+  for (const movieData of transformedMovies) {
+    try {
+      // Vérifier si le film existe déjà (par tmdb_id d'abord, puis par title)
+      let existingMovie = null;
+
+      if (movieData.tmdb_id) {
+        existingMovie = await movieRepository.findOne({
+          where: { tmdb_id: movieData.tmdb_id },
+        });
+      }
+
+      // Si pas trouvé par tmdb_id, chercher par titre
+      if (!existingMovie && movieData.title) {
+        existingMovie = await movieRepository.findOne({
+          where: { title: movieData.title },
+        });
+      }
+
+      if (existingMovie) {
+        // Vérifier si les données ont changé
+        if (hasMovieDataChanged(existingMovie, movieData)) {
+          // Mettre à jour uniquement les champs qui ont des valeurs non nulles
+          const updateData = {};
+          Object.keys(movieData).forEach((key) => {
+            if (movieData[key] != null) {
+              updateData[key] = movieData[key];
+            }
+          });
+
+          // Effectuer la mise à jour
+          await movieRepository.update(existingMovie.id, updateData);
+
+          // Récupérer le film mis à jour
+          const updatedMovie = await movieRepository.findOne({
+            where: { id: existingMovie.id },
+          });
+
+          updatedMovies.push(updatedMovie);
+          console.log(
+            `Mis à jour: ${movieData.title} (ID: ${existingMovie.id})`
+          );
+        } else {
+          console.log(
+            `Aucun changement: ${movieData.title} (ID: ${existingMovie.id})`
+          );
+        }
+        continue;
+      }
+
+      // Créer un nouveau film s'il n'existe pas
+      const newMovie = movieRepository.create(movieData);
+      const savedMovie = await movieRepository.save(newMovie);
+      savedMovies.push(savedMovie);
+
+      console.log(`Nouveau film: ${movieData.title} (ID: ${savedMovie.id})`);
+    } catch (error) {
+      console.error(`Erreur sauvegarde ${movieData.title}:`, error.message);
+    }
+  }
+
+  return {
+    saved: savedMovies,
+    updated: updatedMovies,
+    totalProcessed: savedMovies.length + updatedMovies.length,
+  };
+}
+
+// Fonction transformMovieData mise à jour pour inclure genre_ids
 function transformMovieData(apiMovie) {
   return {
     title: apiMovie.title || 'Unknown Title',
@@ -76,40 +184,12 @@ function transformMovieData(apiMovie) {
     media_type: apiMovie.media_type || 'movie',
     tmdb_id: apiMovie.id || null,
     original_language: apiMovie.original_language || null,
+    original_title: apiMovie.original_title || null, // Maintenant disponible
+    genre_ids: apiMovie.genre_ids || [], // Tableau d'entiers
     backdrop_path: apiMovie.backdrop_path || null,
     adult: apiMovie.adult || false,
+    video: apiMovie.video || false, // Maintenant disponible
   };
-}
-
-// Fonction pour sauvegarder un batch de films
-async function saveMovieBatch(movies, movieRepository) {
-  const transformedMovies = movies.map(transformMovieData);
-  const savedMovies = [];
-
-  for (const movieData of transformedMovies) {
-    try {
-      // Vérifier si le film existe déjà (par tmdb_id ou title)
-      const existingMovie = await movieRepository.findOne({
-        where: [{ tmdb_id: movieData.tmdb_id }, { title: movieData.title }],
-      });
-
-      if (existingMovie) {
-        console.log(`Film déjà existant: ${movieData.title}`);
-        continue;
-      }
-
-      // Créer et sauvegarder le nouveau film
-      const newMovie = movieRepository.create(movieData);
-      const savedMovie = await movieRepository.save(newMovie);
-      savedMovies.push(savedMovie);
-
-      console.log(`Sauvegardé: ${movieData.title} (ID: ${savedMovie.id})`);
-    } catch (error) {
-      console.error(`Erreur sauvegarde ${movieData.title}:`, error.message);
-    }
-  }
-
-  return savedMovies;
 }
 
 // Fonction principale pour télécharger tous les films

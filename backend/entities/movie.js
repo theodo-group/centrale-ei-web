@@ -41,13 +41,18 @@ const Movie = new typeorm.EntitySchema({
       type: String,
       nullable: true,
     },
-    // Id pour l'API ;
+    // Id pour l'API TMDB
     tmdb_id: {
       type: Number,
       nullable: true,
       unique: true,
     },
     original_language: {
+      type: String,
+      nullable: true,
+    },
+    // AJOUTÉ : Titre original du film
+    original_title: {
       type: String,
       nullable: true,
     },
@@ -70,6 +75,12 @@ const Movie = new typeorm.EntitySchema({
       nullable: true,
     },
     adult: {
+      type: Boolean,
+      nullable: true,
+      default: false,
+    },
+    // AJOUTÉ : Indique si c'est une vidéo (trailer, etc.)
+    video: {
       type: Boolean,
       nullable: true,
       default: false,
