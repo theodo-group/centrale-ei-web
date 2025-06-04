@@ -1,9 +1,7 @@
 import './Movie.css';
 
-const posterURL = 'https://image.tmdb.org/t/p/w500';
-
 function Movie({ movies }) {
-  const posterURL = "https://image.tmdb.org/t/p/w200";
+  const posterURL = 'https://image.tmdb.org/t/p/w200';
 
   return (
     <div className="movie-grid">
@@ -16,7 +14,14 @@ function Movie({ movies }) {
           />
           <div className="movie-info">
             <h3>{movie.title}</h3>
-            <p>Date de sortie : {movie.release_date}</p>
+            <p>
+              Date de sortie :{' '}
+              {new Date(movie.release_date).toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+              })}
+            </p>
           </div>
         </div>
       ))}
