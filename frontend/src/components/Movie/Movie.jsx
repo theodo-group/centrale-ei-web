@@ -1,28 +1,20 @@
 import './Movie.css';
 
 function Movie({ movies }) {
-  const posterURL = 'https://image.tmdb.org/t/p/w500';
-
   return (
-    <div className="movie-grid">
+    <div className="movies-grid">
       {movies.map((movie) => (
-        <div className="movie-card" key={movie.id}>
+        <div
+          key={movie.id}
+          className="movie-card"
+          onClick={() => (window.location.href = `/details/${movie.id}`)}
+          style={{ cursor: 'pointer' }}
+        >
           <img
-            src={posterURL + movie.poster_path}
+            src={'https://image.tmdb.org/t/p/w500' + movie.poster_path}
             alt={movie.title}
-            className="movie-image"
           />
-          <div className="movie-info">
-            <h3>{movie.title}</h3>
-            <p>
-              Date de sortie :{' '}
-              {new Date(movie.release_date).toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'numeric',
-                day: 'numeric',
-              })}
-            </p>
-          </div>
+          <h3>{movie.title}</h3>
         </div>
       ))}
     </div>
