@@ -1,38 +1,72 @@
-// import { useEffect, useState } from 'react';
-// import axios from 'axios';
+import { useEffect, useState } from 'react';
 import './Details.css';
 
 const posterURL = 'https://image.tmdb.org/t/p/w500';
-// const DEFAULT_FORM_VALUES = {
-//   name: '',
-// };
 
 const dateFr = new Date('2001-11-16').toLocaleDateString('fr-FR', {
   year: 'numeric',
   month: 'numeric',
-  day: 'numeric'
+  day: 'numeric',
 });
 
+function StarRating({ storageKey = 'userRating' }) {
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      setRating(parseFloat(saved));
+    }
+  }, [storageKey]);
+
+  const handleClick = (e, starIndex) => {
+    const { left, width } = e.target.getBoundingClientRect();
+    const x = e.clientX - left;
+    const newRating = x < width / 2 ? starIndex + 0.5 : starIndex + 1;
+
+    const final = newRating === rating ? 0 : newRating;
+    setRating(final);
+    localStorage.setItem(storageKey, final);
+  };
+
+  const handleMouseMove = (e, starIndex) => {
+    const { left, width } = e.target.getBoundingClientRect();
+    const x = e.clientX - left;
+    const hover = x < width / 2 ? starIndex + 0.5 : starIndex + 1;
+    setHoverRating(hover);
+  };
+
+  const displayValue = hoverRating || rating;
+
+  return (
+    <div className="star-rating">
+      {[...Array(5)].map((_, i) => {
+        let className = 'star';
+        if (displayValue >= i + 1) {
+          className += ' full';
+        } else if (displayValue >= i + 0.5) {
+          className += ' half';
+        }
+
+        return (
+          <span
+            key={i}
+            className={className}
+            onClick={(e) => handleClick(e, i)}
+            onMouseMove={(e) => handleMouseMove(e, i)}
+            onMouseLeave={() => setHoverRating(0)}
+            style={{ cursor: 'pointer' }}
+          >
+            ★
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 function Details() {
-  // const [movieName, setMovieName] = useState(DEFAULT_FORM_VALUES);
-  // const [movies, setMovies] = useState([]);
-
-  // useEffect(() => {
-  //   console.log('Le composant Home est monté');
-
-  //   axios
-  //     .request(options)
-  //     .then((response) => {
-  //       console.log('axios connected');
-  //       const top10 = response.data.results.slice(0, 10);
-  //       setMovies(top10);
-  //       console.log('Films reçus via axios :', top10);
-  //     })
-  //     .catch((error) => {
-  //       console.error('Erreur lors de l’appel à l’API TMDB :', error);
-  //     });
-  // }, []);
-
   return (
     <div className="App-content">
       <img
@@ -49,6 +83,8 @@ function Details() {
             "Orphelin, le jeune Harry Potter peut enfin quitter ses tyranniques oncle et tante Dursley lorsqu'un curieux messager lui révèle qu'il est un sorcier. À 11 ans, Harry va enfin pouvoir intégrer la légendaire école de sorcellerie de Poudlard, y trouver une famille digne de ce nom et des amis, développer ses dons, et préparer son glorieux avenir."
           }
         </p>
+        <h4>{'Note des spectateurs : ' + '3.95'}</h4>
+        <StarRating storageKey="noteHarryPotter" />
       </div>
     </div>
   );

@@ -47,12 +47,42 @@
   max-width: 600px;
 }
 
+.text-content h1 {
+  margin-top: 0;
+}
+
+.text-content h2 {
+  color: #d0d3d4;
+}
+
 .text-content h3 {
   margin-top: 0;
+  color: #909394;
 }
 
 .text-content p {
   line-height: 1.6;
   font-size: 1rem;
   text-align: justify;
+}
+
+.star-rating {
+  font-size: 2rem;
+  user-select: none;
+}
+
+.star {
+  color: #ccc;
+  display: inline-block;
+  transition: color 0.2s, background 0.2s;
+}
+
+.star.full {
+  color: gold;
+}
+
+.star.half {
+  background: linear-gradient(90deg, gold 50%, #ccc 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
