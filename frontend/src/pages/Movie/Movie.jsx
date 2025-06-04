@@ -19,7 +19,7 @@ function Movie({ movie, rank }) {
       <div
         style={{
           position: 'relative',
-          width: '180px',
+          width: '170px',
           backgroundColor: '#222',
           borderRadius: '8px',
           overflow: 'hidden',
