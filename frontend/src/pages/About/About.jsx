@@ -1,4 +1,5 @@
 import './About.css';
+// installer en faisant `npm install react-icons`
 import {
   FaEnvelope,
   FaFacebook,
@@ -15,7 +16,7 @@ function About() {
     <div className="about">
       {/* Titre principal avec effet futuriste */}
       <div className="about-header">
-        <h1>À propos de FilmRating</h1>
+        <h1>À propos de Recommendé par ta mère</h1>
         <p className="about-subtitle">
           La plateforme futuriste pour les cinéphiles du monde entier
         </p>
