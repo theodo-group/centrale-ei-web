@@ -66,7 +66,9 @@ const Movie = new typeorm.EntitySchema({
         },
         from: (value) => {
           // Convertit la chaîne DB vers un tableau d'entiers
-          return value ? value.split(',').map((id) => parseInt(id, 10)) : [];
+          console.log('Converting genre_ids from DB:', value);
+
+          return value;
         },
       },
     },

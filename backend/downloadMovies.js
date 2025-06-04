@@ -167,7 +167,7 @@ async function saveMovieBatch(movies, movieRepository) {
   return {
     saved: savedMovies,
     updated: updatedMovies,
-    totalProcessed: savedMovies.length + updatedMovies.length,
+    totalProcessed: savedMovies.length,
   };
 }
 
@@ -242,10 +242,9 @@ async function downloadMoviesToDatabase() {
         // Sauvegarder les films par batch
         if (movies.length > 0) {
           const savedMovies = await saveMovieBatch(movies, movieRepository);
-          totalSaved += savedMovies.length;
-
+          totalSaved += savedMovies.totalProcessed;
           console.log(
-            `Sauvegardé ${savedMovies.length}/${movies.length} nouveaux films`
+            `Sauvegardé ${savedMovies.totalProcessed}/${movies.length} nouveaux films`
           );
         }
 
