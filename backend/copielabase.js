@@ -31,6 +31,10 @@ router.get('/seed', async (req, res) => {
         const movie = {
           title: m.title,
           year: m.release_date,
+          overview: m.overview || null,
+          poster_path: m.poster_path || null,
+          genre_ids: Array.isArray(m.genre_ids) ? m.genre_ids.join(',') : null,
+          vote_average: m.vote_average ?? null,
         };
 
         await movieRepo.save(movie);
