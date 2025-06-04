@@ -1,7 +1,7 @@
 import './Movie.css';
 
 function Movie({ movies }) {
-  const posterURL = 'https://image.tmdb.org/t/p/w200';
+  const posterURL = 'https://image.tmdb.org/t/p/w500';
 
   return (
     <div className="movie-grid">
