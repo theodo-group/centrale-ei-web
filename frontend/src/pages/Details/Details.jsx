@@ -1,17 +1,11 @@
 import { useEffect, useState } from 'react';
 import './Details.css';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-//"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo"
 
 console.log('Clé API TMDB :', import.meta.env.VITE_TMDB_API_KEY);
 const posterURL = 'https://image.tmdb.org/t/p/w500';
-
-const dateFr = new Date('2001-11-16').toLocaleDateString('fr-FR', {
-  year: 'numeric',
-  month: 'numeric',
-  day: 'numeric',
-});
 
 function StarRating({ storageKey = 'userRating' }) {
   const [rating, setRating] = useState(0);
@@ -70,16 +64,26 @@ function StarRating({ storageKey = 'userRating' }) {
   );
 }
 
-function Details({ movieId }) {
+function Details() {
+  const { id: movieId } = useParams();
+  console.log('Movie ID from useParams:', movieId);
   const [movie, setMovie] = useState(null);
   const [errorCase, setErrorCase] = useState(null);
-  const [similarMovies, setSimilarMovies] = useState([]); // <-- nouvel état
+  const [similarMovies, setSimilarMovies] = useState([]);
+
+  console.log('Movie ID from useParams:', movieId);
 
   useEffect(() => {
-    // Récupération du film principal
+    if (!movieId) {
+      return;
+    }
+
+    console.log(`Déclenche requête axios pour le film ID: ${movieId}`);
+
     axios
-      .get(`http://localhost:8000/movies/${movieId}`)
+      .get(`/api/movies/${movieId}`) // Proxy vers backend
       .then((response) => {
+        console.log('Données film reçues:', response.data);
         setMovie(response.data);
       })
       .catch((error) => {
@@ -93,12 +97,14 @@ function Details({ movieId }) {
       return;
     }
 
-    // Appel au backend pour récupérer les films similaires
-    //const apiKey = import.meta.env.VITE_TMDB_API_KEY;
-    axios
-      .get(`http://localhost:8000/movies/${movieId}/similar`)
+    console.log(
+      `Déclenche requête axios pour films similaires du film ID: ${movieId}`
+    );
 
+    axios
+      .get(`/api/movies/${movieId}/similar`)
       .then((response) => {
+        console.log('Films similaires reçus:', response.data.results);
         setSimilarMovies(response.data.results);
       })
       .catch((error) => {
@@ -130,7 +136,7 @@ function Details({ movieId }) {
       <img
         className="poster"
         src={posterURL + movie.posterPath}
-        alt="Affiche du film"
+        alt={`Affiche de ${movie.title}`}
       />
       <div className="text-content">
         <h1>{movie.title}</h1>
@@ -140,13 +146,20 @@ function Details({ movieId }) {
         <StarRating storageKey={`noteFilm-${movie.id}`} />
       </div>
 
-      {/* Section films similaires */}
       {similarMovies.length > 0 && (
         <div className="similar-movies">
           <h2>Films similaires</h2>
           <div className="similar-list">
             {similarMovies.map((film) => (
-              <div key={film.id} className="similar-item">
+              <div
+                key={film.id}
+                className="similar-item"
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  console.log('Film similaire cliqué, ID:', film.id);
+                  window.location.href = `/details/${film.id}`;
+              }}
+>
                 <img
                   src={
                     film.poster_path
