@@ -11,7 +11,7 @@ export function useFetchUsers() {
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/users`)
       .then((response) => {
-        setUsers(response.data.users);
+        setUsers(response.data);
       })
       .catch((error) => {
         setUsersLoadingError('An error occured while fetching users.');

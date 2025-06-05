@@ -1,18 +1,8 @@
 import express from 'express';
 import { appDataSource } from '../datasource.js';
 import User from '../entities/user.js';
-// import Movie from '../entities/users.js';
 
 const router = express.Router();
-
-// router.get('/',  function (req, res) {
-//   appDataSource
-//     .getRepository(User)
-//     .find({})
-//     .then(function (users) {
-//       res.json({ users: users });
-//     });
-// });
 
 router.get('/', async function (req, res) {
   try {

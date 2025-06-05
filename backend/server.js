@@ -10,7 +10,6 @@ import { jsonErrorHandler } from './services/jsonErrorHandler.js';
 import { appDataSource } from './datasource.js';
 dotenv.config();
 
-
 appDataSource
   .initialize()
   .then(() => {
