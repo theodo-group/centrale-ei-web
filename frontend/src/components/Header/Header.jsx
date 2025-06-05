@@ -11,10 +11,12 @@ function Header() {
       .then((res) => res.json())
       .then((data) => {
         console.log('Received data:', data); // ici, data est bien défini
-        setUsers(data);
+        setUsers(data.users);
       })
       .catch(console.error); // le .catch doit être à la fin de la chaîne
   }, []);
+
+  console.log(users);
 
   return (
     <header className="Header">
