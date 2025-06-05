@@ -5,32 +5,26 @@ import netflixLogo from './netflix.png';
 import introVideo from './Netflics.mp4';
 import surprise from './videoplayback.mp4';
 import GENRES from './genres';
+import axios from 'axios';
+import './Home.css';
 
-function Home() {
-
+function Home({ userId, setUserId}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [type, setType] = useState('movie');
-  const [genre, setGenre]=useState('')
+  const [genre, setGenre] = useState('');
   const [introEnded, setIntroEnded] = useState(false);
-
-
   const moviesPerSlide = 7;
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  /* vidéo surprise */
   const [showVideo, setShowVideo] = useState(false);
 
-  /* reset de la pagination API quand on change de filtre */
   useEffect(() => {
     setPage(1);
     setCurrentSlide(0);
   }, [searchTerm, type]);
 
-  /* récupération des films */
   const { items, loading, error } = useFetchMovies(searchTerm, page, type, genre);
 
-  // Filtrer les items selon le type (film / série)
   const filteredItems = items.filter((item) => {
     if (type === 'movie') {
       return item.media_type === 'movie' || item.type === 'movie';
@@ -40,32 +34,30 @@ function Home() {
     return true;
   });
 
-  /* calculs carrousel */
   const totalSlides = Math.max(1, Math.ceil(filteredItems.length / moviesPerSlide));
   const startIdx = currentSlide * moviesPerSlide;
   const endIdx = startIdx + moviesPerSlide;
   const visibleMovies = filteredItems.slice(startIdx, endIdx);
 
-  /* fonction chargement plus */
   function handleLoadMore() {
     setShowVideo(true);
   }
 
-  /* fermer vidéo */
   function handleCloseVideo() {
     setShowVideo(false);
-    setPage((p) => p + 1); // charge la page suivante après fermeture vidéo
+    setPage((p) => p + 1);
   }
+
   const MOVIE_GENRE_IDS = [
-  28, 12, 16, 35, 80, 99, 18, 10751, 14, 36, 27, 10402, 9648, 10749, 878, 10770, 53, 10752, 37
- ];
+    28, 12, 16, 35, 80, 99, 18, 10751, 14, 36, 27, 10402, 9648, 10749, 878, 10770, 53, 10752, 37
+  ];
   const TV_GENRE_IDS = [
-  10759, 16, 35, 80, 99, 18, 10751, 10762, 9648, 10763, 10764, 10765, 10766, 10767, 10768, 37
-];
+    10759, 16, 35, 80, 99, 18, 10751, 10762, 9648, 10763, 10764, 10765, 10766, 10767, 10768, 37
+  ];
   const genreIdsToShow = type === 'movie' ? MOVIE_GENRE_IDS : TV_GENRE_IDS;
   const filteredGenres = Object.entries(GENRES).filter(([id]) =>
-  genreIdsToShow.includes(Number(id))
-);
+    genreIdsToShow.includes(Number(id))
+  );
 
   return (
     <div
@@ -78,7 +70,7 @@ function Home() {
         overflowX: 'hidden',
       }}
     >
-      {/* Header fixe (logo + boutons) en haut à gauche */}
+      {/* Header fixe */}
       <header
         style={{
           position: 'fixed',
@@ -94,14 +86,11 @@ function Home() {
           height: '60px',
         }}
       >
-        {/* Logo */}
         <img
           src={netflixLogo}
           alt="Logo Netflix"
           style={{ height: '40px', cursor: 'pointer', userSelect: 'none' }}
         />
-
-        {/* Boutons Films / Séries TV */}
         <div style={{ display: 'flex', gap: '15px' }}>
           <button
             onClick={() => {
@@ -120,7 +109,6 @@ function Home() {
           >
             Films
           </button>
-
           <button
             onClick={() => {
               setType('tv');
@@ -141,7 +129,7 @@ function Home() {
         </div>
       </header>
 
-      {/* ───── Vidéo d’intro (splash screen) ───── */}
+      {/* Vidéo d’intro */}
       {!introEnded && (
         <video
           autoPlay
@@ -166,7 +154,7 @@ function Home() {
         </video>
       )}
 
-      {/* ───── Logo Netflix en filigrane ───── */}
+      {/* Logo en fond */}
       <img
         src={netflixLogo}
         alt="Logo en fond"
@@ -183,11 +171,24 @@ function Home() {
         }}
       />
 
-      {/* ───── Champ de recherche ───── */}
+      {/* Sélecteur d'utilisateur */}
+      <div style={{ textAlign: 'center', marginTop: 20 }}>
+        <label style={{ marginRight: 10 }}>Utilisateur :</label>
+        <select value={userId} onChange={e => setUserId(Number(e.target.value))}>
+          <option value={1}>Alice</option>
+          <option value={2}>Bob</option>
+          <option value={3}>Carol</option>
+        </select>
+      </div>
+
+      {/* Recommandations personnalisées */}
+      <Recommendations userId={userId} />
+
+      {/* Champ de recherche */}
       <div
         style={{
           textAlign: 'center',
-          marginTop: '80px', // pour laisser de la place au header fixe
+          marginTop: '40px',
           marginBottom: '40px',
           position: 'relative',
           zIndex: 1,
@@ -213,7 +214,7 @@ function Home() {
         />
       </div>
 
-      {/* ───── Titre de section ───── */}
+      {/* Titre de section */}
       <h1
         style={{
           fontSize: '3rem',
@@ -228,7 +229,7 @@ function Home() {
           : 'Séries TV populaires en ce moment'}
       </h1>
 
-      {/* ───── Messages de chargement / erreur ───── */}
+      {/* Messages de chargement / erreur */}
       {loading && (
         <p
           style={{
@@ -255,30 +256,29 @@ function Home() {
         </p>
       )}
 
+      {/* Filtre par genre */}
       <div
-      style={{
-        textAlign: 'center',
-        marginBottom: '20px',
-        position: 'relative',
-        zIndex: 1,
-      }}
-    >
-      <label style={{ marginRight: '10px' }}>Filtrer par genre :</label>
-      
-    <select
-    value={genre}
-    onChange={e => setGenre(e.target.value)}
-    style={{ padding: '8px', borderRadius: '5px' }}
-  >
-    <option value="">Tous</option>
-    {filteredGenres.map(([id, name]) => (
-      <option key={id} value={id}>{name}</option>
-    ))}
-  </select>
-    
-    </div>
+        style={{
+          textAlign: 'center',
+          marginBottom: '20px',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        <label style={{ marginRight: '10px' }}>Filtrer par genre :</label>
+        <select
+          value={genre}
+          onChange={e => setGenre(e.target.value)}
+          style={{ padding: '8px', borderRadius: '5px' }}
+        >
+          <option value="">Tous</option>
+          {filteredGenres.map(([id, name]) => (
+            <option key={id} value={id}>{name}</option>
+          ))}
+        </select>
+      </div>
 
-      {/* ───── Carrousel horizontal ───── */}
+      {/* Carrousel horizontal */}
       {filteredItems.length > 0 && (
         <div
           style={{
@@ -291,7 +291,6 @@ function Home() {
             marginBottom: '30px',
           }}
         >
-          {/* Flèche gauche */}
           <button
             onClick={() => setCurrentSlide((prev) => Math.max(prev - 1, 0))}
             disabled={currentSlide === 0}
@@ -306,13 +305,11 @@ function Home() {
           >
             ◀
           </button>
-
-          {/* Zone de films visibles */}
           <div
             style={{
               display: 'flex',
               overflow: 'hidden',
-              width: 'calc(7 * 180px + 6 * 20px)', // 7 films * largeur + gap * 6
+              width: 'calc(7 * 180px + 6 * 20px)',
               gap: '20px',
               transition: 'transform 0.5s ease',
             }}
@@ -321,8 +318,6 @@ function Home() {
               <Movie key={item.id} movie={item} rank={startIdx + idx + 1} />
             ))}
           </div>
-
-          {/* Flèche droite */}
           <button
             onClick={() => setCurrentSlide((prev) => Math.min(prev + 1, totalSlides - 1))}
             disabled={currentSlide >= totalSlides - 1}
@@ -340,7 +335,7 @@ function Home() {
         </div>
       )}
 
-      {/* ───── Aucun film trouvé ───── */}
+      {/* Aucun film trouvé */}
       {items.length === 0 && !loading && (
         <p
           style={{
@@ -381,7 +376,7 @@ function Home() {
         </button>
       </div>
 
-      {/* Vidéo fullscreen quand showVideo est true */}
+      {/* Vidéo surprise */}
       {showVideo && (
         <div
           style={{
@@ -422,6 +417,24 @@ function Home() {
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+function Recommendations({ userId }) {
+  const [reco, setReco] = useState([]);
+  useEffect(() => {
+    axios.get(`http://localhost:8000/recommendations?user_id=${userId}`)
+      .then(res => setReco(res.data));
+  }, [userId]);
+  return (
+    <div>
+      <h2>Recommandé pour vous</h2>
+      <div style={{ display: 'flex', gap: 20 }}>
+        {reco.map(movie => (
+          <Movie key={movie.id} movie={movie} />
+        ))}
+      </div>
     </div>
   );
 }

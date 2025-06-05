@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useState, useEffect} from 'react';
 import axios from 'axios';
 
-function MovieDetail() {
+function MovieDetail({ userId }) {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [rating, setRating] = useState(0);
@@ -43,20 +43,23 @@ function MovieDetail() {
   const handleClick = (star) => setRating(star);
   const handleDoubleClick = () => setRating(0);
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (rating === 0 && comment.trim() === '') return;
-    // Tu peux ici envoyer la note + commentaire à ton backend
-    console.log('Commentaire envoyé :', { id, rating, comment });
-    setSubmitted(true);
-  };
+  e.preventDefault();
+  if (rating === 0 && comment.trim() === '') return;
+  axios.post('http://localhost:8000/ratings', {
+    user_id: userId, // <-- ici on utilise le user sélectionné
+    movie_id: movie.id,
+    rating,
+    comment,
+  }).then(() => setSubmitted(true));
+};
 
   useEffect(() => {
     axios.get(`http://localhost:8000/movies/${id}`)
       .then(res => setMovie(res.data))
       .catch(() => setMovie(null));
   }, [id]);
+  
 
- 
   if (!movie) {
     return <div style={{ color: 'white', padding: '40px' }}>Chargement...</div>;
   }
@@ -81,8 +84,9 @@ function MovieDetail() {
           style={{ borderRadius: '10px', marginBottom: '20px' }}
         />
       )}
-      <p style={{ maxWidth: 600 }}>{movie.overview}</p>
 
+      <p style={{ maxWidth: 600 }}>{movie.overview}</p>
+  
       <div style={{ marginTop: '20px' }}>
         <p>A quel point as-tu apprécié ce film ?  :</p>
         {[1, 2, 3, 4, 5].map((star) => (
