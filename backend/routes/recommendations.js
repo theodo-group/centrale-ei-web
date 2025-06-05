@@ -7,7 +7,7 @@ const router = express.Router();
 
 
 router.get('/', async (req, res) => {
-  const { user_id } = req.query;
+  const { user_id, type } = req.query;
   if (!user_id) return res.status(400).json({ error: 'user_id requis' });
 
   const ratingsRepo = appDataSource.getRepository(Ratings);
@@ -54,11 +54,14 @@ router.get('/', async (req, res) => {
 
   // 6. Récupérer les infos des films recommandés
   const movieIds = [...new Set(recommendedRatings.map(r => r.movie_id))];
-  const movies = movieIds.length
+  let movies = movieIds.length
     ? await moviesRepo.findByIds(movieIds)
     : [];
 
+  if (type) {
+    movies = movies.filter(m => m.type === type);
+  }
+
   res.json(movies);
 });
-
 export default router;

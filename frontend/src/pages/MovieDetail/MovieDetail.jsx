@@ -97,6 +97,9 @@ function MovieDetail({ userId }) {
     );
   }
 
+  
+  const isSerie = movie.type === 'tv' || movie.media_type === 'tv';
+  
   return (
     <div
       style={{
@@ -188,7 +191,7 @@ function MovieDetail({ userId }) {
             color: '#e50914',
             textShadow: '0 2px 12px #000a'
           }}>
-            {movie.title}
+            {movie.title || movie.name}
           </h1>
           <div style={{ display: 'flex', gap: '18px', marginBottom: '12px', flexWrap: 'wrap' }}>
             <span style={{
@@ -239,9 +242,11 @@ function MovieDetail({ userId }) {
 
           {/* Notation étoiles */}
           <div style={{ marginTop: '20px', marginBottom: '10px' }}>
-            <p style={{ marginBottom: '8px', fontWeight: 600, color: '#FFD700', fontSize: '1.1rem' }}>
-              A quel point as-tu apprécié ce film ?
-            </p>
+          <p style={{ marginBottom: '8px', fontWeight: 600, color: '#FFD700', fontSize: '1.1rem' }}>
+            {isSerie
+              ? 'À quel point as-tu apprécié cette série ?'
+              : 'À quel point as-tu apprécié ce film ?'}
+          </p>
             <div>
               {[1, 2, 3, 4, 5].map((star) => (
                 <span
@@ -273,7 +278,7 @@ function MovieDetail({ userId }) {
           </div>
 
           {/* Commentaire */}
-          <form onSubmit={handleSubmit} style={{ marginTop: '25px' }}>
+           <form onSubmit={handleSubmit} style={{ marginTop: '25px' }}>
             <label htmlFor="comment" style={{
               display: 'block',
               marginBottom: '10px',
@@ -281,8 +286,10 @@ function MovieDetail({ userId }) {
               color: '#e50914',
               fontSize: '1.1rem'
             }}>
-              Un commentaire ?
+              {isSerie ? 'Un commentaire sur la série ?' : 'Un commentaire sur le film ?'}
             </label>
+              
+    
             <textarea
               id="comment"
               value={comment}
@@ -302,7 +309,9 @@ function MovieDetail({ userId }) {
                 boxShadow: '0 2px 8px #0004',
                 transition: 'border 0.2s'
               }}
-              placeholder="Écris ce que tu as pensé du film..."
+               placeholder={isSerie
+                ? "Écris ce que tu as pensé de la série..."
+                : "Écris ce que tu as pensé du film..."}
             />
             <button
               type="submit"
@@ -335,7 +344,9 @@ function MovieDetail({ userId }) {
           {/* Liste des commentaires */}
           {comments.length > 0 && (
             <div style={{ marginTop: '35px' }}>
-              <h3 style={{ color: '#FFD700', marginBottom: '12px' }}>Commentaires des spectateurs :</h3>
+              <h3 style={{ color: '#FFD700', marginBottom: '12px' }}>
+                Commentaires des spectateurs sur {isSerie ? 'la série' : 'le film'} :
+              </h3>
               <ul style={{ listStyle: 'none', padding: 0 }}>
                 {comments.map((c, idx) => (
                   <li key={idx} style={{

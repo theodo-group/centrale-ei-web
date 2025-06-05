@@ -289,7 +289,7 @@ function Home({ userId, setUserId }) {
 
       {/* Recommandations personnalisées */}
        
-      <Recommendations userId={userId} />
+     <Recommendations userId={userId} type={type} />
       
 
       {/* Champ de recherche */}
@@ -596,15 +596,15 @@ function Home({ userId, setUserId }) {
 }
 
 // Tu peux commenter ce composant si tu n'as pas la route backend
-function Recommendations({ userId }) {
+function Recommendations({ userId, type }) {
   const [reco, setReco] = useState([]);
   useEffect(() => {
-    axios.get(`http://localhost:8000/recommendations?user_id=${userId}`)
+    axios.get(`http://localhost:8000/recommendations?user_id=${userId}&type=${type}`)
       .then(res => setReco(res.data));
-  }, [userId]);
+  }, [userId, type]);
   return (
     <div>
-      <h2>Recommandé pour vous</h2>
+      <h2>Recommandé pour vous ({type === 'movie' ? 'Films' : 'Séries TV'})</h2>
       <div style={{ display: 'flex', gap: 20 }}>
         {reco.map(movie => (
           <Movie key={movie.id} movie={movie} />
