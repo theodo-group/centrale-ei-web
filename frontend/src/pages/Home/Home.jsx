@@ -11,7 +11,7 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [type, setType] = useState('movie');
-  const [genre, setGenre]=useState('')
+  const [genre, setGenre]= useState('')
   /* intro vidéo */
   const [introEnded, setIntroEnded] = useState(false);
 
