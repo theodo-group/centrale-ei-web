@@ -9,15 +9,24 @@ import axios from 'axios';
 import './Home.css';
 
 function Home({ userId, setUserId}) {
+
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [type, setType] = useState('movie');
   const [genre, setGenre] = useState('');
   const [introEnded, setIntroEnded] = useState(false);
+
   const moviesPerSlide = 7;
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
 
+  // Vérifie si l'intro a déjà été vue (localStorage)
+  useEffect(() => {
+    const introAlreadyEnded = localStorage.getItem('introEnded') === 'true';
+    setIntroEnded(introAlreadyEnded);
+  }, []);
+
+  /* reset de la pagination API quand on change de filtre */
   useEffect(() => {
     setPage(1);
     setCurrentSlide(0);
@@ -58,6 +67,12 @@ function Home({ userId, setUserId}) {
   const filteredGenres = Object.entries(GENRES).filter(([id]) =>
     genreIdsToShow.includes(Number(id))
   );
+
+  // Quand l'intro se termine, on la marque comme vue dans le localStorage
+  function handleIntroEnd() {
+    setIntroEnded(true);
+    localStorage.setItem('introEnded', 'true');
+  }
 
   return (
     <div
@@ -135,7 +150,7 @@ function Home({ userId, setUserId}) {
           autoPlay
           muted
           playsInline
-          onEnded={() => setIntroEnded(true)}
+          onEnded={handleIntroEnd}
           style={{
             position: 'fixed',
             top: 0,
@@ -210,7 +225,14 @@ function Home({ userId, setUserId}) {
             fontSize: '1rem',
             borderRadius: '5px',
             border: '1px solid #ccc',
+            boxShadow: '0 2px 12px #e5091440',
+            background: '#181818',
+            color: 'white',
+            outline: 'none',
+            transition: 'border 0.2s, box-shadow 0.2s',
           }}
+          onFocus={e => e.target.style.border = '2px solid #e50914'}
+          onBlur={e => e.target.style.border = '1px solid #ccc'}
         />
       </div>
 
@@ -222,6 +244,8 @@ function Home({ userId, setUserId}) {
           marginBottom: '20px',
           position: 'relative',
           zIndex: 1,
+          letterSpacing: '2px',
+          textShadow: '0 4px 24px #e5091440, 0 2px 8px #000a',
         }}
       >
         {type === 'movie'
@@ -237,6 +261,8 @@ function Home({ userId, setUserId}) {
             textAlign: 'center',
             position: 'relative',
             zIndex: 1,
+            fontSize: '1.2rem',
+            letterSpacing: '1px',
           }}
         >
           Chargement {type === 'movie' ? 'des films' : 'des séries'}…
@@ -250,6 +276,7 @@ function Home({ userId, setUserId}) {
             textAlign: 'center',
             position: 'relative',
             zIndex: 1,
+            fontWeight: 'bold',
           }}
         >
           Erreur lors du chargement {type === 'movie' ? 'des films' : 'des séries'}.
@@ -270,6 +297,14 @@ function Home({ userId, setUserId}) {
           value={genre}
           onChange={e => setGenre(e.target.value)}
           style={{ padding: '8px', borderRadius: '5px' }}
+          style={{
+            padding: '8px',
+            borderRadius: '5px',
+            background: '#181818',
+            color: 'white',
+            border: '1px solid #e50914',
+            outline: 'none',
+          }}
         >
           <option value="">Tous</option>
           {filteredGenres.map(([id, name]) => (
@@ -296,10 +331,13 @@ function Home({ userId, setUserId}) {
             disabled={currentSlide === 0}
             style={{
               backgroundColor: 'transparent',
-              color: currentSlide === 0 ? 'gray' : 'white',
-              fontSize: '2rem',
+              color: currentSlide === 0 ? 'gray' : '#e50914',
+              fontSize: '2.5rem',
               border: 'none',
               cursor: currentSlide === 0 ? 'default' : 'pointer',
+              transition: 'color 0.2s, transform 0.2s',
+              transform: currentSlide === 0 ? 'scale(1)' : 'scale(1.2)',
+              filter: currentSlide === 0 ? 'none' : 'drop-shadow(0 0 8px #e50914cc)',
             }}
             aria-label="Précédent"
           >
@@ -311,7 +349,7 @@ function Home({ userId, setUserId}) {
               overflow: 'hidden',
               width: 'calc(7 * 180px + 6 * 20px)',
               gap: '20px',
-              transition: 'transform 0.5s ease',
+              transition: 'transform 0.5s cubic-bezier(.22,1.12,.58,1)',
             }}
           >
             {visibleMovies.map((item, idx) => (
@@ -323,10 +361,13 @@ function Home({ userId, setUserId}) {
             disabled={currentSlide >= totalSlides - 1}
             style={{
               backgroundColor: 'transparent',
-              color: currentSlide >= totalSlides - 1 ? 'gray' : 'white',
-              fontSize: '2rem',
+              color: currentSlide >= totalSlides - 1 ? 'gray' : '#e50914',
+              fontSize: '2.5rem',
               border: 'none',
               cursor: currentSlide >= totalSlides - 1 ? 'default' : 'pointer',
+              transition: 'color 0.2s, transform 0.2s',
+              transform: currentSlide >= totalSlides - 1 ? 'scale(1)' : 'scale(1.2)',
+              filter: currentSlide >= totalSlides - 1 ? 'none' : 'drop-shadow(0 0 8px #e50914cc)',
             }}
             aria-label="Suivant"
           >
@@ -368,9 +409,14 @@ function Home({ userId, setUserId}) {
             borderRadius: '5px',
             border: 'none',
             cursor: loading || showVideo ? 'not-allowed' : 'pointer',
-            backgroundColor: '#e50914',
+            background: 'linear-gradient(90deg, #e50914 60%, #b0060f 100%)',
             color: 'white',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 12px #e5091440',
+            transition: 'background 0.2s, transform 0.2s',
           }}
+          onMouseOver={e => e.currentTarget.style.transform = 'scale(1.07)'}
+          onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
         >
           Voir plus
         </button>
@@ -409,9 +455,14 @@ function Home({ userId, setUserId}) {
               borderRadius: '5px',
               border: 'none',
               cursor: 'pointer',
-              backgroundColor: '#e50914',
+              background: 'linear-gradient(90deg, #e50914 60%, #b0060f 100%)',
               color: 'white',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 12px #e5091440',
+              transition: 'background 0.2s, transform 0.2s',
             }}
+            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.07)'}
+            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
           >
             Fermer la vidéo
           </button>
