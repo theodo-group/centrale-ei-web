@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import './MovieDetails.css';
+import './Buttons.css';
 
 function MovieDetails() {
-  const { id: movieId } = useParams(); // Renommé pour clarté
+  const { id: movieId } = useParams();
   const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
-  const [genres, setGenres] = useState({}); // Map des genres {tmdb_id: name}
+  const [genres, setGenres] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // bouton like
@@ -15,13 +16,53 @@ function MovieDetails() {
   const [likeLoading, setLikeLoading] = useState(false);
   //bouton dislike
   const [isDisliked, setIsDisliked] = useState(false);
-  const [dislikes, setDislikes] = useState(0);
 
   // URL du backend
   const BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
   const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
   const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280';
+
+  // Ajout du style dynamique pour les animations
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      @keyframes thumbsUpSuccess {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        25% { transform: scale(1.3) rotate(5deg); }
+        50% { transform: scale(1.2) rotate(-5deg); }
+        75% { transform: scale(1.1) rotate(3deg); }
+      }
+      
+      @keyframes thumbsDownSuccess {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        25% { transform: scale(1.3) rotate(-8deg); }
+        50% { transform: scale(1.2) rotate(8deg); }
+        75% { transform: scale(1.1) rotate(-5deg); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   // Récupération des genres
   useEffect(() => {
@@ -33,7 +74,6 @@ function MovieDetails() {
         });
 
         if (response.data && response.data.genres) {
-          // Créer un map pour un accès rapide par ID
           const genresMap = {};
           response.data.genres.forEach((genre) => {
             genresMap[genre.tmdb_id] = genre.name;
@@ -43,12 +83,11 @@ function MovieDetails() {
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des genres:', err);
-        // On continue même si les genres ne se chargent pas
       }
     };
 
     fetchGenres();
-  }, [BACKEND_URL]); // Ajout de BACKEND_URL dans les dépendances
+  }, [BACKEND_URL]);
 
   // Récupération des détails du film
   useEffect(() => {
@@ -65,11 +104,10 @@ function MovieDetails() {
 
         if (response.data && response.data.movie) {
           setMovie(response.data.movie);
-          // Vérifier si le film est déjà liké
           const likedMovies = JSON.parse(
             localStorage.getItem('likedMovies') || '[]'
           );
-          setIsLiked(likedMovies.includes(parseInt(movieId))); // CORRECTION: movieId au lieu de id
+          setIsLiked(likedMovies.includes(parseInt(movieId)));
           console.log('Détails du film récupérés:', response.data.movie);
         } else {
           throw new Error('Film non trouvé');
@@ -92,7 +130,7 @@ function MovieDetails() {
     if (movieId) {
       fetchMovieDetails();
     }
-  }, [movieId, BACKEND_URL]); // Ajout de BACKEND_URL dans les dépendances
+  }, [movieId, BACKEND_URL]);
 
   // Fonction pour obtenir le nom d'un genre par son ID
   const getGenreName = (genreId) => {
@@ -159,41 +197,35 @@ function MovieDetails() {
     }
 
     setLikeLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      const likedMovies = JSON.parse(
-        localStorage.getItem('likedMovies') || '[]'
-      );
-      const movieIdNum = parseInt(movieId);
+    // Simulation d'une requête
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-      if (isLiked) {
-        // Retirer des favoris
-        const updatedLikes = likedMovies.filter((id) => id !== movieIdNum);
-        localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
-        setIsLiked(false);
-      } else {
-        // Retirer le dislike si actif
-        if (isDisliked) {
-          setIsDisliked(false);
-          setDislikes((prev) => prev - 1);
-        }
+    const likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
+    const movieIdNum = parseInt(movieId);
 
-        const updatedLikes = [...likedMovies, movieId];
-        localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
-        setIsLiked(true);
+    if (isLiked) {
+      // Retirer des favoris
+      const updatedLikes = likedMovies.filter((id) => id !== movieIdNum);
+      localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
+      setIsLiked(false);
+    } else {
+      // Retirer le dislike si actif
+      if (isDisliked) {
+        setIsDisliked(false);
       }
-    } catch (err) {
-      console.error('Erreur lors de la gestion du like:', err);
-    } finally {
-      setLikeLoading(false);
+
+      const updatedLikes = [...likedMovies, movieIdNum];
+      localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
+      setIsLiked(true);
     }
+
+    setLikeLoading(false);
   };
 
   // Fonction pour gérer le dislike
   const handleDislike = () => {
     if (isDisliked) {
-      setDislikes((prev) => prev - 1);
       setIsDisliked(false);
     } else {
       // Retirer le like si actif
@@ -201,12 +233,11 @@ function MovieDetails() {
         const likedMovies = JSON.parse(
           localStorage.getItem('likedMovies') || '[]'
         );
-        const movieId = parseInt(id);
-        const updatedLikes = likedMovies.filter((id) => id !== movieId);
+        const movieIdNum = parseInt(movieId);
+        const updatedLikes = likedMovies.filter((id) => id !== movieIdNum);
         localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
         setIsLiked(false);
       }
-      setDislikes((prev) => prev + 1);
       setIsDisliked(true);
     }
   };
@@ -296,41 +327,46 @@ function MovieDetails() {
             <div className="movie-title-section">
               <h1 className="movie-title">{movie.title}</h1>
 
-              {/* Bouton Like */}
-              <button
-                onClick={handleLike}
-                disabled={likeLoading}
-                className={`like-btn ${isLiked ? 'liked' : ''}`}
-                title={isLiked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill={isLiked ? 'currentColor' : 'none'}
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="heart-icon"
+              <div className="movie-actions">
+                {/* Bouton Like Futuriste */}
+                <button
+                  onClick={handleLike}
+                  disabled={likeLoading}
+                  className={`futuristic-btn like-btn ${
+                    isLiked ? 'active' : ''
+                  } ${likeLoading ? 'loading' : ''}`}
+                  title={
+                    isLiked ? 'Retirer des favoris' : 'Ajouter aux favoris'
+                  }
                 >
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                {likeLoading ? 'Chargement...' : isLiked ? 'Aimé' : "J'aime"}
-              </button>
-              {/* Bouton Dislike*/}
-              <button
-                onClick={handleDislike}
-                className={`dislike-btn ${isDisliked ? 'active' : ''}`}
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                  </svg>
+                </button>
+
+                {/* Bouton Dislike Futuriste */}
+                <button
+                  onClick={handleDislike}
+                  className={`futuristic-btn dislike-btn ${
+                    isDisliked ? 'active' : ''
+                  }`}
+                  title={isDisliked ? 'Retirer le dislike' : "Je n'aime pas"}
                 >
-                  <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2z" />
-                </svg>
-                {dislikes}
-              </button>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {movie.original_title && movie.original_title !== movie.title && (
@@ -338,33 +374,34 @@ function MovieDetails() {
             )}
 
             <div className="movie-meta">
-              <span className="movie-year">
+              <span className="movie-year meta-tag">
                 Date: {formatDate(movie.release_date)}
               </span>
 
               {movie.runtime && (
-                <span className="movie-runtime">
+                <span className="movie-runtime meta-tag">
                   Durée: {formatRuntime(movie.runtime)}
                 </span>
               )}
 
               {movie.vote_average && (
                 <span
-                  className={`movie-rating ${isHighRating(movie.vote_average) ? 'high-rating' : ''
-                    }`}
+                  className={`movie-rating meta-tag ${
+                    isHighRating(movie.vote_average) ? 'high-rating' : ''
+                  }`}
                 >
                   Note: {movie.vote_average}/10
                 </span>
               )}
 
               {movie.vote_count && (
-                <span className="movie-votes">
+                <span className="movie-votes meta-tag">
                   {formatVotes(movie.vote_count)}
                 </span>
               )}
 
               {movie.popularity && (
-                <span className="movie-popularity">
+                <span className="movie-popularity meta-tag">
                   Pop: {formatPopularity(movie.popularity)}
                 </span>
               )}
@@ -373,11 +410,11 @@ function MovieDetails() {
             {/* Genres - avec noms réels */}
             {movie.genre_ids && movie.genre_ids.length > 0 && (
               <div className="movie-genres">
-                <h4>Genres:</h4>
+                <h4 className="genres-title">GENRES:</h4>
                 <div className="genres-list">
                   {movie.genre_ids.map((genreId) => (
                     <span key={genreId} className="genre-tag">
-                      {getGenreName(genreId)}
+                      {getGenreName(genreId).toUpperCase()}
                     </span>
                   ))}
                 </div>

@@ -49,7 +49,7 @@ function Home() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Recommendé par ta mère</h1>
+        <h1>PIMP MY FILM</h1>
 
         {/* Formulaire de recherche */}
         <form onSubmit={handleFormSubmit}>
