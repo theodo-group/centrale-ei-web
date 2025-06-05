@@ -59,7 +59,19 @@ function MovieDetail({ userId }) {
       .then(res => setMovie(res.data))
       .catch(() => setMovie(null));
   }, [id]);
-  
+  useEffect(() => {
+  if (!userId || !movie?.id) return;
+  axios.get(`http://localhost:8000/ratings?user_id=${userId}&movie_id=${movie.id}`)
+    .then(res => {
+      if (res.data && (res.data.rating || res.data.comment)) {
+        setRating(res.data.rating || 0);
+        setComment(res.data.comment || '');
+      } else {
+        setRating(0);
+        setComment('');
+      }
+    });
+}, [userId, movie]);
 
   if (!movie) {
     return (

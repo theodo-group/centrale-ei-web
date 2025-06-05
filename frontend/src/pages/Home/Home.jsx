@@ -296,7 +296,6 @@ function Home({ userId, setUserId}) {
         <select
           value={genre}
           onChange={e => setGenre(e.target.value)}
-          style={{ padding: '8px', borderRadius: '5px' }}
           style={{
             padding: '8px',
             borderRadius: '5px',
