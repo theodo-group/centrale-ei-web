@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react'; // Ajoute ceci
 
 function Movie({ movie, rank }) {
   // Date au format français, ou vide si pas dispo
@@ -10,6 +11,9 @@ function Movie({ movie, rank }) {
         day: 'numeric',
       })
     : '';
+
+  // Ajoute cet état pour le hover
+  const [hovered, setHovered] = useState(false);
 
   return (
     <Link
@@ -26,6 +30,8 @@ function Movie({ movie, rank }) {
           color: 'white',
           boxShadow: '0 0 10px rgba(0,0,0,0.7)',
         }}
+        onMouseEnter={() => setHovered(true)}   // Ajoute ceci
+        onMouseLeave={() => setHovered(false)}  // Ajoute ceci
       >
         {rank && (
           <div
@@ -53,7 +59,13 @@ function Movie({ movie, rank }) {
         <img
           src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
           alt={movie.title || movie.name}
-          style={{ width: '100%', display: 'block' }}
+          style={{
+            width: '100%',
+            display: 'block',
+            transition: 'transform 0.3s cubic-bezier(.25,.8,.25,1)',
+            transform: hovered ? 'scale(1.1)' : 'scale(1)',
+            zIndex: hovered ? 2 : 1,
+          }}
         />
 
         <div style={{ padding: '10px' }}>

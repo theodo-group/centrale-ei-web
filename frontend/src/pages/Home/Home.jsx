@@ -7,19 +7,23 @@ import surprise from './videoplayback.mp4';
 import GENRES from './genres';
 
 function Home() {
-
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [type, setType] = useState('movie');
-  const [genre, setGenre]=useState('')
+  const [genre, setGenre] = useState('');
   const [introEnded, setIntroEnded] = useState(false);
-
 
   const moviesPerSlide = 7;
   const [currentSlide, setCurrentSlide] = useState(0);
 
   /* vidéo surprise */
   const [showVideo, setShowVideo] = useState(false);
+
+  // Vérifie si l'intro a déjà été vue (localStorage)
+  useEffect(() => {
+    const introAlreadyEnded = localStorage.getItem('introEnded') === 'true';
+    setIntroEnded(introAlreadyEnded);
+  }, []);
 
   /* reset de la pagination API quand on change de filtre */
   useEffect(() => {
@@ -56,16 +60,23 @@ function Home() {
     setShowVideo(false);
     setPage((p) => p + 1); // charge la page suivante après fermeture vidéo
   }
+
   const MOVIE_GENRE_IDS = [
-  28, 12, 16, 35, 80, 99, 18, 10751, 14, 36, 27, 10402, 9648, 10749, 878, 10770, 53, 10752, 37
- ];
+    28, 12, 16, 35, 80, 99, 18, 10751, 14, 36, 27, 10402, 9648, 10749, 878, 10770, 53, 10752, 37
+  ];
   const TV_GENRE_IDS = [
-  10759, 16, 35, 80, 99, 18, 10751, 10762, 9648, 10763, 10764, 10765, 10766, 10767, 10768, 37
-];
+    10759, 16, 35, 80, 99, 18, 10751, 10762, 9648, 10763, 10764, 10765, 10766, 10767, 10768, 37
+  ];
   const genreIdsToShow = type === 'movie' ? MOVIE_GENRE_IDS : TV_GENRE_IDS;
   const filteredGenres = Object.entries(GENRES).filter(([id]) =>
-  genreIdsToShow.includes(Number(id))
-);
+    genreIdsToShow.includes(Number(id))
+  );
+
+  // Quand l'intro se termine, on la marque comme vue dans le localStorage
+  function handleIntroEnd() {
+    setIntroEnded(true);
+    localStorage.setItem('introEnded', 'true');
+  }
 
   return (
     <div
@@ -147,7 +158,7 @@ function Home() {
           autoPlay
           muted
           playsInline
-          onEnded={() => setIntroEnded(true)}
+          onEnded={handleIntroEnd}
           style={{
             position: 'fixed',
             top: 0,
@@ -209,7 +220,14 @@ function Home() {
             fontSize: '1rem',
             borderRadius: '5px',
             border: '1px solid #ccc',
+            boxShadow: '0 2px 12px #e5091440',
+            background: '#181818',
+            color: 'white',
+            outline: 'none',
+            transition: 'border 0.2s, box-shadow 0.2s',
           }}
+          onFocus={e => e.target.style.border = '2px solid #e50914'}
+          onBlur={e => e.target.style.border = '1px solid #ccc'}
         />
       </div>
 
@@ -221,6 +239,8 @@ function Home() {
           marginBottom: '20px',
           position: 'relative',
           zIndex: 1,
+          letterSpacing: '2px',
+          textShadow: '0 4px 24px #e5091440, 0 2px 8px #000a',
         }}
       >
         {type === 'movie'
@@ -236,6 +256,8 @@ function Home() {
             textAlign: 'center',
             position: 'relative',
             zIndex: 1,
+            fontSize: '1.2rem',
+            letterSpacing: '1px',
           }}
         >
           Chargement {type === 'movie' ? 'des films' : 'des séries'}…
@@ -249,6 +271,7 @@ function Home() {
             textAlign: 'center',
             position: 'relative',
             zIndex: 1,
+            fontWeight: 'bold',
           }}
         >
           Erreur lors du chargement {type === 'movie' ? 'des films' : 'des séries'}.
@@ -256,27 +279,32 @@ function Home() {
       )}
 
       <div
-      style={{
-        textAlign: 'center',
-        marginBottom: '20px',
-        position: 'relative',
-        zIndex: 1,
-      }}
-    >
-      <label style={{ marginRight: '10px' }}>Filtrer par genre :</label>
-      
-    <select
-    value={genre}
-    onChange={e => setGenre(e.target.value)}
-    style={{ padding: '8px', borderRadius: '5px' }}
-  >
-    <option value="">Tous</option>
-    {filteredGenres.map(([id, name]) => (
-      <option key={id} value={id}>{name}</option>
-    ))}
-  </select>
-    
-    </div>
+        style={{
+          textAlign: 'center',
+          marginBottom: '20px',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        <label style={{ marginRight: '10px' }}>Filtrer par genre :</label>
+        <select
+          value={genre}
+          onChange={e => setGenre(e.target.value)}
+          style={{
+            padding: '8px',
+            borderRadius: '5px',
+            background: '#181818',
+            color: 'white',
+            border: '1px solid #e50914',
+            outline: 'none',
+          }}
+        >
+          <option value="">Tous</option>
+          {filteredGenres.map(([id, name]) => (
+            <option key={id} value={id}>{name}</option>
+          ))}
+        </select>
+      </div>
 
       {/* ───── Carrousel horizontal ───── */}
       {filteredItems.length > 0 && (
@@ -297,10 +325,13 @@ function Home() {
             disabled={currentSlide === 0}
             style={{
               backgroundColor: 'transparent',
-              color: currentSlide === 0 ? 'gray' : 'white',
-              fontSize: '2rem',
+              color: currentSlide === 0 ? 'gray' : '#e50914',
+              fontSize: '2.5rem',
               border: 'none',
               cursor: currentSlide === 0 ? 'default' : 'pointer',
+              transition: 'color 0.2s, transform 0.2s',
+              transform: currentSlide === 0 ? 'scale(1)' : 'scale(1.2)',
+              filter: currentSlide === 0 ? 'none' : 'drop-shadow(0 0 8px #e50914cc)',
             }}
             aria-label="Précédent"
           >
@@ -314,7 +345,7 @@ function Home() {
               overflow: 'hidden',
               width: 'calc(7 * 180px + 6 * 20px)', // 7 films * largeur + gap * 6
               gap: '20px',
-              transition: 'transform 0.5s ease',
+              transition: 'transform 0.5s cubic-bezier(.22,1.12,.58,1)',
             }}
           >
             {visibleMovies.map((item, idx) => (
@@ -328,10 +359,13 @@ function Home() {
             disabled={currentSlide >= totalSlides - 1}
             style={{
               backgroundColor: 'transparent',
-              color: currentSlide >= totalSlides - 1 ? 'gray' : 'white',
-              fontSize: '2rem',
+              color: currentSlide >= totalSlides - 1 ? 'gray' : '#e50914',
+              fontSize: '2.5rem',
               border: 'none',
               cursor: currentSlide >= totalSlides - 1 ? 'default' : 'pointer',
+              transition: 'color 0.2s, transform 0.2s',
+              transform: currentSlide >= totalSlides - 1 ? 'scale(1)' : 'scale(1.2)',
+              filter: currentSlide >= totalSlides - 1 ? 'none' : 'drop-shadow(0 0 8px #e50914cc)',
             }}
             aria-label="Suivant"
           >
@@ -373,9 +407,14 @@ function Home() {
             borderRadius: '5px',
             border: 'none',
             cursor: loading || showVideo ? 'not-allowed' : 'pointer',
-            backgroundColor: '#e50914',
+            background: 'linear-gradient(90deg, #e50914 60%, #b0060f 100%)',
             color: 'white',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 12px #e5091440',
+            transition: 'background 0.2s, transform 0.2s',
           }}
+          onMouseOver={e => e.currentTarget.style.transform = 'scale(1.07)'}
+          onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
         >
           Voir plus
         </button>
@@ -414,9 +453,14 @@ function Home() {
               borderRadius: '5px',
               border: 'none',
               cursor: 'pointer',
-              backgroundColor: '#e50914',
+              background: 'linear-gradient(90deg, #e50914 60%, #b0060f 100%)',
               color: 'white',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 12px #e5091440',
+              transition: 'background 0.2s, transform 0.2s',
             }}
+            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.07)'}
+            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
           >
             Fermer la vidéo
           </button>
