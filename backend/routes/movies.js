@@ -61,16 +61,19 @@ router.get('/seed', async (req, res) => {
 
 router.get('/', async (req, res) => {
   const repo = appDataSource.getRepository(Movie);
-  const { search } = req.query;
-  let movies;
+  const { search, genre_id } = req.query;
+  let query = repo.createQueryBuilder('movie');
+
   if (search) {
-    movies = await repo
-      .createQueryBuilder('movie')
-      .where('movie.title LIKE :search', { search: `%${search}%` })
-      .getMany();
-  } else {
-    movies = await repo.find();
+    query = query.where('movie.title LIKE :search', { search: `%${search}%` });
   }
+
+  if (genre_id) {
+    // genre_ids est une string de type "12,18,35"
+    query = query.andWhere('movie.genre_ids LIKE :genre', { genre: `%${genre_id}%` });
+  }
+
+  const movies = await query.getMany();
   res.json(movies);
 });
 
@@ -82,8 +85,8 @@ router.get('/:id', async (req, res) => {
     if (!movie) {
       return res.status(404).json({ message: 'Film non trouvé' });
     }
-
-    res.status(200).json({ movie });
+    res.json(movie);
+  
   } catch (err) {
     console.error('Erreur lors de la récupération du film:', err);
     res.status(500).json({ message: 'Erreur serveur lors de la récupération du film.' });
