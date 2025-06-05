@@ -16,6 +16,7 @@ function Home() {
   const [genresList, setGenresList] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [includeAdult, setIncludeAdult] = useState(false);
+  const [selecPerso, setSelecPerso] = useState(false)
 
   const debounceTimeout = useRef(null);
   const navigate = useNavigate();
@@ -208,6 +209,14 @@ function Home() {
             onChange={() => setIncludeAdult(!includeAdult)}
           />
           Inclure les films adultes
+        </label>
+        <label>
+          <input
+            type ="checkbox"
+            checked={selecPerso}
+            onChange={() => setSelecPerso(!selecPerso)}
+          />
+          Sélection personalisée
         </label>
       </div>
 
