@@ -16,11 +16,14 @@
     "download:top": "dotenv -- node -e \"import('./downloadMovies.js').then(m => m.downloadPresets.topRated())\"",
     "download:recent": "dotenv -- node -e \"import('./downloadMovies.js').then(m => m.downloadPresets.recent())\"",
     "download:popular": "dotenv -- node -e \"import('./downloadMovies.js').then(m => m.downloadPresets.popular())\"",
-    "download:full": "dotenv -- node -e \"import('./downloadMovies.js').then(m => m.downloadPresets.full())\""
+    "download:full": "dotenv -- node -e \"import('./downloadMovies.js').then(m => m.downloadPresets.full())\"",
+    "download-genres": "node downloadGenres.js",
+    "download-genres-fr": "node -e \"import('./downloadGenres.js').then(m => m.downloadGenrePresets.french())\""
   },
   "dependencies": {
     "axios": "^1.9.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "dotenv-cli": "^7.0.0",
     "express": "^4.18.2",
     "morgan": "^1.10.0",
