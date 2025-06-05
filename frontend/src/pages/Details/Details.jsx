@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import './Details.css';
 import axios from 'axios';
 
+//"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZjlmNjAwMzY4MzMzODNkNGIwYjNhNzJiODA3MzdjNCIsInN1YiI6IjY0NzA5YmE4YzVhZGE1MDBkZWU2ZTMxMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Em7Y9fSW94J91rbuKFjDWxmpWaQzTitxRKNdQ5Lh2Eo"
+
+console.log('Clé API TMDB :', import.meta.env.VITE_TMDB_API_KEY);
 const posterURL = 'https://image.tmdb.org/t/p/w500';
 
 const dateFr = new Date('2001-11-16').toLocaleDateString('fr-FR', {
@@ -70,20 +73,48 @@ function StarRating({ storageKey = 'userRating' }) {
 function Details({ movieId }) {
   const [movie, setMovie] = useState(null);
   const [errorCase, setErrorCase] = useState(null);
+  const [similarMovies, setSimilarMovies] = useState([]); // <-- nouvel état
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/movies/${movieId}`)
-      .then(response => {
+    // Récupération du film principal
+    axios
+      .get(`http://localhost:8000/movies/${movieId}`)
+      .then((response) => {
         setMovie(response.data);
       })
-      .catch(error => {
-        console.error("Erreur lors du chargement du film :", error);
+      .catch((error) => {
+        console.error('Erreur lors du chargement du film :', error);
         setErrorCase('Erreur lors du chargement du film');
       });
   }, [movieId]);
 
-  if (!movie) return <div>Chargement...</div>;
-  if (errorCase) return <div>{errorCase}</div>;
+  useEffect(() => {
+    if (!movieId) {
+      return;
+    }
+
+    // Appel au backend pour récupérer les films similaires
+    //const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+    axios
+      .get(`http://localhost:8000/movies/${movieId}/similar`)
+
+      .then((response) => {
+        setSimilarMovies(response.data.results);
+      })
+      .catch((error) => {
+        console.error(
+          'Erreur lors du chargement des films similaires :',
+          error
+        );
+      });
+  }, [movieId]);
+
+  if (!movie) {
+    return <div>Chargement...</div>;
+  }
+  if (errorCase) {
+    return <div>{errorCase}</div>;
+  }
   if (!movie.posterPath) {
     return <div>Pas d'affiche disponible pour ce film.</div>;
   }
@@ -98,7 +129,7 @@ function Details({ movieId }) {
     <div className="App-content">
       <img
         className="poster"
-        src={'https://image.tmdb.org/t/p/w500' + movie.posterPath}
+        src={posterURL + movie.posterPath}
         alt="Affiche du film"
       />
       <div className="text-content">
@@ -108,6 +139,29 @@ function Details({ movieId }) {
         <h4>{'Note des spectateurs : ' + movie.voteAverage}</h4>
         <StarRating storageKey={`noteFilm-${movie.id}`} />
       </div>
+
+      {/* Section films similaires */}
+      {similarMovies.length > 0 && (
+        <div className="similar-movies">
+          <h2>Films similaires</h2>
+          <div className="similar-list">
+            {similarMovies.map((film) => (
+              <div key={film.id} className="similar-item">
+                <img
+                  src={
+                    film.poster_path
+                      ? posterURL + film.poster_path
+                      : '/placeholder.png'
+                  }
+                  alt={film.title}
+                  className="similar-poster"
+                />
+                <p>{film.title}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
