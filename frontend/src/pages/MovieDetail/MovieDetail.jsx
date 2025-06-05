@@ -1,12 +1,36 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
+import axios from 'axios';
 
 function MovieDetail() {
   const { id } = useParams();
+  const [movie, setMovie] = useState(null);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const GENRES = {
+  28: 'Action',
+  12: 'Aventure',
+  16: 'Animation',
+  35: 'Comédie',
+  80: 'Crime',
+  99: 'Documentaire',
+  18: 'Drame',
+  10751: 'Famille',
+  14: 'Fantastique',
+  36: 'Histoire',
+  27: 'Horreur',
+  10402: 'Musique',
+  9648: 'Mystère',
+  10749: 'Romance',
+  878: 'Science-Fiction',
+  10770: 'Téléfilm',
+  53: 'Thriller',
+  10752: 'Guerre',
+  37: 'Western'
+};
+
 
   const handleClick = (star) => setRating(star);
   const handleDoubleClick = () => setRating(0);
@@ -18,9 +42,38 @@ function MovieDetail() {
     setSubmitted(true);
   };
 
+  useEffect(() => {
+    axios.get(`http://localhost:8000/movies/${id}`)
+      .then(res => setMovie(res.data))
+      .catch(() => setMovie(null));
+  }, [id]);
+
+ 
+  if (!movie) {
+    return <div style={{ color: 'white', padding: '40px' }}>Chargement...</div>;
+  }
+
   return (
     <div style={{ color: 'white', padding: '40px' }}>
-      <h1>Détails du film {id}</h1>
+      <h1>{movie.title}</h1>
+      <p>Année : {movie.year}</p>
+      <p>Note : {movie.vote_average ?? 'Non noté'}</p>
+     <p>
+      Genre :{' '}
+      {Array.isArray(movie.genre_ids) && movie.genre_ids.length > 0
+        ? movie.genre_ids
+            .map((id) => GENRES[parseInt(id, 10)] || id)
+            .join(', ')
+        : 'Non renseigné'}
+    </p>
+      {movie.poster_path && (
+        <img
+          src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+          alt={movie.title}
+          style={{ borderRadius: '10px', marginBottom: '20px' }}
+        />
+      )}
+      <p style={{ maxWidth: 600 }}>{movie.overview}</p>
 
       <div style={{ marginTop: '20px' }}>
         <p>A quel point as-tu apprécié ce film ?  :</p>
