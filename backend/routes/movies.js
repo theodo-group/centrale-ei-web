@@ -1,4 +1,5 @@
 import express from 'express';
+import axios from 'axios';
 import { appDataSource } from '../datasource.js';
 import Movie from '../entities/movies.js';
 
@@ -88,6 +89,32 @@ router.delete('/:id', function (req, res) {
       console.error('Error while deleting film :', error);
       res.status(500).json({ message: 'Server error' });
     });
+});
+
+router.get('/:id/similar', async (req, res) => {
+  const movieId = req.params.id;
+  const apiKey = process.env.TMDB_API_KEY;
+
+  console.log('🔑 Clé API utilisée :', apiKey);
+
+  try {
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/movie/${movieId}/similar`,
+      {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        params: { language: 'fr-FR' },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error(
+      '❌ Erreur complète TMDB :',
+      error.response?.data || error.message
+    );
+    res
+      .status(500)
+      .json({ error: 'Erreur lors de la récupération des films similaires' });
+  }
 });
 
 export default router;

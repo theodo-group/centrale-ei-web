@@ -1,12 +1,15 @@
 import express from 'express';
 import logger from 'morgan';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import moviesRouter from './routes/movies.js';
 import { routeNotFoundJsonHandler } from './services/routeNotFoundJsonHandler.js';
 import { jsonErrorHandler } from './services/jsonErrorHandler.js';
 import { appDataSource } from './datasource.js';
+dotenv.config();
+
 
 appDataSource
   .initialize()
