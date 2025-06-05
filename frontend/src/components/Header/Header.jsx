@@ -10,7 +10,6 @@ function Header() {
     fetch('http://localhost:8000/users/prenoms')
       .then((res) => res.json())
       .then((data) => setUsers(data));
-    console.log('Received data:', data).catch(console.error);
   }, []);
 
   return (
