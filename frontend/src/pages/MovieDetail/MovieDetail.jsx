@@ -10,68 +10,74 @@ function MovieDetail({ userId }) {
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [comments, setComments] = useState([]);
 
   const GENRES = {
-    28: 'Action',
-    12: 'Aventure',
-    16: 'Animation',
-    35: 'Comédie',
-    80: 'Crime',
-    99: 'Documentaire',
-    18: 'Drame',
-    10751: 'Famille',
-    14: 'Fantastique',
-    36: 'Histoire',
-    27: 'Horreur',
-    10402: 'Musique',
-    9648: 'Mystère',
-    10749: 'Romance',
-    878: 'Science-Fiction',
-    10770: 'Téléfilm',
-    53: 'Thriller',
-    10752: 'Guerre',
-    37: 'Western',
-    10759: 'Action & Adventure',
-    10762: 'Kids',
-    10763: 'News',
-    10764: 'Reality',
-    10765: 'Sci-Fi & Fantasy',
-    10766: 'Soap',
-    10767: 'Talk',
-    10768: 'War & Politics'
+    28: 'Action', 12: 'Aventure', 16: 'Animation', 35: 'Comédie', 80: 'Crime', 99: 'Documentaire',
+    18: 'Drame', 10751: 'Famille', 14: 'Fantastique', 36: 'Histoire', 27: 'Horreur', 10402: 'Musique',
+    9648: 'Mystère', 10749: 'Romance', 878: 'Science-Fiction', 10770: 'Téléfilm', 53: 'Thriller',
+    10752: 'Guerre', 37: 'Western', 10759: 'Action & Adventure', 10762: 'Kids', 10763: 'News',
+    10764: 'Reality', 10765: 'Sci-Fi & Fantasy', 10766: 'Soap', 10767: 'Talk', 10768: 'War & Politics'
   };
 
-  const handleClick = (star) => setRating(star);
-  const handleDoubleClick = () => setRating(0);
-  const handleSubmit = (e) => {
-  e.preventDefault();
-  if (rating === 0 && comment.trim() === '') return;
-  axios.post('http://localhost:8000/ratings', {
-    user_id: userId, // <-- ici on utilise le user sélectionné
-    movie_id: movie.id,
-    rating,
-    comment,
-  }).then(() => setSubmitted(true));
-};
+  // Charger les commentaires depuis le localStorage au chargement du composant
+  useEffect(() => {
+    const saved = localStorage.getItem(`comments_${id}`);
+    if (saved) setComments(JSON.parse(saved));
+    else setComments([]);
+  }, [id]);
 
+  // Sauvegarder les commentaires à chaque modification
+  useEffect(() => {
+    localStorage.setItem(`comments_${id}`, JSON.stringify(comments));
+  }, [comments, id]);
+
+  // Charger le film
   useEffect(() => {
     axios.get(`http://localhost:8000/movies/${id}`)
       .then(res => setMovie(res.data))
       .catch(() => setMovie(null));
   }, [id]);
+
+  // Charger la note et le commentaire de l'utilisateur courant
   useEffect(() => {
-  if (!userId || !movie?.id) return;
-  axios.get(`http://localhost:8000/ratings?user_id=${userId}&movie_id=${movie.id}`)
-    .then(res => {
-      if (res.data && (res.data.rating || res.data.comment)) {
-        setRating(res.data.rating || 0);
-        setComment(res.data.comment || '');
-      } else {
-        setRating(0);
-        setComment('');
-      }
+    if (!userId || !movie?.id) return;
+    axios.get(`http://localhost:8000/ratings?user_id=${userId}&movie_id=${movie.id}`)
+      .then(res => {
+        if (res.data && (res.data.rating || res.data.comment)) {
+          setRating(res.data.rating || 0);
+          setComment(res.data.comment || '');
+        } else {
+          setRating(0);
+          setComment('');
+        }
+      });
+  }, [userId, movie]);
+
+  const handleClick = (star) => setRating(star);
+  const handleDoubleClick = () => setRating(0);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (rating === 0 && comment.trim() === '') return;
+    // Envoie en BDD
+    axios.post('http://localhost:8000/ratings', {
+      user_id: userId,
+      movie_id: movie.id,
+      rating,
+      comment,
+    }).then(() => {
+      // Ajoute dans le localStorage
+      const newComment = {
+        text: comment,
+        rating,
+        date: new Date().toLocaleString(),
+      };
+      setComments([newComment, ...comments]);
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 2000);
     });
-}, [userId, movie]);
+  };
 
   if (!movie) {
     return (
@@ -103,33 +109,7 @@ function MovieDetail({ userId }) {
         overflow: 'hidden'
       }}
     >
-      {/* Effet lumineux en fond */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-200px',
-          left: '-200px',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, #e50914 0%, transparent 70%)',
-          zIndex: 0,
-          filter: 'blur(80px)',
-          opacity: 0.5,
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '-200px',
-          right: '-200px',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, #4CAF50 0%, transparent 70%)',
-          zIndex: 0,
-          filter: 'blur(80px)',
-          opacity: 0.3,
-        }}
-      />
+      {/* ... Effets visuels et header ... */}
 
       {/* Bouton retour */}
       <button
@@ -351,6 +331,39 @@ function MovieDetail({ userId }) {
               Merci pour ton avis ! 🎬
             </p>
           )}
+
+          {/* Liste des commentaires */}
+          {comments.length > 0 && (
+            <div style={{ marginTop: '35px' }}>
+              <h3 style={{ color: '#FFD700', marginBottom: '12px' }}>Commentaires des spectateurs :</h3>
+              <ul style={{ listStyle: 'none', padding: 0 }}>
+                {comments.map((c, idx) => (
+                  <li key={idx} style={{
+                    background: '#232526',
+                    borderRadius: '10px',
+                    padding: '14px 18px',
+                    marginBottom: '12px',
+                    color: '#fff',
+                    boxShadow: '0 2px 8px #0003'
+                  }}>
+                    <div style={{ marginBottom: '6px' }}>
+                      {c.rating > 0 && (
+                        <span style={{ color: '#FFD700', fontWeight: 700, marginRight: '8px' }}>
+                          {'★'.repeat(c.rating)}
+                          {'☆'.repeat(5 - c.rating)}
+                        </span>
+                      )}
+                      <span style={{ color: '#aaa', fontSize: '0.95em', marginLeft: '8px' }}>
+                        {c.date}
+                      </span>
+                    </div>
+                    <div style={{ whiteSpace: 'pre-line' }}>{c.text}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
@@ -358,4 +371,3 @@ function MovieDetail({ userId }) {
 }
 
 export default MovieDetail;
-
