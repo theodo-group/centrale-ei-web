@@ -7,15 +7,14 @@ import surprise from './videoplayback.mp4';
 import GENRES from './genres';
 
 function Home() {
-  /* ───── états principaux ───── */
+
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [type, setType] = useState('movie');
   const [genre, setGenre]=useState('')
-  /* intro vidéo */
   const [introEnded, setIntroEnded] = useState(false);
 
-  /* carrousel */
+
   const moviesPerSlide = 7;
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -34,7 +33,7 @@ function Home() {
   // Filtrer les items selon le type (film / série)
   const filteredItems = items.filter((item) => {
     if (type === 'movie') {
-      return item.media_type === 'movie' || item.type === 'movie' || item.title;
+      return item.media_type === 'movie' || item.type === 'movie';
     } else if (type === 'tv') {
       return item.media_type === 'tv' || item.type === 'tv' || item.name;
     }
