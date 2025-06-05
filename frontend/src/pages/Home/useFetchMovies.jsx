@@ -10,7 +10,6 @@ export function useFetchMovies(searchTerm, page, type = 'movie',genre='') {
     setLoading(true);
     setError(null);
 
-    // Appel à ton backend (ex: http://localhost:8000/movies)
     axios
       .get('http://localhost:8000/movies', {
         params: {

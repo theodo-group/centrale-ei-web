@@ -7,15 +7,14 @@ import surprise from './videoplayback.mp4';
 import GENRES from './genres';
 
 function Home() {
-  /* ───── états principaux ───── */
+
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [type, setType] = useState('movie');
   const [genre, setGenre]=useState('')
-  /* intro vidéo */
   const [introEnded, setIntroEnded] = useState(false);
 
-  /* carrousel */
+
   const moviesPerSlide = 7;
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -34,10 +33,8 @@ function Home() {
   // Filtrer les items selon le type (film / série)
   const filteredItems = items.filter((item) => {
     if (type === 'movie') {
-      // Pour les films, on vérifie s'il y a un titre
-      return item.media_type === 'movie' || item.type === 'movie' || item.title;
+      return item.media_type === 'movie' || item.type === 'movie';
     } else if (type === 'tv') {
-      // Pour les séries, on vérifie s'il y a un nom
       return item.media_type === 'tv' || item.type === 'tv' || item.name;
     }
     return true;
@@ -52,7 +49,6 @@ function Home() {
   /* fonction chargement plus */
   function handleLoadMore() {
     setShowVideo(true);
-    // On pourrait ici déclencher la pagination après la vidéo ou non selon besoin
   }
 
   /* fermer vidéo */
@@ -72,6 +68,69 @@ function Home() {
         overflowX: 'hidden',
       }}
     >
+      {/* Header fixe (logo + boutons) en haut à gauche */}
+      <header
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '20px',
+          padding: '10px 20px',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          zIndex: 1000,
+          transform: 'translateX(4cm)',
+          height: '60px',
+        }}
+      >
+        {/* Logo */}
+        <img
+          src={netflixLogo}
+          alt="Logo Netflix"
+          style={{ height: '40px', cursor: 'pointer', userSelect: 'none' }}
+        />
+
+        {/* Boutons Films / Séries TV */}
+        <div style={{ display: 'flex', gap: '15px' }}>
+          <button
+            onClick={() => {
+              setType('movie');
+              setCurrentSlide(0);
+            }}
+            style={{
+              padding: '8px 16px',
+              fontSize: '1rem',
+              borderRadius: '5px',
+              border: type === 'movie' ? '2px solid #e50914' : '1px solid #ccc',
+              backgroundColor: 'transparent',
+              color: 'white',
+              cursor: 'pointer',
+            }}
+          >
+            Films
+          </button>
+
+          <button
+            onClick={() => {
+              setType('tv');
+              setCurrentSlide(0);
+            }}
+            style={{
+              padding: '8px 16px',
+              fontSize: '1rem',
+              borderRadius: '5px',
+              border: type === 'tv' ? '2px solid #e50914' : '1px solid #ccc',
+              backgroundColor: 'transparent',
+              color: 'white',
+              cursor: 'pointer',
+            }}
+          >
+            Séries TV
+          </button>
+        </div>
+      </header>
+
       {/* ───── Vidéo d’intro (splash screen) ───── */}
       {!introEnded && (
         <video
@@ -89,7 +148,7 @@ function Home() {
             zIndex: 9999,
             backgroundColor: 'black',
             animation: 'fadeOut 1s ease forwards',
-            animationDelay: '0.5s', // laisse 0.5 s avant de lancer le fade
+            animationDelay: '0.5s',
           }}
         >
           <source src={introVideo} type="video/mp4" />
@@ -118,13 +177,14 @@ function Home() {
       <div
         style={{
           textAlign: 'center',
+          marginTop: '80px', // pour laisser de la place au header fixe
           marginBottom: '40px',
           position: 'relative',
           zIndex: 1,
         }}
       >
         <h2 style={{ marginBottom: '10px' }}>
-          Rechercher votre film, ici :
+          Rechercher, ici :
         </h2>
         <input
           type="text"
@@ -143,54 +203,6 @@ function Home() {
         />
       </div>
 
-      {/* ───── Boutons Films / Séries ───── */}
-      <div
-        style={{
-          textAlign: 'center',
-          marginBottom: '30px',
-          position: 'relative',
-          zIndex: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '20px',
-        }}
-      >
-        <button
-          onClick={() => {
-            setType('movie');
-            setCurrentSlide(0);
-          }}
-          style={{
-            padding: '10px 20px',
-            fontSize: '1rem',
-            borderRadius: '5px',
-            border: type === 'movie' ? '2px solid #e50914' : '1px solid #ccc',
-            backgroundColor: 'transparent',
-            color: 'white',
-            cursor: 'pointer',
-          }}
-        >
-          Films
-        </button>
-        <button
-          onClick={() => {
-            setType('tv');
-            setCurrentSlide(0);
-          }}
-          style={{
-            padding: '10px 20px',
-            fontSize: '1rem',
-            borderRadius: '5px',
-            border: type === 'tv' ? '2px solid #e50914' : '1px solid #ccc',
-            backgroundColor: 'transparent',
-            color: 'white',
-            cursor: 'pointer',
-          }}
-        >
-          Séries&nbsp;TV
-        </button>
-      </div>
-
       {/* ───── Titre de section ───── */}
       <h1
         style={{
@@ -202,7 +214,7 @@ function Home() {
         }}
       >
         {type === 'movie'
-          ? 'Film populaires en ce moment'
+          ? 'Films populaires en ce moment'
           : 'Séries TV populaires en ce moment'}
       </h1>
 
