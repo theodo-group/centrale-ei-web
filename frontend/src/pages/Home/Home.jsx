@@ -23,6 +23,8 @@ function Home() {
 
   const [showGenres, setShowGenres] = useState(false);
 
+  const [visibleCount, setVisibleCount] = useState(12);
+
   // Récupération des genres au montage
   useEffect(() => {
     const fetchGenres = async () => {
@@ -69,7 +71,7 @@ function Home() {
             page: 1,
           },
         });
-        setMovies(response.data.results.slice(0, 50));
+        setMovies(response.data.results.slice(0, 100));
       } else {
         // Découverte avec filtres
         const genreParam =
@@ -134,6 +136,8 @@ function Home() {
         : [...prev, genreId]
     );
   };
+
+  const visibleMovies = movies.slice(0, visibleCount);
 
   return (
     <div className="App">
@@ -230,7 +234,14 @@ function Home() {
         <p>Chargement...</p>
       ) : (
         <div className="Movie-grid">
-          <Movie movies={movies} onMovieClick={handleMovieClick} />
+          <Movie movies={visibleMovies} onMovieClick={handleMovieClick} />
+          {visibleCount < movies.length && (
+            <div className="load-more-container">
+              <button className="load-more-btn" onClick={() => setVisibleCount(visibleCount + 12)}>
+                Afficher plus
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
