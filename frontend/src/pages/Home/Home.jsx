@@ -23,7 +23,13 @@ function Home() {
 
   const [showGenres, setShowGenres] = useState(false);
 
+
   const [visibleCount, setVisibleCount] = useState(12);
+
+  // État pour les recommandations
+  const [recommendations, setRecommendations] = useState([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+
 
   // Récupération des genres au montage
   useEffect(() => {
@@ -41,6 +47,23 @@ function Home() {
       }
     };
     fetchGenres();
+  }, []);
+
+  // Récupération des recommandations au montage
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      setLoadingRecommendations(true);
+      try {
+        const userId = 1; // Remplacez par l'ID de l'utilisateur actuel
+        const response = await axios.get(`/api/recommendations/${userId}`);
+        setRecommendations(response.data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des recommandations:', error);
+      } finally {
+        setLoadingRecommendations(false);
+      }
+    };
+    fetchRecommendations();
   }, []);
 
   // Fonction appelée au clic sur un film
@@ -223,6 +246,20 @@ function Home() {
           Sélection personalisée
         </label>
       </div>
+
+      {/* Section des recommandations */}
+      <section className="recommendations-section">
+        <h2>Recommandations pour vous</h2>
+        {loadingRecommendations ? (
+          <p>Chargement des recommandations...</p>
+        ) : recommendations.length > 0 ? (
+          <div className="Movie-grid">
+            <Movie movies={recommendations} onMovieClick={handleMovieClick} />
+          </div>
+        ) : (
+          <p>Aucune recommandation disponible.</p>
+        )}
+      </section>
 
       <h2>
         {searchTerm.trim()

@@ -8,13 +8,20 @@ import moviesRouter from './routes/movies.js';
 import { routeNotFoundJsonHandler } from './services/routeNotFoundJsonHandler.js';
 import { jsonErrorHandler } from './services/jsonErrorHandler.js';
 import { appDataSource } from './datasource.js';
+import recommendationsRouter from './routes/recommendations.js';
+
 dotenv.config();
+
+const app = express();
+
+app.use('/api/recommendations', recommendationsRouter);
 
 appDataSource
   .initialize()
   .then(() => {
     console.log('Data Source has been initialized!');
     const app = express();
+    app.use('/api/recommendations', recommendationsRouter);
 
     app.use(logger('dev'));
     app.use(cors());
