@@ -24,12 +24,6 @@ function Header() {
         <Link to="/">🍿 PopCorn Advisor</Link>
       </div>
       <nav className="NavLinks">
-        <Link className="NavButton" to="/counter">
-          Counter
-        </Link>
-        <Link className="NavButton" to="/details">
-          Details
-        </Link>
         <Link className="NavButton" to="/users">
           Users
         </Link>
@@ -51,9 +45,10 @@ function Header() {
           <option value="">-- Choisir un prénom --</option>
           {Array.isArray(users) &&
             users.map((user, index) => (
-              <option key={index} value={user.firstname}>
+              <option key={index} value={user.id}>
                 {user.firstname}
               </option>
+              // L'identifiant est stocké dans la variable selectedUser
             ))}
         </select>
       </div>
