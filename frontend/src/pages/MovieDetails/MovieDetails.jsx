@@ -12,6 +12,9 @@ function MovieDetails() {
   // bouton like
   const [isLiked, setIsLiked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
+  //bouton dislike
+  const [isDisliked, setIsDisliked] = useState(false);
+  const [dislikes, setDislikes] = useState(0);
 
   // URL du backend
   const BACKEND_URL =
@@ -99,12 +102,11 @@ function MovieDetails() {
     }).format(amount);
   };
 
-  // Fonction pour gérer le like/unlike
+  // Fonction pour gérer le like
   const handleLike = async () => {
     setLikeLoading(true);
 
     try {
-      // Simulation d'un appel API (remplacez par votre vraie API)
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const likedMovies = JSON.parse(
@@ -113,23 +115,45 @@ function MovieDetails() {
       const movieId = parseInt(id);
 
       if (isLiked) {
-        // Retirer le like
         const updatedLikes = likedMovies.filter((id) => id !== movieId);
         localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
         setIsLiked(false);
       } else {
-        // Ajouter le like
+        // Retirer le dislike si actif
+        if (isDisliked) {
+          setIsDisliked(false);
+          setDislikes((prev) => prev - 1);
+        }
+
         const updatedLikes = [...likedMovies, movieId];
         localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
         setIsLiked(true);
       }
-
-      // Ici vous pourriez faire un appel API réel :
-      // await axios.post(`${BACKEND_URL}/movies/${id}/like`, { liked: !isLiked });
     } catch (err) {
       console.error('Erreur lors du like:', err);
     } finally {
       setLikeLoading(false);
+    }
+  };
+
+  // Fonction pour gérer le dislike
+  const handleDislike = () => {
+    if (isDisliked) {
+      setDislikes((prev) => prev - 1);
+      setIsDisliked(false);
+    } else {
+      // Retirer le like si actif
+      if (isLiked) {
+        const likedMovies = JSON.parse(
+          localStorage.getItem('likedMovies') || '[]'
+        );
+        const movieId = parseInt(id);
+        const updatedLikes = likedMovies.filter((id) => id !== movieId);
+        localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
+        setIsLiked(false);
+      }
+      setDislikes((prev) => prev + 1);
+      setIsDisliked(true);
     }
   };
 
@@ -237,6 +261,21 @@ function MovieDetails() {
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
                 {likeLoading ? 'Chargement...' : isLiked ? 'Aimé' : "J'aime"}
+              </button>
+              {/* Bouton Dislike*/}
+              <button
+                onClick={handleDislike}
+                className={`dislike-btn ${isDisliked ? 'active' : ''}`}
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2z" />
+                </svg>
+                {dislikes}
               </button>
             </div>
 
