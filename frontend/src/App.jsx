@@ -1,8 +1,8 @@
 import { Route, Routes } from 'react-router-dom';
-import Layout from './components/Layout/Layout'; // ou le chemin correct vers votre Layout
+import Layout from './components/Layout/Layout';
 import Home from './pages/Home/Home';
 import Users from './pages/Users/Users';
-import About from './pages/About/About'; // ou le chemin correct vers About
+import About from './pages/About/About';
 import MovieDetails from './pages/MovieDetails/MovieDetails';
 
 function App() {

@@ -4,9 +4,10 @@ import axios from 'axios';
 import './MovieDetails.css';
 
 function MovieDetails() {
-  const { id } = useParams();
+  const { id: movieId } = useParams(); // Renommé pour clarté
   const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
+  const [genres, setGenres] = useState({}); // Map des genres {tmdb_id: name}
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -16,6 +17,33 @@ function MovieDetails() {
   const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
   const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280';
 
+  // Récupération des genres
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        console.log('Récupération des genres...');
+        const response = await axios.get(`${BACKEND_URL}/genres`, {
+          timeout: 10000,
+        });
+
+        if (response.data && response.data.genres) {
+          // Créer un map pour un accès rapide par ID
+          const genresMap = {};
+          response.data.genres.forEach((genre) => {
+            genresMap[genre.tmdb_id] = genre.name;
+          });
+          setGenres(genresMap);
+          console.log('Genres récupérés:', genresMap);
+        }
+      } catch (err) {
+        console.error('Erreur lors de la récupération des genres:', err);
+        // On continue même si les genres ne se chargent pas
+      }
+    };
+
+    fetchGenres();
+  }, [BACKEND_URL]); // Ajout de BACKEND_URL dans les dépendances
+
   // Récupération des détails du film
   useEffect(() => {
     const fetchMovieDetails = async () => {
@@ -23,9 +51,9 @@ function MovieDetails() {
       setError(null);
 
       try {
-        console.log(`Récupération des détails du film ID: ${id}`);
+        console.log(`Récupération des détails du film ID: ${movieId}`);
 
-        const response = await axios.get(`${BACKEND_URL}/movies/${id}`, {
+        const response = await axios.get(`${BACKEND_URL}/movies/${movieId}`, {
           timeout: 30000,
         });
 
@@ -50,10 +78,44 @@ function MovieDetails() {
       }
     };
 
-    if (id) {
+    if (movieId) {
       fetchMovieDetails();
     }
-  }, [id]);
+  }, [movieId, BACKEND_URL]); // Ajout de BACKEND_URL dans les dépendances
+
+  // Fonction pour obtenir le nom d'un genre par son ID
+  const getGenreName = (genreId) => {
+    return genres[genreId] || `Genre ${genreId}`;
+  };
+
+  // Fonction pour déterminer si la note est élevée
+  const isHighRating = (rating) => {
+    return rating && rating >= 8.0;
+  };
+
+  // Fonction pour formater les votes
+  const formatVotes = (votes) => {
+    if (!votes) {
+      return '0 votes';
+    }
+
+    if (votes >= 1000000) {
+      return `${(votes / 1000000).toFixed(1)}M votes`;
+    } else if (votes >= 1000) {
+      return `${(votes / 1000).toFixed(1)}k votes`;
+    }
+
+    return `${votes.toLocaleString()} votes`;
+  };
+
+  // Fonction pour formater la popularité
+  const formatPopularity = (popularity) => {
+    if (!popularity) {
+      return 'N/A';
+    }
+
+    return `${popularity.toFixed(0)} pts`;
+  };
 
   // Fonction pour formater la date
   const formatDate = (dateString) => {
@@ -77,18 +139,6 @@ function MovieDetails() {
     const mins = minutes % 60;
 
     return `${hours}h ${mins}min`;
-  };
-
-  // Fonction pour formater le budget/revenue
-  const formatMoney = (amount) => {
-    if (!amount || amount === 0) {
-      return 'Non disponible';
-    }
-
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
   };
 
   if (loading) {
@@ -191,26 +241,39 @@ function MovieDetails() {
               )}
 
               {movie.vote_average && (
-                <span className="movie-rating">
+                <span
+                  className={`movie-rating ${
+                    isHighRating(movie.vote_average) ? 'high-rating' : ''
+                  }`}
+                >
                   Note: {movie.vote_average}/10
                 </span>
               )}
 
               {movie.vote_count && (
                 <span className="movie-votes">
-                  {movie.vote_count.toLocaleString()} votes
+                  {formatVotes(movie.vote_count)}
+                </span>
+              )}
+
+              {movie.popularity && (
+                <span className="movie-popularity">
+                  Pop: {formatPopularity(movie.popularity)}
                 </span>
               )}
             </div>
 
-            {/* Genres - si disponibles */}
+            {/* Genres - avec noms réels */}
             {movie.genre_ids && movie.genre_ids.length > 0 && (
               <div className="movie-genres">
-                {movie.genre_ids.map((genreId) => (
-                  <span key={genreId} className="genre-tag">
-                    Genre {genreId}
-                  </span>
-                ))}
+                <h4>Genres:</h4>
+                <div className="genres-list">
+                  {movie.genre_ids.map((genreId) => (
+                    <span key={genreId} className="genre-tag">
+                      {getGenreName(genreId)}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -285,6 +348,21 @@ function MovieDetails() {
               )}
             </div>
           </div>
+
+          {/* Debug info - à supprimer en production */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="detail-section">
+              <h3>Debug (Development)</h3>
+              <div className="detail-list">
+                <p>
+                  <strong>Genre IDs:</strong> {JSON.stringify(movie.genre_ids)}
+                </p>
+                <p>
+                  <strong>Genres chargés:</strong> {Object.keys(genres).length}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
