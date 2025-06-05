@@ -10,11 +10,13 @@ function Header() {
     fetch('http://localhost:8000/users/prenoms')
       .then((res) => res.json())
       .then((data) => {
-        console.log('Received data:', data); // ✅ ici, data est bien défini
-        setUsers(data);
+        console.log('Received data:', data); // ici, data est bien défini
+        setUsers(data.users);
       })
-      .catch(console.error); // ✅ le .catch doit être à la fin de la chaîne
+      .catch(console.error); // le .catch doit être à la fin de la chaîne
   }, []);
+
+  console.log(users);
 
   return (
     <header className="Header">

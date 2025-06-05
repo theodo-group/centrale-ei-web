@@ -2,7 +2,7 @@ import './Movie.css';
 
 function Movie({ movies }) {
   return (
-    <div className="movies-grid">
+    <div className="movie-grid">
       {movies.map((movie) => (
         <div
           key={movie.id}
@@ -11,6 +11,7 @@ function Movie({ movies }) {
           style={{ cursor: 'pointer' }}
         >
           <img
+            className="movie-image"
             src={'https://image.tmdb.org/t/p/w500' + movie.poster_path}
             alt={movie.title}
           />
