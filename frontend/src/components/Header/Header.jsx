@@ -30,6 +30,9 @@ function Header() {
         <Link className="NavButton" to="/about">
           About
         </Link>
+        <Link className="NavButton" to="/profil">
+          Profil
+        </Link>
       </nav>
       <div
         style={{
