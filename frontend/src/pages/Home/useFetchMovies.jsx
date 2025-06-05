@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export function useFetchMovies(searchTerm, page, type = 'movie') {
+export function useFetchMovies(searchTerm, page, type = 'movie',genre='') {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -17,6 +17,7 @@ export function useFetchMovies(searchTerm, page, type = 'movie') {
           search: searchTerm,
           page,
           type,
+          genre_id:genre,
         },
       })
       .then((response) => {
@@ -27,7 +28,7 @@ export function useFetchMovies(searchTerm, page, type = 'movie') {
         setError(err);
         setLoading(false);
       });
-  }, [searchTerm, page, type]);
+  }, [searchTerm, page, type, genre]);
 
   return { items, loading, error };
 }

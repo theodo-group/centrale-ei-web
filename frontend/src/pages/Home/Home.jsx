@@ -4,13 +4,14 @@ import { useFetchMovies } from './useFetchMovies';
 import netflixLogo from './netflix.png';
 import introVideo from './Netflics.mp4';
 import surprise from './videoplayback.mp4';
+import GENRES from './genres';
 
 function Home() {
   /* ───── états principaux ───── */
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [type, setType] = useState('movie');
-
+  const [genre, setGenre]=useState('')
   /* intro vidéo */
   const [introEnded, setIntroEnded] = useState(false);
 
@@ -28,7 +29,7 @@ function Home() {
   }, [searchTerm, type]);
 
   /* récupération des films */
-  const { items, loading, error } = useFetchMovies(searchTerm, page, type);
+  const { items, loading, error } = useFetchMovies(searchTerm, page, type, genre);
 
   // Filtrer les items selon le type (film / série)
   const filteredItems = items.filter((item) => {
@@ -244,6 +245,29 @@ function Home() {
           Erreur lors du chargement {type === 'movie' ? 'des films' : 'des séries'}.
         </p>
       )}
+
+      <div
+      style={{
+        textAlign: 'center',
+        marginBottom: '20px',
+        position: 'relative',
+        zIndex: 1,
+      }}
+    >
+      <label style={{ marginRight: '10px' }}>Filtrer par genre :</label>
+      
+      <select
+        value={genre}
+        onChange={e => setGenre(e.target.value)}
+        style={{ padding: '8px', borderRadius: '5px' }}
+      >
+        <option value="">Tous</option>
+        {Object.entries(GENRES).map(([id, name]) => (
+          <option key={id} value={id}>{name}</option>
+        ))}
+      </select> 
+    
+    </div>
 
       {/* ───── Carrousel horizontal ───── */}
       {filteredItems.length > 0 && (
