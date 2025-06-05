@@ -9,6 +9,9 @@ function MovieDetails() {
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // bouton like
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
 
   // URL du backend
   const BACKEND_URL =
@@ -31,6 +34,11 @@ function MovieDetails() {
 
         if (response.data && response.data.movie) {
           setMovie(response.data.movie);
+          // Vérifier si le film est déjà liké
+          const likedMovies = JSON.parse(
+            localStorage.getItem('likedMovies') || '[]'
+          );
+          setIsLiked(likedMovies.includes(parseInt(id)));
           console.log('Détails du film récupérés:', response.data.movie);
         } else {
           throw new Error('Film non trouvé');
@@ -79,7 +87,7 @@ function MovieDetails() {
     return `${hours}h ${mins}min`;
   };
 
-  // Fonction pour formater le budget/revenue
+  // Fonction pour formater le budget/revenu
   const formatMoney = (amount) => {
     if (!amount || amount === 0) {
       return 'Non disponible';
@@ -89,6 +97,40 @@ function MovieDetails() {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
+  };
+
+  // Fonction pour gérer le like/unlike
+  const handleLike = async () => {
+    setLikeLoading(true);
+
+    try {
+      // Simulation d'un appel API (remplacez par votre vraie API)
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const likedMovies = JSON.parse(
+        localStorage.getItem('likedMovies') || '[]'
+      );
+      const movieId = parseInt(id);
+
+      if (isLiked) {
+        // Retirer le like
+        const updatedLikes = likedMovies.filter((id) => id !== movieId);
+        localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
+        setIsLiked(false);
+      } else {
+        // Ajouter le like
+        const updatedLikes = [...likedMovies, movieId];
+        localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
+        setIsLiked(true);
+      }
+
+      // Ici vous pourriez faire un appel API réel :
+      // await axios.post(`${BACKEND_URL}/movies/${id}/like`, { liked: !isLiked });
+    } catch (err) {
+      console.error('Erreur lors du like:', err);
+    } finally {
+      setLikeLoading(false);
+    }
   };
 
   if (loading) {
@@ -173,7 +215,30 @@ function MovieDetails() {
 
           {/* Informations principales */}
           <div className="movie-main-info">
-            <h1 className="movie-title">{movie.title}</h1>
+            <div className="movie-title-section">
+              <h1 className="movie-title">{movie.title}</h1>
+
+              {/* Bouton Like */}
+              <button
+                onClick={handleLike}
+                disabled={likeLoading}
+                className={`like-btn ${isLiked ? 'liked' : ''}`}
+                title={isLiked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill={isLiked ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="heart-icon"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                {likeLoading ? 'Chargement...' : isLiked ? 'Aimé' : "J'aime"}
+              </button>
+            </div>
 
             {movie.original_title && movie.original_title !== movie.title && (
               <h2 className="movie-original-title">({movie.original_title})</h2>
