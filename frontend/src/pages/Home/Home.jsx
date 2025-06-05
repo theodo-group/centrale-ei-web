@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import './Home.css';
+import { useNavigate } from 'react-router-dom';
 import Movie from '../../components/Movie/Movie';
-import { useNavigate} from 'react-router-dom';
-
 
 const PAGES_TO_FETCH = 5;
 
@@ -50,7 +49,7 @@ function Home() {
       console.error('Erreur lors de la vérification/ajout du film:', error);
     }
   };
-  
+
   // Fonction pour chercher des films (search ou discover selon searchTerm)
   const fetchMovies = async () => {
     setLoading(true);

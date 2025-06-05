@@ -89,19 +89,21 @@ function Details() {
       return;
     }
 
-    axios.get(`https://api.themoviedb.org/3/movie/${movieId}/similar`, {
-      headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}` },
-      params: { language: 'fr-FR' },
-    })
-    .then(response => {
-      setSimilarMovies(response.data.results || []);
-    })
-    .catch(error => {
-      console.error('Erreur TMDB :', error.response?.data || error.message);
-      setSimilarMovies([]);
-    });
+    axios
+      .get(`https://api.themoviedb.org/3/movie/${movieId}/similar`, {
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
+        },
+        params: { language: 'fr-FR' },
+      })
+      .then((response) => {
+        setSimilarMovies(response.data.results || []);
+      })
+      .catch((error) => {
+        console.error('Erreur TMDB :', error.response?.data || error.message);
+        setSimilarMovies([]);
+      });
   }, [movieId]);
-
 
   if (!movie) {
     return <div>Chargement...</div>;
