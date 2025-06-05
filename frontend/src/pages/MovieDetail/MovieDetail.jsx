@@ -10,6 +10,7 @@ function MovieDetail() {
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [comments, setComments] = useState([]);
 
   const GENRES = {
     28: 'Action',
@@ -41,12 +42,34 @@ function MovieDetail() {
     10768: 'War & Politics'
   };
 
+  // Charger les commentaires depuis le localStorage au chargement du composant
+  useEffect(() => {
+    const saved = localStorage.getItem(`comments_${id}`);
+    if (saved) setComments(JSON.parse(saved));
+  }, [id]);
+
+  // Sauvegarder les commentaires à chaque modification
+  useEffect(() => {
+    localStorage.setItem(`comments_${id}`, JSON.stringify(comments));
+  }, [comments, id]);
+
   const handleClick = (star) => setRating(star);
   const handleDoubleClick = () => setRating(0);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (rating === 0 && comment.trim() === '') return;
+    const newComment = {
+      text: comment,
+      rating,
+      date: new Date().toLocaleString(),
+    };
+    setComments([newComment, ...comments]);
     setSubmitted(true);
+    setComment('');
+    setRating(0);
+    setHover(0);
+    setTimeout(() => setSubmitted(false), 2000);
   };
 
   useEffect(() => {
@@ -333,6 +356,39 @@ function MovieDetail() {
               Merci pour ton avis ! 🎬
             </p>
           )}
+
+          {/* Liste des commentaires */}
+          {comments.length > 0 && (
+            <div style={{ marginTop: '35px' }}>
+              <h3 style={{ color: '#FFD700', marginBottom: '12px' }}>Commentaires des spectateurs :</h3>
+              <ul style={{ listStyle: 'none', padding: 0 }}>
+                {comments.map((c, idx) => (
+                  <li key={idx} style={{
+                    background: '#232526',
+                    borderRadius: '10px',
+                    padding: '14px 18px',
+                    marginBottom: '12px',
+                    color: '#fff',
+                    boxShadow: '0 2px 8px #0003'
+                  }}>
+                    <div style={{ marginBottom: '6px' }}>
+                      {c.rating > 0 && (
+                        <span style={{ color: '#FFD700', fontWeight: 700, marginRight: '8px' }}>
+                          {'★'.repeat(c.rating)}
+                          {'☆'.repeat(5 - c.rating)}
+                        </span>
+                      )}
+                      <span style={{ color: '#aaa', fontSize: '0.95em', marginLeft: '8px' }}>
+                        {c.date}
+                      </span>
+                    </div>
+                    <div style={{ whiteSpace: 'pre-line' }}>{c.text}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
@@ -340,4 +396,3 @@ function MovieDetail() {
 }
 
 export default MovieDetail;
-
