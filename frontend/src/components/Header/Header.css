@@ -1,17 +1,34 @@
-.Header-container {
+.Header {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(44, 40, 49);
   padding: 15px 30px;
-  font-size: calc(10px + 2vmin);
-  background-color:rgb(44, 40, 49)
+  font-size: 18px;
 }
 
-.Header-container > :not(:last-child) {
-  margin-right: 10px;
-}
-
-.Link {
-  font-weight: 700;
+.Logo a {
   color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.NavLinks {
+  display: flex;
+  gap: 15px;
+}
+
+.NavButton {
+  background-color: #5a4e68;
+  color: white;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  font-weight: 600;
+}
+
+.NavButton:hover {
+  background-color: #7a6b91;
 }
