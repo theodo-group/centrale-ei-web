@@ -56,6 +56,16 @@ function Home() {
     setShowVideo(false);
     setPage((p) => p + 1); // charge la page suivante après fermeture vidéo
   }
+  const MOVIE_GENRE_IDS = [
+  28, 12, 16, 35, 80, 99, 18, 10751, 14, 36, 27, 10402, 9648, 10749, 878, 10770, 53, 10752, 37
+ ];
+  const TV_GENRE_IDS = [
+  10759, 16, 35, 80, 99, 18, 10751, 10762, 9648, 10763, 10764, 10765, 10766, 10767, 10768, 37
+];
+  const genreIdsToShow = type === 'movie' ? MOVIE_GENRE_IDS : TV_GENRE_IDS;
+  const filteredGenres = Object.entries(GENRES).filter(([id]) =>
+  genreIdsToShow.includes(Number(id))
+);
 
   return (
     <div
@@ -255,16 +265,16 @@ function Home() {
     >
       <label style={{ marginRight: '10px' }}>Filtrer par genre :</label>
       
-      <select
-        value={genre}
-        onChange={e => setGenre(e.target.value)}
-        style={{ padding: '8px', borderRadius: '5px' }}
-      >
-        <option value="">Tous</option>
-        {Object.entries(GENRES).map(([id, name]) => (
-          <option key={id} value={id}>{name}</option>
-        ))}
-      </select> 
+    <select
+    value={genre}
+    onChange={e => setGenre(e.target.value)}
+    style={{ padding: '8px', borderRadius: '5px' }}
+  >
+    <option value="">Tous</option>
+    {filteredGenres.map(([id, name]) => (
+      <option key={id} value={id}>{name}</option>
+    ))}
+  </select>
     
     </div>
 
