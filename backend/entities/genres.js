@@ -1,4 +1,4 @@
-import { EntitySchema } from 'typeorm';
+const { EntitySchema } = require('typeorm');
 
 const Genre = new EntitySchema({
   name: 'Genre',
@@ -11,9 +11,9 @@ const Genre = new EntitySchema({
     movies: {
       target: 'Movie',
       type: 'many-to-many',
-      mappedBy: 'genres',
+      inverseSide: 'genres', // pas `mappedBy`, c'est `inverseSide`
     },
   },
 });
 
-export default Genre;
+module.exports = Genre;
