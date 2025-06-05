@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import './Details.css';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
-
-console.log('Clé API TMDB :', import.meta.env.VITE_TMDB_API_KEY);
 const posterURL = 'https://image.tmdb.org/t/p/w500';
 
 function StarRating({ storageKey = 'userRating' }) {
@@ -66,28 +64,22 @@ function StarRating({ storageKey = 'userRating' }) {
 
 function Details() {
   const { id: movieId } = useParams();
-  console.log('Movie ID from useParams:', movieId);
+  const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
   const [errorCase, setErrorCase] = useState(null);
   const [similarMovies, setSimilarMovies] = useState([]);
-
-  console.log('Movie ID from useParams:', movieId);
 
   useEffect(() => {
     if (!movieId) {
       return;
     }
 
-    console.log(`Déclenche requête axios pour le film ID: ${movieId}`);
-
     axios
-      .get(`/api/movies/${movieId}`) // Proxy vers backend
+      .get(`/api/movies/${movieId}`)
       .then((response) => {
-        console.log('Données film reçues:', response.data);
         setMovie(response.data);
       })
       .catch((error) => {
-        console.error('Erreur lors du chargement du film :', error);
         setErrorCase('Erreur lors du chargement du film');
       });
   }, [movieId]);
@@ -97,23 +89,19 @@ function Details() {
       return;
     }
 
-    console.log(
-      `Déclenche requête axios pour films similaires du film ID: ${movieId}`
-    );
-
-    axios
-      .get(`/api/movies/${movieId}/similar`)
-      .then((response) => {
-        console.log('Films similaires reçus:', response.data.results);
-        setSimilarMovies(response.data.results);
-      })
-      .catch((error) => {
-        console.error(
-          'Erreur lors du chargement des films similaires :',
-          error
-        );
-      });
+    axios.get(`https://api.themoviedb.org/3/movie/${movieId}/similar`, {
+      headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}` },
+      params: { language: 'fr-FR' },
+    })
+    .then(response => {
+      setSimilarMovies(response.data.results || []);
+    })
+    .catch(error => {
+      console.error('Erreur TMDB :', error.response?.data || error.message);
+      setSimilarMovies([]);
+    });
   }, [movieId]);
+
 
   if (!movie) {
     return <div>Chargement...</div>;
@@ -132,7 +120,7 @@ function Details() {
   });
 
   return (
-    <div className="App-content">
+    <div className="App-content" key={movieId}>
       <img
         className="poster"
         src={posterURL + movie.posterPath}
@@ -155,11 +143,8 @@ function Details() {
                 key={film.id}
                 className="similar-item"
                 style={{ cursor: 'pointer' }}
-                onClick={() => {
-                  console.log('Film similaire cliqué, ID:', film.id);
-                  window.location.href = `/details/${film.id}`;
-              }}
->
+                onClick={() => navigate(`/details/${film.id}`)}
+              >
                 <img
                   src={
                     film.poster_path

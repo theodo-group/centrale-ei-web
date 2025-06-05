@@ -6,19 +6,10 @@
  * @class
  * @implements {MigrationInterface}
  */
-export default class  $npmConfigName1749114927973 {
-    name = ' $npmConfigName1749114927973'
+export default class  $npmConfigName1749039010338 {
+    name = ' $npmConfigName1749039010338'
 
     async up(queryRunner) {
-        await queryRunner.query(`
-            CREATE TABLE "User" (
-                "id" integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-                "email" varchar NOT NULL,
-                "firstname" varchar NOT NULL,
-                "lastname" varchar NOT NULL,
-                CONSTRAINT "UQ_4a257d2c9837248d70640b3e36e" UNIQUE ("email")
-            )
-        `);
         await queryRunner.query(`
             CREATE TABLE "Movie" (
                 "id" integer PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -137,9 +128,6 @@ export default class  $npmConfigName1749114927973 {
         `);
         await queryRunner.query(`
             DROP TABLE "Movie"
-        `);
-        await queryRunner.query(`
-            DROP TABLE "User"
         `);
     }
 }
