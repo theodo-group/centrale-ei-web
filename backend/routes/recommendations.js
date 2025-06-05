@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import { getRecommendations } from '../controllers/recommendations.js';
 
+router.get('/:userId', getRecommendations);
 
 router.get('/', getRecommendations);
 
