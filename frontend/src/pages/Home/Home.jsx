@@ -18,6 +18,8 @@ function Home() {
 
   const debounceTimeout = useRef(null);
 
+  const [showGenres, setShowGenres] = useState(false);
+
   // Récupération des genres au montage
   useEffect(() => {
     const fetchGenres = async () => {
@@ -86,6 +88,20 @@ function Home() {
     }
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const offset = window.scrollY;
+      const background = document.querySelector('.background-blur');
+      if (background) {
+        background.style.transform = `translateY(${offset * 0.4}px)`; // parallax doux
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Déclenche la recherche avec un debounce pour éviter les appels trop fréquents
   useEffect(() => {
     if (debounceTimeout.current) {
@@ -109,62 +125,71 @@ function Home() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Popcorn Advisor</h1>
+        <h1>Bienvenue, que souhaitez-vous regarder ?</h1>
       </header>
 
-      <div>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Rechercher un film..."
-          style={{ width: '100%', padding: '8px', fontSize: '16px' }}
-        />
-      </div>
+      <section className="search-section">
+        <div className="search-bar-container">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Rechercher un film..."
+          />
 
-      <div style={{ marginTop: '10px' }}>
-        <label htmlFor="sort">Trier par : </label>
-        <select
-          id="sort"
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
-        >
-          <option value="popularity">Popularité</option>
-          <option value="release_date">Date de sortie</option>
-          <option value="title">Titre (alphabétique)</option>
-          <option value="vote_average">Note moyenne</option>
-        </select>
+          <div className="genre-dropdown">
+            <button
+              className="genre-toggle"
+              onClick={() => setShowGenres((prev) => !prev)}
+            >
+              🎬 Genres
+            </button>
 
-        <label htmlFor="direction" style={{ marginLeft: '10px' }}>
-          Ordre :
-        </label>
-        <select
-          id="direction"
-          value={sortDirection}
-          onChange={(e) => setSortDirection(e.target.value)}
-        >
-          <option value="desc">Décroissant</option>
-          <option value="asc">Croissant</option>
-        </select>
-      </div>
+            {showGenres && (
+              <div className="genre-menu">
+                {genresList.map((genre) => (
+                  <label key={genre.id}>
+                    <input
+                      type="checkbox"
+                      checked={selectedGenres.includes(genre.id)}
+                      onChange={() => handleGenreChange(genre.id)}
+                    />
+                    {genre.name}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
-      <div style={{ marginTop: '10px' }}>
-        <fieldset>
-          <legend>Genres :</legend>
-          {genresList.map((genre) => (
-            <label key={genre.id} style={{ marginRight: '10px' }}>
-              <input
-                type="checkbox"
-                checked={selectedGenres.includes(genre.id)}
-                onChange={() => handleGenreChange(genre.id)}
-              />
-              {genre.name}
-            </label>
-          ))}
-        </fieldset>
-      </div>
+      <div className="filters">
+        <div>
+          <label htmlFor="sort">Trier par :</label>
+          <select
+            id="sort"
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+          >
+            <option value="popularity">Popularité</option>
+            <option value="release_date">Date de sortie</option>
+            <option value="title">Titre (alphabétique)</option>
+            <option value="vote_average">Note moyenne</option>
+          </select>
+        </div>
 
-      <div style={{ marginTop: '10px' }}>
+        <div>
+          <label htmlFor="direction">Ordre :</label>
+          <select
+            id="direction"
+            value={sortDirection}
+            onChange={(e) => setSortDirection(e.target.value)}
+          >
+            <option value="desc">Décroissant</option>
+            <option value="asc">Croissant</option>
+          </select>
+        </div>
+
         <label>
           <input
             type="checkbox"
@@ -175,13 +200,19 @@ function Home() {
         </label>
       </div>
 
-      <h2 style={{ marginTop: '20px' }}>
+      <h2>
         {searchTerm.trim()
           ? `Résultats de la recherche pour "${searchTerm}"`
           : 'Films'}
       </h2>
 
-      {loading ? <p>Chargement...</p> : <Movie movies={movies} />}
+      {loading ? (
+        <p>Chargement...</p>
+      ) : (
+        <div className="Movie-grid">
+          <Movie movies={movies} />
+        </div>
+      )}
     </div>
   );
 }
