@@ -132,7 +132,9 @@ function Details() {
         <h1>{movie.title}</h1>
         <h3>{'Date de sortie : ' + dateFr}</h3>
         <p>{movie.overview}</p>
-        <h4>{'Note des spectateurs : ' + movie.voteAverage}</h4>
+        <h4>
+          {'Note des spectateurs : ' + (movie.voteAverage / 2).toFixed(2)}
+        </h4>
         <StarRating storageKey={`noteFilm-${movie.id}`} />
       </div>
 
