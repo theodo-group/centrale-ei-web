@@ -2,6 +2,7 @@ import typeorm from 'typeorm';
 
 const User = new typeorm.EntitySchema({
   name: 'User',
+  tableName: 'User',
   columns: {
     id: {
       primary: true,
