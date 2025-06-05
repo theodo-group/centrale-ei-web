@@ -6,8 +6,8 @@
  * @class
  * @implements {MigrationInterface}
  */
-export default class  $npmConfigName1749128599377 {
-    name = ' $npmConfigName1749128599377'
+export default class  $npmConfigName1749133200781 {
+    name = ' $npmConfigName1749133200781'
 
     async up(queryRunner) {
         await queryRunner.query(`
