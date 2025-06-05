@@ -63,10 +63,8 @@ router.get('/:id', async function (req, res) {
 
     // Pas trouvé en base => requête TMDB
     const response = await axios.get(`${TMDB_API_URL}${movieId}`, {
-      params: {
-        api_key: TMDB_API_KEY,
-        language: 'fr-FR',
-      },
+      headers: { Authorization: `Bearer ${TMDB_API_KEY}` },
+      params: { language: 'fr-FR' },
     });
 
     const movieData = response.data;
@@ -131,10 +129,8 @@ router.get('/:id/similar', async (req, res) => {
     const response = await axios.get(
       `https://api.themoviedb.org/3/movie/${movieId}/similar`,
       {
-        params: {
-          api_key: TMDB_API_KEY,
-          language: 'fr-FR',
-        },
+        headers: { Authorization: `Bearer ${TMDB_API_KEY}` },
+        params: { language: 'fr-FR' },
       }
     );
     res.json(response.data);
