@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import './Home.css';
 import Movie from '../../components/Movie/Movie';
+import { useNavigate} from 'react-router-dom';
+
 
 const PAGES_TO_FETCH = 5;
 
@@ -17,6 +19,7 @@ function Home() {
   const [includeAdult, setIncludeAdult] = useState(false);
 
   const debounceTimeout = useRef(null);
+  const navigate = useNavigate();
 
   const [showGenres, setShowGenres] = useState(false);
 
@@ -38,6 +41,16 @@ function Home() {
     fetchGenres();
   }, []);
 
+  // Fonction appelée au clic sur un film
+  const handleMovieClick = async (movieId) => {
+    try {
+      await axios.get(`/api/movies/${movieId}`); // adapte le chemin si besoin
+      navigate(`/details/${movieId}`);
+    } catch (error) {
+      console.error('Erreur lors de la vérification/ajout du film:', error);
+    }
+  };
+  
   // Fonction pour chercher des films (search ou discover selon searchTerm)
   const fetchMovies = async () => {
     setLoading(true);
@@ -209,7 +222,7 @@ function Home() {
         <p>Chargement...</p>
       ) : (
         <div className="Movie-grid">
-          <Movie movies={movies} />
+          <Movie movies={movies} onMovieClick={handleMovieClick} />
         </div>
       )}
     </div>

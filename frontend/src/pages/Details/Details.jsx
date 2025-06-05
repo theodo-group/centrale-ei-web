@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './Details.css';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const posterURL = 'https://image.tmdb.org/t/p/w500';
 
