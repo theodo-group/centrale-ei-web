@@ -9,7 +9,11 @@ function Header() {
   useEffect(() => {
     fetch('http://localhost:8000/users/prenoms')
       .then((res) => res.json())
-      .then((data) => setUsers(data));
+      .then((data) => {
+        console.log('Received data:', data); // ✅ ici, data est bien défini
+        setUsers(data);
+      })
+      .catch(console.error); // ✅ le .catch doit être à la fin de la chaîne
   }, []);
 
   return (
