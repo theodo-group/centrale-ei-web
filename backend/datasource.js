@@ -1,15 +1,11 @@
 import { DataSource } from 'typeorm';
-import Movie from './entities/movies.js';
-import Genre from './entities/genres.js';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import 'dotenv/config';
 
 export const appDataSource = new DataSource({
   type: 'sqlite',
   database: process.env.DATABASE_NAME,
   synchronize: false,
-  entities: [Movie, Genre],
+  entities: ['entities/*.js'],
   migrations: ['migrations/*.js'],
   cli: {
     migrationsDir: 'migrations',

@@ -127,7 +127,6 @@ function Home() {
       <header className="App-header">
         <h1>Bienvenue, que souhaitez-vous regarder ?</h1>
       </header>
-
       <section className="search-section">
         <div className="search-bar-container">
           <input

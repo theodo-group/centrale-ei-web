@@ -1,16 +1,29 @@
 import express from 'express';
 import { appDataSource } from '../datasource.js';
 import User from '../entities/user.js';
+// import Movie from '../entities/users.js';
 
 const router = express.Router();
 
-router.get('/', function (req, res) {
-  appDataSource
-    .getRepository(User)
-    .find({})
-    .then(function (users) {
-      res.json({ users: users });
-    });
+// router.get('/',  function (req, res) {
+//   appDataSource
+//     .getRepository(User)
+//     .find({})
+//     .then(function (users) {
+//       res.json({ users: users });
+//     });
+// });
+
+router.get('/', async function (req, res) {
+  try {
+    const userRepository = appDataSource.getRepository(User);
+    const users = await userRepository.find();
+    res.json(users);
+    console.log('users callback works');
+  } catch (error) {
+    console.error('Error while retrieving users :', error);
+    res.status(500).json({ message: 'Server error while retrieving users' });
+  }
 });
 
 router.post('/new', function (req, res) {
@@ -51,6 +64,17 @@ router.delete('/:userId', function (req, res) {
     .catch(function () {
       res.status(500).json({ message: 'Error while deleting the user' });
     });
+});
+
+router.get('/prenoms', function (req, res, next) {
+  appDataSource
+    .getRepository(User)
+    .find({ select: ['firstname'] })
+    .then(function (users) {
+      console.log(users);
+      res.json({ users });
+    })
+    .catch(next);
 });
 
 export default router;
