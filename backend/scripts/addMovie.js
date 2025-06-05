@@ -1,9 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config();
-import 'reflect-metadata';
-import { appDataSource } from '../datasource.js';
-import Movie from '../entities/movies.js';
-//import Genre from '../entities/genres.js';
+require('dotenv').config();
+require('reflect-metadata');
+const { appDataSource } = require('../datasource.js');
+const Movie = require('../entities/movies.js');
 
 // Fonction pour parser les arguments de la ligne de commande
 function parseArgs() {
@@ -59,6 +57,6 @@ async function run() {
 
 run();
 
-//Exemple command console (niveau backend)
-//node addMovie.js --id=123 --title="Mon Film" --releaseDate="2024-01-01"
-//node addMovie.js --title="Film Auto-ID" --releaseDate="2025-01-01"
+// Exemple command console (niveau backend)
+// node addMovie.js --id=123 --title="Mon Film" --releaseDate="2024-01-01"
+// node addMovie.js --title="Film Auto-ID" --releaseDate="2025-01-01"

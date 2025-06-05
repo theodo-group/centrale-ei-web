@@ -1,4 +1,4 @@
-import typeorm from 'typeorm';
+const typeorm = require('typeorm');
 
 const Movie = new typeorm.EntitySchema({
   name: 'Movie',
@@ -72,7 +72,12 @@ const Movie = new typeorm.EntitySchema({
         },
       },
     },
+    ratings: {
+      target: 'Rating',
+      type: 'one-to-many',
+      inverseSide: 'movie',
+    },
   },
 });
 
-export default Movie;
+module.exports = Movie;
