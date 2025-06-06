@@ -1,7 +1,8 @@
-import typeorm from 'typeorm';
+const typeorm = require('typeorm');
 
 const User = new typeorm.EntitySchema({
   name: 'User',
+  tableName: 'User',
   columns: {
     id: {
       primary: true,
@@ -15,6 +16,14 @@ const User = new typeorm.EntitySchema({
     firstname: { type: String },
     lastname: { type: String },
   },
+  relations: {
+    ratings: {
+      type: 'one-to-many',
+      target: 'Rating',
+      inverseSide: 'user',
+      cascade: true, // utile pour supprimer automatiquement les ratings en supprimant un user
+    },
+  },
 });
 
-export default User;
+module.exports = { User };

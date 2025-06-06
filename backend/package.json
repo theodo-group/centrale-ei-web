@@ -2,25 +2,26 @@
   "name": "centrale-ei-web",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "dotenv -- nodemon --experimental-modules ./server.js",
-    "start": "dotenv -- node --experimental-modules ./server.js",
+    "dev": "dotenv -- nodemon ./server.js",
+    "start": "dotenv -- node ./server.js",
     "lint": "eslint . --fix",
-    "migration:generate": "dotenv -- typeorm --dataSource='./datasource.js' migration:generate --outputJs --pretty migrations/$npm_config_name",
     "postmigration:generate": "bash ./postmigration.sh",
-    "migration:run": "dotenv -- typeorm --dataSource='./datasource.js' migration:run",
-    "migration:revert": "dotenv -- typeorm --dataSource='./datasource.js' migration:revert"
+    "migration:generate": "node ./scripts/generateMigration.js",
+    "migration:run": "node ./scripts/runMigration.js",
+    "migration:revert": "node ./scripts/revertMigration.js"
   },
   "dependencies": {
+    "axios": "^1.9.0",
     "cors": "^2.8.5",
-    "dotenv-cli": "^7.0.0",
+    "dotenv": "^16.5.0",
     "express": "^4.18.2",
     "morgan": "^1.10.0",
     "sqlite3": "^5.1.6",
     "typeorm": "^0.3.16"
   },
   "devDependencies": {
+    "dotenv-cli": "^8.0.0",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-import": "^2.27.5",

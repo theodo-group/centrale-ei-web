@@ -1,33 +1,47 @@
-import express from 'express';
-import logger from 'morgan';
-import cors from 'cors';
-import indexRouter from './routes/index.js';
-import usersRouter from './routes/users.js';
-import { routeNotFoundJsonHandler } from './services/routeNotFoundJsonHandler.js';
-import { jsonErrorHandler } from './services/jsonErrorHandler.js';
-import { appDataSource } from './datasource.js';
+// server.js
+const express = require('express');
+const logger = require('morgan');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const indexRouter = require('./routes/index.js');
+const usersRouter = require('./routes/users.js');
+const moviesRouter = require('./routes/movies.js');
+const recommendationsRouter = require('./routes/recommendations.js');
+const ratingsRouter = require('./routes/ratings.js');
+const tmdbProxyRouter = require('./routes/tmdbProxy.js');  // <-- nouveau
+const {
+  routeNotFoundJsonHandler,
+} = require('./services/routeNotFoundJsonHandler.js');
+const { jsonErrorHandler } = require('./services/jsonErrorHandler.js');
+const { appDataSource } = require('./datasource.js');
+
+dotenv.config();
+
+const app = express();
+
+app.use(logger('dev'));
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/api/movies', moviesRouter);
+app.use('/api/recommendations', recommendationsRouter);
+app.use('/ratings', ratingsRouter);
+
+// Ajout du routeur proxy TMDB
+app.use('/api/tmdb', tmdbProxyRouter);
+
+app.use(routeNotFoundJsonHandler);
+app.use(jsonErrorHandler);
+
+const port = parseInt(process.env.PORT || '8000');
 
 appDataSource
   .initialize()
   .then(() => {
     console.log('Data Source has been initialized!');
-    const app = express();
-
-    app.use(logger('dev'));
-    app.use(cors());
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: false }));
-
-    // Register routes
-    app.use('/', indexRouter);
-    app.use('/users', usersRouter);
-
-    // Register 404 middleware and error handler
-    app.use(routeNotFoundJsonHandler); // this middleware must be registered after all routes to handle 404 correctly
-    app.use(jsonErrorHandler); // this error handler must be registered after all middleware to catch all errors
-
-    const port = parseInt(process.env.PORT || '8000');
-
     app.listen(port, () => {
       console.log(`Server listening at http://localhost:${port}`);
     });
