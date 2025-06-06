@@ -180,7 +180,6 @@ function Home() {
                 ))}
               </div>
             )}
-
           </div>
         </div>
       </section>
@@ -272,6 +271,7 @@ function Home() {
         </div>
       )}
     </div>
+
 
   );
 }
