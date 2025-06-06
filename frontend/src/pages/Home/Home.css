@@ -1,37 +1,458 @@
 .App {
-  text-align: center;
+  min-height: 100vh;
+  background: var(--primary-bg);
+  position: relative;
+  overflow-x: hidden;
 }
 
-.App-logo {
-  height: 40vmin;
+/* Effet de particules en arrière-plan */
+.App::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 70%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
   pointer-events: none;
+  z-index: -1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
+/* Header simplifié */
 .App-header {
-  background-color: #282c34;
+  background: rgba(26, 26, 46, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 2px solid var(--card-border);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  color: var(--text-primary);
+  padding: 40px 20px 30px 20px;
+  position: relative;
+}
+
+.App-header h1 {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 3rem;
+  background: linear-gradient(45deg, var(--accent-neon), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Formulaire de recherche simplifié */
+.App-header form {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Input de recherche optimisé pour interface simple */
+.App-header input[type="text"] {
+  width: 100%;
+  max-width: 500px;
+  padding: 18px 25px;
+  font-size: 18px;
+  font-family: 'Exo 2', sans-serif;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--glass-border);
+  border-radius: 15px;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-align: center;
+}
+
+.App-header input[type="text"]::placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+  text-align: center;
+}
+
+.App-header input[type="text"]:focus {
+  border-color: var(--accent-neon);
+  box-shadow: 
+    0 0 25px rgba(0, 255, 255, 0.4),
+    inset 0 0 25px rgba(0, 255, 255, 0.1);
+  background: rgba(0, 255, 255, 0.05);
+  transform: translateY(-2px);
+  text-align: left;
+}
+
+/* Indicateur de frappe optimisé */
+.typing-indicator {
+  margin: 15px 0 0 0;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 193, 7, 0.1));
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--accent-orange);
+  border-radius: 20px;
+  max-width: 500px;
+  text-align: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.typing-indicator p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--accent-orange);
+  font-style: italic;
+  font-weight: 500;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Grille des films optimisée */
+.movies-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Message de chargement simple dans la grille */
+.movies-list > p {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  font-family: 'Orbitron', monospace;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 40px;
+  margin: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Carte de film avec effet glassmorphism */
+.movie-item {
+  display: flex;
+  flex-direction: column;
+  padding: 25px;
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.movie-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-neon), var(--accent-purple), var(--accent-orange));
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.movie-item:hover::before {
+  transform: scaleX(1);
+}
+
+.movie-item:hover {
+  transform: translateY(-10px) scale(1.02);
+  border-color: var(--accent-neon);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(0, 255, 255, 0.3);
+}
+
+.movie-poster {
+  width: 160px;
+  height: auto;
+  margin: 0 auto 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease;
+}
+
+.movie-item:hover .movie-poster {
+  transform: scale(1.05);
+}
+
+.movie-info {
+  flex: 1;
+  text-align: center;
+}
+
+.movie-info h3 {
+  color: var(--text-primary);
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Orbitron', monospace;
+  line-height: 1.3;
+}
+
+.movie-info p {
+  color: var(--text-secondary);
+  margin: 8px 0;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.movie-overview {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 15px 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.movie-rating {
+  font-weight: 700;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--accent-orange), rgba(255, 107, 53, 0.8));
+  padding: 8px 15px;
+  border-radius: 20px;
+  display: inline-block;
+  font-size: 14px;
+  box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+  margin: 10px 0;
+}
+
+.movie-vote_count {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* Container d'erreur dans la grille */
+.error-container {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--text-primary);
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  border-radius: 20px;
+  padding: 60px 40px;
+  margin: 20px;
+}
+
+.error-container h2 {
+  margin-bottom: 20px;
+  color: #ff4757;
+  font-family: 'Orbitron', monospace;
+  font-size: 2rem;
+}
+
+.error-container p {
+  margin: 15px 0;
+  color: var(--text-secondary);
+  font-size: 16px;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+.error-container button {
+  margin-top: 25px;
+  padding: 15px 35px;
+  background: linear-gradient(135deg, #ff4757, #ff3742);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Exo 2', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.3);
+}
+
+.error-container button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(255, 71, 87, 0.4);
+  background: linear-gradient(135deg, #ff3742, #ff2f3a);
+}
+
+/* Message aucun résultat */
+.no-results {
+  text-align: center;
+  padding: 60px 40px;
+  color: var(--text-secondary);
+  grid-column: 1 / -1;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  margin: 20px;
+}
+
+.no-results p {
+  margin: 15px 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.prev-button {
+  background-color: #145eac;
   color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 10px; /* Ajoute un espace entre les boutons */
+}
+.next-button {
+  background-color: #145eac;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 10px; /* Ajoute un espace entre les boutons */
+}
+.page-number {
+  font-size: 16px;
+  color: #333;
+  margin: 0 10px; /* Ajoute un espace entre les numéros de page */
 }
 
-.App-link {
-  color: #61dafb;
+/* Section pour le sélecteur de tri (optionnel) */
+.sort-section {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.sort-label {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.sort-select {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-family: 'Exo 2', sans-serif;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%2300ffff' viewBox='0 0 16 16'%3e%3cpath d='M8 13.1l4.7-4.7-1.4-1.4L8 10.3 4.7 7l-1.4 1.4z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+.sort-select:focus,
+.sort-select:hover {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+  background-color: rgba(138, 43, 226, 0.05);
+}
+
+.sort-select option {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  padding: 8px;
+}
+
+/* Responsive design optimisé */
+@media (max-width: 768px) {
+  .App-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 25px;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .App-header {
+    padding: 30px 15px 25px 15px;
+  }
+  
+  .App-header input[type="text"] {
+    font-size: 16px;
+    padding: 15px 20px;
+  }
+  
+  .movies-list {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 20px 15px;
+  }
+  
+  .typing-indicator {
+    margin: 10px 15px 0 15px;
+    max-width: none;
+  }
+  
+  .sort-section {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .sort-select {
+    min-width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .App-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .movies-list {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px 10px;
+  }
+  
+  .movie-item {
+    padding: 20px;
+  }
+  
+  .App-header input[type="text"] {
+    font-size: 14px;
+    padding: 12px 18px;
+  }
+  
+  .error-container {
+    padding: 40px 20px;
+  }
+  
+  .no-results {
+    padding: 40px 20px;
   }
 }
