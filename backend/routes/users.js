@@ -26,12 +26,16 @@ router.post('/new', async (req, res) => {
   try {
     const newUser = userRepository.create({ email, firstname, lastname });
     const savedUser = await userRepository.save(newUser);
-    res.status(201).json({ message: 'User successfully created', id: savedUser.id });
+    res
+      .status(201)
+      .json({ message: 'User successfully created', id: savedUser.id });
   } catch (error) {
     console.error(error);
     if (error.code === '23505') {
       // Violation de contrainte unique (email déjà existant)
-      return res.status(400).json({ message: `User with email "${email}" already exists` });
+      return res
+        .status(400)
+        .json({ message: `User with email "${email}" already exists` });
     }
     res.status(500).json({ message: 'Error while creating the user' });
   }
@@ -54,7 +58,7 @@ router.delete('/:userId', async (req, res) => {
 router.get('/prenoms', async (req, res, next) => {
   try {
     const userRepository = appDataSource.getRepository(User);
-    const users = await userRepository.find({ select: ['firstname'] });
+    const users = await userRepository.find({});
     res.json(users);
   } catch (error) {
     next(error);
