@@ -1,56 +1,77 @@
 import './Profil.css';
-
-const sampleMovies = [
-  {
-    id: 1,
-    title: 'Inception',
-    poster_path: '/qmDpIHrmpJINaRKAfWQfftjCdyi.jpg',
-  },
-  {
-    id: 2,
-    title: 'Interstellar',
-    poster_path: '/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
-  },
-  {
-    id: 3,
-    title: 'The Dark Knight',
-    poster_path: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
-  },
-  // Ajoute d'autres films ici
-];
+import { useContext, useEffect, useState } from 'react';
+import axios from 'axios';
+import UserContext from '../../UserContext.jsx'; // adapte le chemin
 
 const posterURL = 'https://image.tmdb.org/t/p/w500';
 
 function Profil() {
-  const user = {
-    firstName: 'Jean',
-    lastName: 'Dupont',
-    avatar: '/chat.jpg', // Assure-toi d’avoir une image dans ton dossier public
-  };
+  const { selectedUserId } = useContext(UserContext);
+  const [ratedMovies, setRatedMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!selectedUserId) {
+      setLoading(false);
+
+      return;
+    }
+
+    const userId = Number(selectedUserId);
+    if (isNaN(userId)) {
+      console.error('User ID invalide:', selectedUserId);
+      setLoading(false);
+
+      return;
+    }
+
+    setLoading(true);
+    axios
+      .get(`http://localhost:8000/ratings/${userId}`)
+      .then((res) => {
+        setRatedMovies(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Erreur lors du chargement des films notés :', err);
+        setLoading(false);
+      });
+  }, [selectedUserId]);
+
+  if (!selectedUserId) {
+    return <p>Chargement des informations utilisateur...</p>;
+  }
 
   return (
     <div className="profile-page">
       <div className="profile-header">
-        <img src={user.avatar} alt="Avatar" className="profile-avatar" />
-        <h1>
-          {user.firstName} {user.lastName}
-        </h1>
+        {/* Si tu as l’avatar dans les données utilisateur, adapte ici */}
+        <img src="/chat.jpg" alt="Avatar" className="profile-avatar" />
+        <h1>Utilisateur ID : {selectedUserId}</h1>
       </div>
 
       <div className="profile-section">
-        <h2>Votre collection :</h2>
-        <div className="profile-movie-list">
-          {sampleMovies.map((movie) => (
-            <div key={movie.id} className="profile-movie-item">
-              <img
-                src={posterURL + movie.poster_path}
-                alt={movie.title}
-                className="profile-movie-poster"
-              />
-              <p>{movie.title}</p>
-            </div>
-          ))}
-        </div>
+        <h2>Films notés :</h2>
+
+        {loading ? (
+          <p>Chargement...</p>
+        ) : ratedMovies.length === 0 ? (
+          <p>Vous n'avez encore noté aucun film.</p>
+        ) : (
+          <div className="profile-movie-list">
+            {ratedMovies.map((movie) => (
+              <div key={movie.id} className="profile-movie-item">
+                <img
+                  src={posterURL + movie.poster_path}
+                  alt={movie.title}
+                  className="profile-movie-poster"
+                />
+                <p>{movie.title}</p>
+                <p className="movie-rating">Note : {movie.rating}/5</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
