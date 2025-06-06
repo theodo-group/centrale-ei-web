@@ -21,7 +21,6 @@ router.get('/', function (req, res) {
     const minRating = parseFloat(req.query.minRating); // Note minimale
     const maxRating = parseFloat(req.query.maxRating); // Note maximale
     const year = parseInt(req.query.year); // Année de sortie
-    const genre = req.query.genre; // Filtrage par genre (à implémenter si nécessaire)
 
     // Validation des paramètres de tri
     const allowedSortFields = [
@@ -257,6 +256,51 @@ router.get('/recent', function (req, res) {
     });
 });
 
+// Récupérer tous les films likés/dislikés
+router.get('/ratings/all', async function (req, res) {
+  try {
+    const movieRepository = appDataSource.getRepository(Movie);
+
+    // Récupérer tous les films avec un rating non-neutre
+    const ratedMovies = await movieRepository.find({
+      where: [
+        { likedislike: 1 }, // Films likés
+        { likedislike: -1 }, // Films dislikés
+      ],
+      select: [
+        'id',
+        'title',
+        'likedislike',
+        'poster_path',
+        'vote_average',
+        'release_date',
+      ],
+    });
+
+    // Organiser par catégorie
+    const liked = ratedMovies.filter((movie) => movie.likedislike === 1);
+    const disliked = ratedMovies.filter((movie) => movie.likedislike === -1);
+
+    res.json({
+      success: true,
+      data: {
+        liked: liked,
+        disliked: disliked,
+        total: {
+          liked: liked.length,
+          disliked: disliked.length,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching all ratings:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'Failed to fetch movie ratings',
+    });
+  }
+});
+
 // Route pour rechercher des films
 router.get('/search', function (req, res) {
   const query = req.query.q;
@@ -313,7 +357,7 @@ router.get('/search', function (req, res) {
     });
 });
 
-// Route GET pour un film spécifique (inchangée)
+// Route GET pour un film spécifique
 router.get('/:id', function (req, res) {
   const movieId = parseInt(req.params.id);
   if (isNaN(movieId) || movieId <= 0) {
@@ -346,7 +390,124 @@ router.get('/:id', function (req, res) {
     });
 });
 
-// Route POST pour créer un nouveau film (inchangée)
+//Récupérer le statut like/dislike d'un film
+router.get('/:id/rating', async function (req, res) {
+  try {
+    const movieId = parseInt(req.params.id);
+
+    if (isNaN(movieId) || movieId <= 0) {
+      return res.status(400).json({
+        error: 'Invalid ID format',
+        message: 'ID must be a positive number',
+      });
+    }
+
+    const movieRepository = appDataSource.getRepository(Movie);
+
+    const movie = await movieRepository.findOne({
+      where: { id: movieId },
+      select: ['id', 'title', 'likedislike'],
+    });
+
+    if (!movie) {
+      return res.status(404).json({
+        error: 'Movie not found',
+        message: `No movie found with id ${movieId}`,
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: movie.id,
+        title: movie.title,
+        likedislike: movie.likedislike || 0,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching movie rating:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'Failed to fetch movie rating',
+    });
+  }
+});
+
+// Mettre à jour le like/dislike d'un film
+router.patch('/:id/rating', async function (req, res) {
+  try {
+    const movieId = parseInt(req.params.id);
+    const { likedislike } = req.body;
+
+    // Validation de l'ID
+    if (isNaN(movieId) || movieId <= 0) {
+      return res.status(400).json({
+        error: 'Invalid ID format',
+        message: 'ID must be a positive number',
+      });
+    }
+
+    // Validation de l'input
+    if (likedislike === undefined || likedislike === null) {
+      return res.status(400).json({
+        error: 'likedislike value is required',
+        message: 'Please provide a likedislike value (-1, 0, or 1)',
+      });
+    }
+
+    // Validation des valeurs autorisées
+    const validValues = [-1, 0, 1];
+    if (!validValues.includes(likedislike)) {
+      return res.status(400).json({
+        error: 'Invalid likedislike value',
+        message: 'likedislike must be -1 (dislike), 0 (neutral), or 1 (like)',
+      });
+    }
+
+    // Récupérer le repository des films
+    const movieRepository = appDataSource.getRepository(Movie);
+
+    // Vérifier que le film existe
+    const movie = await movieRepository.findOne({
+      where: { id: movieId },
+    });
+
+    if (!movie) {
+      return res.status(404).json({
+        error: 'Movie not found',
+        message: `No movie found with id ${movieId}`,
+      });
+    }
+
+    // Mettre à jour le likedislike
+    await movieRepository.update({ id: movieId }, { likedislike: likedislike });
+
+    // Récupérer le film mis à jour
+    const updatedMovie = await movieRepository.findOne({
+      where: { id: movieId },
+    });
+
+    console.log(`Movie ${movieId} rating updated to: ${likedislike}`);
+
+    res.json({
+      success: true,
+      message: 'Movie rating updated successfully',
+      data: {
+        id: updatedMovie.id,
+        title: updatedMovie.title,
+        likedislike: updatedMovie.likedislike,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating movie rating:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: 'Failed to update movie rating',
+    });
+  }
+});
+
+// Route POST pour créer un nouveau film
 router.post('/new', function (req, res) {
   const movieRepository = appDataSource.getRepository(Movie);
   const newMovie = movieRepository.create({
@@ -374,7 +535,7 @@ router.post('/new', function (req, res) {
     });
 });
 
-// Route DELETE pour supprimer un film (inchangée)
+// Route DELETE pour supprimer un film
 router.delete('/:id', function (req, res) {
   appDataSource
     .getRepository(Movie)

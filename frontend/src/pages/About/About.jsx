@@ -16,7 +16,7 @@ function About() {
     <div className="about">
       {/* Titre principal avec effet futuriste */}
       <div className="about-header">
-        <h1>À propos de Recommendé par ta mère</h1>
+        <h1>À propos de PIMP MY FILM</h1>
         <p className="about-subtitle">
           La plateforme futuriste pour les cinéphiles du monde entier
         </p>
@@ -31,7 +31,7 @@ function About() {
           </div>
           <h2>Notre Mission</h2>
           <p>
-            Recommendé par ta mère est une plateforme révolutionnaire dédiée aux
+            Pimp my film est une plateforme révolutionnaire dédiée aux
             cinéphiles qui souhaitent découvrir de nouveaux films et les noter.
             Notre objectif est de créer une communauté où les utilisateurs
             peuvent partager leurs passions et découvrir de nouveaux
@@ -61,7 +61,7 @@ function About() {
               <FaMapMarkerAlt className="icon" />
               <div className="office-details">
                 <strong>Paris HQ</strong>
-                <span>123 Rue des Entrepreneurs</span>
+                <span>14 Rue Désiré Doué</span>
                 <span>75001 Paris, France</span>
               </div>
             </li>
@@ -69,7 +69,7 @@ function About() {
               <FaMapMarkerAlt className="icon" />
               <div className="office-details">
                 <strong>Lyon Tech Center</strong>
-                <span>456 Avenue du Progrès</span>
+                <span>128 Avenue Rayan Cherki</span>
                 <span>69000 Lyon, France</span>
               </div>
             </li>
@@ -77,7 +77,7 @@ function About() {
               <FaMapMarkerAlt className="icon" />
               <div className="office-details">
                 <strong>Marseille Innovation Lab</strong>
-                <span>789 Boulevard des Innovations</span>
+                <span>46 Impasse Adrien Rabiot</span>
                 <span>13000 Marseille, France</span>
               </div>
             </li>
@@ -95,8 +95,8 @@ function About() {
               <FaEnvelope className="icon" />
               <div className="contact-details">
                 <strong>Email</strong>
-                <a href="mailto:contact@filmrating.com">
-                  contact@recommendepartamere.com
+                <a href="mailto:contact@pimpmyfilm.com">
+                  contact@pimpmyfilm.com
                 </a>
               </div>
             </li>
@@ -112,11 +112,11 @@ function About() {
               <div className="contact-details">
                 <strong>Facebook</strong>
                 <a
-                  href="https://facebook.com/recommendepartamere"
+                  href="https://facebook.com/pimpmyfilm"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  facebook.com/recommendepartamere
+                  facebook.com/pimpmyfilm
                 </a>
               </div>
             </li>
@@ -125,46 +125,15 @@ function About() {
               <div className="contact-details">
                 <strong>Instagram</strong>
                 <a
-                  href="https://instagram.com/recommendepartamere"
+                  href="https://instagram.com/pimpmyfilm"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  instagram.com/recommendepartamere
+                  instagram.com/pimpmyfilm
                 </a>
               </div>
             </li>
           </ul>
-        </div>
-      </div>
-
-      {/* Section Technologies */}
-      <div className="tech-section">
-        <h2>Technologies de Pointe</h2>
-        <div className="tech-grid">
-          <div className="tech-item">
-            <div className="tech-name">React</div>
-            <div className="tech-bar">
-              <div className="tech-progress" style={{ width: '95%' }}></div>
-            </div>
-          </div>
-          <div className="tech-item">
-            <div className="tech-name">Node.js</div>
-            <div className="tech-bar">
-              <div className="tech-progress" style={{ width: '90%' }}></div>
-            </div>
-          </div>
-          <div className="tech-item">
-            <div className="tech-name">AI/ML</div>
-            <div className="tech-bar">
-              <div className="tech-progress" style={{ width: '85%' }}></div>
-            </div>
-          </div>
-          <div className="tech-item">
-            <div className="tech-name">Cloud Computing</div>
-            <div className="tech-bar">
-              <div className="tech-progress" style={{ width: '92%' }}></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

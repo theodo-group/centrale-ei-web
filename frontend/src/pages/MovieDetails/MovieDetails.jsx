@@ -2,26 +2,68 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import './MovieDetails.css';
+import './Buttons.css';
 
 function MovieDetails() {
-  const { id: movieId } = useParams(); // Renommé pour clarté
+  const { id: movieId } = useParams();
   const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
-  const [genres, setGenres] = useState({}); // Map des genres {tmdb_id: name}
+  const [genres, setGenres] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // bouton like
+
+  // États pour les boutons like/dislike
   const [isLiked, setIsLiked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
-  //bouton dislike
   const [isDisliked, setIsDisliked] = useState(false);
-  const [dislikes, setDislikes] = useState(0);
+  const [ratingError, setRatingError] = useState(null);
 
   // URL du backend
   const BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
   const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
   const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280';
+
+  // Ajout du style dynamique pour les animations
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      @keyframes thumbsUpSuccess {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        25% { transform: scale(1.3) rotate(5deg); }
+        50% { transform: scale(1.2) rotate(-5deg); }
+        75% { transform: scale(1.1) rotate(3deg); }
+      }
+      
+      @keyframes thumbsDownSuccess {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        25% { transform: scale(1.3) rotate(-8deg); }
+        50% { transform: scale(1.2) rotate(8deg); }
+        75% { transform: scale(1.1) rotate(-5deg); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   // Récupération des genres
   useEffect(() => {
@@ -33,7 +75,6 @@ function MovieDetails() {
         });
 
         if (response.data && response.data.genres) {
-          // Créer un map pour un accès rapide par ID
           const genresMap = {};
           response.data.genres.forEach((genre) => {
             genresMap[genre.tmdb_id] = genre.name;
@@ -41,16 +82,81 @@ function MovieDetails() {
           setGenres(genresMap);
           console.log('Genres récupérés:', genresMap);
         }
-      } catch (err) {
-        console.error('Erreur lors de la récupération des genres:', err);
-        // On continue même si les genres ne se chargent pas
+      } catch (genreError) {
+        console.error('Erreur lors de la récupération des genres:', genreError);
       }
     };
 
     fetchGenres();
-  }, [BACKEND_URL]); // Ajout de BACKEND_URL dans les dépendances
+  }, [BACKEND_URL]);
 
-  // Récupération des détails du film
+  // Récupération du rating depuis la base de données
+  const fetchMovieRating = async (currentMovieId) => {
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/movies/${currentMovieId}/rating`,
+        {
+          timeout: 10000,
+        }
+      );
+
+      if (response.data && response.data.success) {
+        const rating = response.data.data.likedislike || 0;
+        setIsLiked(rating === 1);
+        setIsDisliked(rating === -1);
+
+        // Synchroniser avec localStorage pour compatibilité
+        syncLocalStorageWithRating(currentMovieId, rating);
+
+        console.log(`Rating récupéré pour le film ${currentMovieId}:`, rating);
+
+        return rating;
+      }
+    } catch (apiError) {
+      console.error('Erreur lors de la récupération du rating:', apiError);
+      // Fallback sur localStorage si l'API échoue
+      loadRatingFromLocalStorage(currentMovieId);
+
+      return null;
+    }
+  };
+
+  // Synchroniser localStorage avec le rating de la base de données
+  const syncLocalStorageWithRating = (currentMovieId, rating) => {
+    const likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
+    const dislikedMovies = JSON.parse(
+      localStorage.getItem('dislikedMovies') || '[]'
+    );
+    const movieIdNum = parseInt(currentMovieId);
+
+    // Nettoyer les anciens états
+    const updatedLikes = likedMovies.filter((id) => id !== movieIdNum);
+    const updatedDislikes = dislikedMovies.filter((id) => id !== movieIdNum);
+
+    // Ajouter le nouvel état selon le rating
+    if (rating === 1) {
+      updatedLikes.push(movieIdNum);
+    } else if (rating === -1) {
+      updatedDislikes.push(movieIdNum);
+    }
+
+    localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
+    localStorage.setItem('dislikedMovies', JSON.stringify(updatedDislikes));
+  };
+
+  // Charger le rating depuis localStorage (fallback)
+  const loadRatingFromLocalStorage = (currentMovieId) => {
+    const likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
+    const dislikedMovies = JSON.parse(
+      localStorage.getItem('dislikedMovies') || '[]'
+    );
+    const movieIdNum = parseInt(currentMovieId);
+
+    setIsLiked(likedMovies.includes(movieIdNum));
+    setIsDisliked(dislikedMovies.includes(movieIdNum));
+  };
+
+  // Récupération des détails du film ET de son rating
   useEffect(() => {
     const fetchMovieDetails = async () => {
       setLoading(true);
@@ -59,27 +165,27 @@ function MovieDetails() {
       try {
         console.log(`Récupération des détails du film ID: ${movieId}`);
 
+        // Récupérer les détails du film
         const response = await axios.get(`${BACKEND_URL}/movies/${movieId}`, {
           timeout: 30000,
         });
 
         if (response.data && response.data.movie) {
           setMovie(response.data.movie);
-          // Vérifier si le film est déjà liké
-          const likedMovies = JSON.parse(
-            localStorage.getItem('likedMovies') || '[]'
-          );
-          setIsLiked(likedMovies.includes(parseInt(movieId))); // CORRECTION: movieId au lieu de id
+
+          // Récupérer le rating depuis la base de données
+          await fetchMovieRating(movieId);
+
           console.log('Détails du film récupérés:', response.data.movie);
         } else {
           throw new Error('Film non trouvé');
         }
-      } catch (err) {
-        console.error('Erreur lors de la récupération du film:', err);
+      } catch (fetchError) {
+        console.error('Erreur lors de la récupération du film:', fetchError);
 
-        if (err.response?.status === 404) {
+        if (fetchError.response?.status === 404) {
           setError('Film non trouvé');
-        } else if (err.response?.status >= 500) {
+        } else if (fetchError.response?.status >= 500) {
           setError('Erreur serveur');
         } else {
           setError('Erreur lors du chargement du film');
@@ -92,7 +198,7 @@ function MovieDetails() {
     if (movieId) {
       fetchMovieDetails();
     }
-  }, [movieId, BACKEND_URL]); // Ajout de BACKEND_URL dans les dépendances
+  }, [movieId, BACKEND_URL]);
 
   // Fonction pour obtenir le nom d'un genre par son ID
   const getGenreName = (genreId) => {
@@ -152,62 +258,131 @@ function MovieDetails() {
     return `${hours}h ${mins}min`;
   };
 
-  // Fonction pour gérer le like/unlike
+  // Fonction pour mettre à jour le rating via l'API
+  const updateMovieRating = async (rating) => {
+    try {
+      const response = await axios.patch(
+        `${BACKEND_URL}/movies/${movieId}/rating`,
+        { likedislike: rating },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        }
+      );
+
+      if (response.data && response.data.success) {
+        console.log(`Rating mis à jour: ${rating}`, response.data);
+        // Synchroniser localStorage
+        syncLocalStorageWithRating(movieId, rating);
+
+        return { success: true };
+      } else {
+        throw new Error('Réponse API invalide');
+      }
+    } catch (apiError) {
+      console.error('Erreur lors de la mise à jour du rating:', apiError);
+
+      let errorMessage = 'Erreur de connexion';
+      if (apiError.response) {
+        errorMessage =
+          apiError.response.data.message ||
+          apiError.response.data.error ||
+          'Erreur serveur';
+      } else if (apiError.request) {
+        errorMessage = 'Impossible de joindre le serveur';
+      }
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  };
+
+  // Fonction pour gérer le like/unlike avec API
   const handleLike = async () => {
     if (!movie || likeLoading) {
       return;
     }
 
     setLikeLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    setRatingError(null);
 
-      const likedMovies = JSON.parse(
-        localStorage.getItem('likedMovies') || '[]'
-      );
-      const movieIdNum = parseInt(movieId);
+    try {
+      let targetRating;
 
       if (isLiked) {
-        // Retirer des favoris
-        const updatedLikes = likedMovies.filter((id) => id !== movieIdNum);
-        localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
-        setIsLiked(false);
+        // Si déjà liké, retirer le like (neutre = 0)
+        targetRating = 0;
       } else {
-        // Retirer le dislike si actif
-        if (isDisliked) {
-          setIsDisliked(false);
-          setDislikes((prev) => prev - 1);
+        // Sinon, liker (= 1)
+        targetRating = 1;
+      }
+
+      const result = await updateMovieRating(targetRating);
+
+      if (result.success) {
+        // Mettre à jour les états locaux
+        if (targetRating === 0) {
+          setIsLiked(false);
+        } else {
+          setIsLiked(true);
+          setIsDisliked(false); // Retirer le dislike si présent
         }
 
-        const updatedLikes = [...likedMovies, movieId];
-        localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
-        setIsLiked(true);
+        console.log('Like/Unlike réussi');
+      } else {
+        setRatingError(result.error || 'Erreur lors de la mise à jour');
+        console.error('Erreur API like:', result.error);
       }
-    } catch (err) {
-      console.error('Erreur lors de la gestion du like:', err);
+    } catch (error) {
+      setRatingError('Erreur inattendue');
+      console.error('Erreur lors du like:', error);
     } finally {
       setLikeLoading(false);
     }
   };
 
-  // Fonction pour gérer le dislike
-  const handleDislike = () => {
-    if (isDisliked) {
-      setDislikes((prev) => prev - 1);
-      setIsDisliked(false);
-    } else {
-      // Retirer le like si actif
-      if (isLiked) {
-        const likedMovies = JSON.parse(
-          localStorage.getItem('likedMovies') || '[]'
-        );
-        const movieId = parseInt(id);
-        const updatedLikes = likedMovies.filter((id) => id !== movieId);
-        localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
-        setIsLiked(false);
+  // Fonction pour gérer le dislike avec API
+  const handleDislike = async () => {
+    if (!movie) {
+      return;
+    }
+
+    setRatingError(null);
+
+    try {
+      let targetRating;
+
+      if (isDisliked) {
+        // Si déjà disliké, retirer le dislike (neutre = 0)
+        targetRating = 0;
+      } else {
+        // Sinon, disliker (= -1)
+        targetRating = -1;
       }
-      setDislikes((prev) => prev + 1);
-      setIsDisliked(true);
+
+      const result = await updateMovieRating(targetRating);
+
+      if (result.success) {
+        // Mettre à jour les états locaux
+        if (targetRating === 0) {
+          setIsDisliked(false);
+        } else {
+          setIsDisliked(true);
+          setIsLiked(false); // Retirer le like si présent
+        }
+
+        console.log('Dislike/Un-dislike réussi');
+      } else {
+        setRatingError(result.error || 'Erreur lors de la mise à jour');
+        console.error('Erreur API dislike:', result.error);
+      }
+    } catch (error) {
+      setRatingError('Erreur inattendue');
+      console.error('Erreur lors du dislike:', error);
     }
   };
 
@@ -296,41 +471,82 @@ function MovieDetails() {
             <div className="movie-title-section">
               <h1 className="movie-title">{movie.title}</h1>
 
-              {/* Bouton Like */}
-              <button
-                onClick={handleLike}
-                disabled={likeLoading}
-                className={`like-btn ${isLiked ? 'liked' : ''}`}
-                title={isLiked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill={isLiked ? 'currentColor' : 'none'}
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="heart-icon"
+              <div className="movie-actions">
+                {/* Bouton Like Futuriste */}
+                <button
+                  onClick={handleLike}
+                  disabled={likeLoading}
+                  className={`futuristic-btn like-btn ${
+                    isLiked ? 'active' : ''
+                  } ${likeLoading ? 'loading' : ''}`}
+                  title={
+                    isLiked ? 'Retirer des favoris' : 'Ajouter aux favoris'
+                  }
                 >
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                {likeLoading ? 'Chargement...' : isLiked ? 'Aimé' : "J'aime"}
-              </button>
-              {/* Bouton Dislike*/}
-              <button
-                onClick={handleDislike}
-                className={`dislike-btn ${isDisliked ? 'active' : ''}`}
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                  </svg>
+                </button>
+
+                {/* Bouton Dislike Futuriste */}
+                <button
+                  onClick={handleDislike}
+                  className={`futuristic-btn dislike-btn ${
+                    isDisliked ? 'active' : ''
+                  }`}
+                  title={isDisliked ? 'Retirer le dislike' : "Je n'aime pas"}
                 >
-                  <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2z" />
-                </svg>
-                {dislikes}
-              </button>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Affichage des erreurs de rating */}
+              {ratingError && (
+                <div
+                  className="rating-error"
+                  style={{
+                    color: '#ff4757',
+                    fontSize: '14px',
+                    marginTop: '10px',
+                    padding: '8px 12px',
+                    background: 'rgba(255, 71, 87, 0.1)',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 71, 87, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <span>⚠️</span>
+                  <span>{ratingError}</span>
+                  <button
+                    onClick={() => setRatingError(null)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#ff4757',
+                      cursor: 'pointer',
+                      marginLeft: 'auto',
+                      fontSize: '16px',
+                    }}
+                    title="Fermer"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
             </div>
 
             {movie.original_title && movie.original_title !== movie.title && (
@@ -338,33 +554,34 @@ function MovieDetails() {
             )}
 
             <div className="movie-meta">
-              <span className="movie-year">
+              <span className="movie-year meta-tag">
                 Date: {formatDate(movie.release_date)}
               </span>
 
               {movie.runtime && (
-                <span className="movie-runtime">
+                <span className="movie-runtime meta-tag">
                   Durée: {formatRuntime(movie.runtime)}
                 </span>
               )}
 
               {movie.vote_average && (
                 <span
-                  className={`movie-rating ${isHighRating(movie.vote_average) ? 'high-rating' : ''
-                    }`}
+                  className={`movie-rating meta-tag ${
+                    isHighRating(movie.vote_average) ? 'high-rating' : ''
+                  }`}
                 >
                   Note: {movie.vote_average}/10
                 </span>
               )}
 
               {movie.vote_count && (
-                <span className="movie-votes">
+                <span className="movie-votes meta-tag">
                   {formatVotes(movie.vote_count)}
                 </span>
               )}
 
               {movie.popularity && (
-                <span className="movie-popularity">
+                <span className="movie-popularity meta-tag">
                   Pop: {formatPopularity(movie.popularity)}
                 </span>
               )}
@@ -373,11 +590,11 @@ function MovieDetails() {
             {/* Genres - avec noms réels */}
             {movie.genre_ids && movie.genre_ids.length > 0 && (
               <div className="movie-genres">
-                <h4>Genres:</h4>
+                <h4 className="genres-title">GENRES:</h4>
                 <div className="genres-list">
                   {movie.genre_ids.map((genreId) => (
                     <span key={genreId} className="genre-tag">
-                      {getGenreName(genreId)}
+                      {getGenreName(genreId).toUpperCase()}
                     </span>
                   ))}
                 </div>
@@ -455,21 +672,6 @@ function MovieDetails() {
               )}
             </div>
           </div>
-
-          {/* Debug info - à supprimer en production */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="detail-section">
-              <h3>Debug (Development)</h3>
-              <div className="detail-list">
-                <p>
-                  <strong>Genre IDs:</strong> {JSON.stringify(movie.genre_ids)}
-                </p>
-                <p>
-                  <strong>Genres chargés:</strong> {Object.keys(genres).length}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
