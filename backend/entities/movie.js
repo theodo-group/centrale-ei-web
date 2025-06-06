@@ -51,7 +51,6 @@ const Movie = new typeorm.EntitySchema({
       type: String,
       nullable: true,
     },
-    // AJOUTÉ : Titre original du film
     original_title: {
       type: String,
       nullable: true,
@@ -81,11 +80,46 @@ const Movie = new typeorm.EntitySchema({
       nullable: true,
       default: false,
     },
-    // AJOUTÉ : Indique si c'est une vidéo (trailer, etc.)
     video: {
       type: Boolean,
       nullable: true,
       default: false,
+    },
+    // Colonne pour gérer les likes/dislikes
+    // -1 = dislike, 0 = neutre/pas d'avis, 1 = like
+    likedislike: {
+      type: Number,
+      nullable: true,
+      default: 0,
+      transformer: {
+        to: (value) => {
+          // Validation lors de l'écriture en base
+          if (value === null || value === undefined) {
+            return 0;
+          }
+          const numValue = Number(value);
+          if (numValue === -1 || numValue === 0 || numValue === 1) {
+            return numValue;
+          }
+          // Si la valeur n'est pas valide, on met 0 par défaut
+          console.warn(`Invalid likedislike value: ${value}, setting to 0`);
+
+          return 0;
+        },
+        from: (value) => {
+          // Validation lors de la lecture depuis la base
+          const numValue = Number(value);
+          if (numValue === -1 || numValue === 0 || numValue === 1) {
+            return numValue;
+          }
+          // Si la valeur en base n'est pas valide, on retourne 0
+          console.warn(
+            `Invalid likedislike value from DB: ${value}, returning 0`
+          );
+
+          return 0;
+        },
+      },
     },
   },
 });

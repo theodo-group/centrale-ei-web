@@ -127,19 +127,20 @@
   justify-content: center;
 }
 
+/* Image du poster - conserve le ratio d'aspect original */
 .movie-poster-large {
   width: 100%;
-  max-width: 300px;
-  height: auto;
-  border-radius: 15px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-  transition: transform 0.3s ease;
+  height: auto; 
+  max-height: 450px; 
+  object-fit: contain;
+  object-position: center top; 
+  border-radius: 12px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #1a1a1a; /* Couleur de fond pour les zones vides */
 }
-
-.movie-poster-large:hover {
-  transform: scale(1.05);
-}
-
 /* Informations principales */
 .movie-main-info {
   display: flex;

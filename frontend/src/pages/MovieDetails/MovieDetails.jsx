@@ -11,11 +11,12 @@ function MovieDetails() {
   const [genres, setGenres] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // bouton like
+
+  // États pour les boutons like/dislike
   const [isLiked, setIsLiked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
-  //bouton dislike
   const [isDisliked, setIsDisliked] = useState(false);
+  const [ratingError, setRatingError] = useState(null);
 
   // URL du backend
   const BACKEND_URL =
@@ -81,15 +82,81 @@ function MovieDetails() {
           setGenres(genresMap);
           console.log('Genres récupérés:', genresMap);
         }
-      } catch (err) {
-        console.error('Erreur lors de la récupération des genres:', err);
+      } catch (genreError) {
+        console.error('Erreur lors de la récupération des genres:', genreError);
       }
     };
 
     fetchGenres();
   }, [BACKEND_URL]);
 
-  // Récupération des détails du film
+  // Récupération du rating depuis la base de données
+  const fetchMovieRating = async (currentMovieId) => {
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/movies/${currentMovieId}/rating`,
+        {
+          timeout: 10000,
+        }
+      );
+
+      if (response.data && response.data.success) {
+        const rating = response.data.data.likedislike || 0;
+        setIsLiked(rating === 1);
+        setIsDisliked(rating === -1);
+
+        // Synchroniser avec localStorage pour compatibilité
+        syncLocalStorageWithRating(currentMovieId, rating);
+
+        console.log(`Rating récupéré pour le film ${currentMovieId}:`, rating);
+
+        return rating;
+      }
+    } catch (apiError) {
+      console.error('Erreur lors de la récupération du rating:', apiError);
+      // Fallback sur localStorage si l'API échoue
+      loadRatingFromLocalStorage(currentMovieId);
+
+      return null;
+    }
+  };
+
+  // Synchroniser localStorage avec le rating de la base de données
+  const syncLocalStorageWithRating = (currentMovieId, rating) => {
+    const likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
+    const dislikedMovies = JSON.parse(
+      localStorage.getItem('dislikedMovies') || '[]'
+    );
+    const movieIdNum = parseInt(currentMovieId);
+
+    // Nettoyer les anciens états
+    const updatedLikes = likedMovies.filter((id) => id !== movieIdNum);
+    const updatedDislikes = dislikedMovies.filter((id) => id !== movieIdNum);
+
+    // Ajouter le nouvel état selon le rating
+    if (rating === 1) {
+      updatedLikes.push(movieIdNum);
+    } else if (rating === -1) {
+      updatedDislikes.push(movieIdNum);
+    }
+
+    localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
+    localStorage.setItem('dislikedMovies', JSON.stringify(updatedDislikes));
+  };
+
+  // Charger le rating depuis localStorage (fallback)
+  const loadRatingFromLocalStorage = (currentMovieId) => {
+    const likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
+    const dislikedMovies = JSON.parse(
+      localStorage.getItem('dislikedMovies') || '[]'
+    );
+    const movieIdNum = parseInt(currentMovieId);
+
+    setIsLiked(likedMovies.includes(movieIdNum));
+    setIsDisliked(dislikedMovies.includes(movieIdNum));
+  };
+
+  // Récupération des détails du film ET de son rating
   useEffect(() => {
     const fetchMovieDetails = async () => {
       setLoading(true);
@@ -98,6 +165,7 @@ function MovieDetails() {
       try {
         console.log(`Récupération des détails du film ID: ${movieId}`);
 
+        // Récupérer les détails du film
         const response = await axios.get(`${BACKEND_URL}/movies/${movieId}`, {
           timeout: 30000,
         });
@@ -105,27 +173,19 @@ function MovieDetails() {
         if (response.data && response.data.movie) {
           setMovie(response.data.movie);
 
-          // Récupération des états like/dislike depuis localStorage
-          const likedMovies = JSON.parse(
-            localStorage.getItem('likedMovies') || '[]'
-          );
-          const dislikedMovies = JSON.parse(
-            localStorage.getItem('dislikedMovies') || '[]'
-          );
-
-          setIsLiked(likedMovies.includes(parseInt(movieId)));
-          setIsDisliked(dislikedMovies.includes(parseInt(movieId)));
+          // Récupérer le rating depuis la base de données
+          await fetchMovieRating(movieId);
 
           console.log('Détails du film récupérés:', response.data.movie);
         } else {
           throw new Error('Film non trouvé');
         }
-      } catch (err) {
-        console.error('Erreur lors de la récupération du film:', err);
+      } catch (fetchError) {
+        console.error('Erreur lors de la récupération du film:', fetchError);
 
-        if (err.response?.status === 404) {
+        if (fetchError.response?.status === 404) {
           setError('Film non trouvé');
-        } else if (err.response?.status >= 500) {
+        } else if (fetchError.response?.status >= 500) {
           setError('Erreur serveur');
         } else {
           setError('Erreur lors du chargement du film');
@@ -198,71 +258,131 @@ function MovieDetails() {
     return `${hours}h ${mins}min`;
   };
 
-  // Fonction pour gérer le like/unlike
+  // Fonction pour mettre à jour le rating via l'API
+  const updateMovieRating = async (rating) => {
+    try {
+      const response = await axios.patch(
+        `${BACKEND_URL}/movies/${movieId}/rating`,
+        { likedislike: rating },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        }
+      );
+
+      if (response.data && response.data.success) {
+        console.log(`Rating mis à jour: ${rating}`, response.data);
+        // Synchroniser localStorage
+        syncLocalStorageWithRating(movieId, rating);
+
+        return { success: true };
+      } else {
+        throw new Error('Réponse API invalide');
+      }
+    } catch (apiError) {
+      console.error('Erreur lors de la mise à jour du rating:', apiError);
+
+      let errorMessage = 'Erreur de connexion';
+      if (apiError.response) {
+        errorMessage =
+          apiError.response.data.message ||
+          apiError.response.data.error ||
+          'Erreur serveur';
+      } else if (apiError.request) {
+        errorMessage = 'Impossible de joindre le serveur';
+      }
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  };
+
+  // Fonction pour gérer le like/unlike avec API
   const handleLike = async () => {
     if (!movie || likeLoading) {
       return;
     }
 
     setLikeLoading(true);
+    setRatingError(null);
 
-    // Simulation d'une requête
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    try {
+      let targetRating;
 
-    const likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
-    const dislikedMovies = JSON.parse(
-      localStorage.getItem('dislikedMovies') || '[]'
-    );
-    const movieIdNum = parseInt(movieId);
-
-    if (isLiked) {
-      // Retirer des favoris
-      const updatedLikes = likedMovies.filter((id) => id !== movieIdNum);
-      localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
-      setIsLiked(false);
-    } else {
-      // Retirer le dislike si actif
-      if (isDisliked) {
-        const updatedDislikes = dislikedMovies.filter(
-          (id) => id !== movieIdNum
-        );
-        localStorage.setItem('dislikedMovies', JSON.stringify(updatedDislikes));
-        setIsDisliked(false);
+      if (isLiked) {
+        // Si déjà liké, retirer le like (neutre = 0)
+        targetRating = 0;
+      } else {
+        // Sinon, liker (= 1)
+        targetRating = 1;
       }
 
-      const updatedLikes = [...likedMovies, movieIdNum];
-      localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
-      setIsLiked(true);
-    }
+      const result = await updateMovieRating(targetRating);
 
-    setLikeLoading(false);
+      if (result.success) {
+        // Mettre à jour les états locaux
+        if (targetRating === 0) {
+          setIsLiked(false);
+        } else {
+          setIsLiked(true);
+          setIsDisliked(false); // Retirer le dislike si présent
+        }
+
+        console.log('Like/Unlike réussi');
+      } else {
+        setRatingError(result.error || 'Erreur lors de la mise à jour');
+        console.error('Erreur API like:', result.error);
+      }
+    } catch (error) {
+      setRatingError('Erreur inattendue');
+      console.error('Erreur lors du like:', error);
+    } finally {
+      setLikeLoading(false);
+    }
   };
 
-  // Fonction pour gérer le dislike
-  const handleDislike = () => {
-    const likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
-    const dislikedMovies = JSON.parse(
-      localStorage.getItem('dislikedMovies') || '[]'
-    );
-    const movieIdNum = parseInt(movieId);
+  // Fonction pour gérer le dislike avec API
+  const handleDislike = async () => {
+    if (!movie) {
+      return;
+    }
 
-    if (isDisliked) {
-      // Retirer le dislike
-      const updatedDislikes = dislikedMovies.filter((id) => id !== movieIdNum);
-      localStorage.setItem('dislikedMovies', JSON.stringify(updatedDislikes));
-      setIsDisliked(false);
-    } else {
-      // Retirer le like si actif
-      if (isLiked) {
-        const updatedLikes = likedMovies.filter((id) => id !== movieIdNum);
-        localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
-        setIsLiked(false);
+    setRatingError(null);
+
+    try {
+      let targetRating;
+
+      if (isDisliked) {
+        // Si déjà disliké, retirer le dislike (neutre = 0)
+        targetRating = 0;
+      } else {
+        // Sinon, disliker (= -1)
+        targetRating = -1;
       }
 
-      // Ajouter le dislike
-      const updatedDislikes = [...dislikedMovies, movieIdNum];
-      localStorage.setItem('dislikedMovies', JSON.stringify(updatedDislikes));
-      setIsDisliked(true);
+      const result = await updateMovieRating(targetRating);
+
+      if (result.success) {
+        // Mettre à jour les états locaux
+        if (targetRating === 0) {
+          setIsDisliked(false);
+        } else {
+          setIsDisliked(true);
+          setIsLiked(false); // Retirer le like si présent
+        }
+
+        console.log('Dislike/Un-dislike réussi');
+      } else {
+        setRatingError(result.error || 'Erreur lors de la mise à jour');
+        console.error('Erreur API dislike:', result.error);
+      }
+    } catch (error) {
+      setRatingError('Erreur inattendue');
+      console.error('Erreur lors du dislike:', error);
     }
   };
 
@@ -391,6 +511,42 @@ function MovieDetails() {
                   </svg>
                 </button>
               </div>
+
+              {/* Affichage des erreurs de rating */}
+              {ratingError && (
+                <div
+                  className="rating-error"
+                  style={{
+                    color: '#ff4757',
+                    fontSize: '14px',
+                    marginTop: '10px',
+                    padding: '8px 12px',
+                    background: 'rgba(255, 71, 87, 0.1)',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 71, 87, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <span>⚠️</span>
+                  <span>{ratingError}</span>
+                  <button
+                    onClick={() => setRatingError(null)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#ff4757',
+                      cursor: 'pointer',
+                      marginLeft: 'auto',
+                      fontSize: '16px',
+                    }}
+                    title="Fermer"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
             </div>
 
             {movie.original_title && movie.original_title !== movie.title && (

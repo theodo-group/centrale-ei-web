@@ -77,7 +77,7 @@ function About() {
               <FaMapMarkerAlt className="icon" />
               <div className="office-details">
                 <strong>Marseille Innovation Lab</strong>
-                <span>46 Impasse Mohammed Henni</span>
+                <span>46 Impasse Adrien Rabiot</span>
                 <span>13000 Marseille, France</span>
               </div>
             </li>
@@ -96,7 +96,7 @@ function About() {
               <div className="contact-details">
                 <strong>Email</strong>
                 <a href="mailto:contact@pimpmyfilm.com">
-                  contact@recommendepartamere.com
+                  contact@pimpmyfilm.com
                 </a>
               </div>
             </li>
@@ -134,37 +134,6 @@ function About() {
               </div>
             </li>
           </ul>
-        </div>
-      </div>
-
-      {/* Section Technologies */}
-      <div className="tech-section">
-        <h2>Technologies de Pointe</h2>
-        <div className="tech-grid">
-          <div className="tech-item">
-            <div className="tech-name">React</div>
-            <div className="tech-bar">
-              <div className="tech-progress" style={{ width: '95%' }}></div>
-            </div>
-          </div>
-          <div className="tech-item">
-            <div className="tech-name">Node.js</div>
-            <div className="tech-bar">
-              <div className="tech-progress" style={{ width: '90%' }}></div>
-            </div>
-          </div>
-          <div className="tech-item">
-            <div className="tech-name">AI/ML</div>
-            <div className="tech-bar">
-              <div className="tech-progress" style={{ width: '85%' }}></div>
-            </div>
-          </div>
-          <div className="tech-item">
-            <div className="tech-name">Cloud Computing</div>
-            <div className="tech-bar">
-              <div className="tech-progress" style={{ width: '92%' }}></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

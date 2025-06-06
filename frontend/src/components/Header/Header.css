@@ -113,7 +113,7 @@
   color: var(--text-primary);
 }
 
-/* Séparateurs futuristes */
+/* Séparateurs */
 .Header-container > div {
   color: var(--accent-neon);
   font-weight: 300;
