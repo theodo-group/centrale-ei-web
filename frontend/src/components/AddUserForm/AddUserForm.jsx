@@ -55,7 +55,7 @@ function AddUserForm({ onSuccessfulUserCreation }) {
         />
         <input
           className="add-user-input"
-          placeholder="First name"
+          placeholder="Prénom"
           value={formValues.firstname}
           onChange={(event) =>
             setFormValues({ ...formValues, firstname: event.target.value })
@@ -63,14 +63,14 @@ function AddUserForm({ onSuccessfulUserCreation }) {
         />
         <input
           className="add-user-input"
-          placeholder="Last name"
+          placeholder="Nom"
           value={formValues.lastname}
           onChange={(event) =>
             setFormValues({ ...formValues, lastname: event.target.value })
           }
         />
         <button className="add-user-button" type="submit">
-          Add user
+          Ajouter
         </button>
       </form>
       {userCreationSuccess !== null && (
