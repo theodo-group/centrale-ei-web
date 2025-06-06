@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { recommendMovies } = require('../controllers/recommendations');
 
+// GET /api/recommendations/:userId
 router.get('/:userId', async (req, res) => {
   const userId = parseInt(req.params.userId, 10);
 
@@ -11,6 +12,11 @@ router.get('/:userId', async (req, res) => {
 
   try {
     const movies = await recommendMovies(userId);
+
+    if (!Array.isArray(movies)) {
+      return res.status(500).json({ error: 'Invalid data from recommendation engine' });
+    }
+
     res.json(movies);
   } catch (error) {
     console.error('Error in recommendation:', error);

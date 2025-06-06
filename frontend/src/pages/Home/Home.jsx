@@ -54,7 +54,7 @@ function Home() {
     const fetchRecommendations = async () => {
       setLoadingRecommendations(true);
       try {
-        const userId = 1; // Remplacez par l'ID de l'utilisateur actuel
+        const userId = 9999; // Remplacez par l'ID de l'utilisateur actuel
         const response = await axios.get(`/api/recommendations/${userId}`);
         setRecommendations(response.data);
       } catch (error) {
