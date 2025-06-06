@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import './Details.css';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -15,7 +15,9 @@ function StarRating({ movieId }) {
 
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
-    if (saved) setRating(parseFloat(saved));
+    if (saved) {
+      setRating(parseFloat(saved));
+    }
   }, [storageKey]);
 
   const handleClick = (e, starIndex) => {
@@ -36,12 +38,16 @@ function StarRating({ movieId }) {
   };
 
   useEffect(() => {
-    if (rating === 0 || !movieId || !selectedUserId) return;
+    if (rating === 0 || !movieId || !selectedUserId) {
+      return;
+    }
 
     axios
       .post('/api/ratings', { userId: selectedUserId, movieId, value: rating })
       .then(() => console.log('✅ Note enregistrée'))
-      .catch((err) => console.error('❌ Erreur lors de l’envoi de la note', err));
+      .catch((err) =>
+        console.error('❌ Erreur lors de l’envoi de la note', err)
+      );
   }, [rating, movieId, selectedUserId]);
 
   const displayValue = hoverRating || rating;
@@ -50,8 +56,11 @@ function StarRating({ movieId }) {
     <div className="star-rating">
       {[...Array(5)].map((_, i) => {
         let className = 'star';
-        if (displayValue >= i + 1) className += ' full';
-        else if (displayValue >= i + 0.5) className += ' half';
+        if (displayValue >= i + 1) {
+          className += ' full';
+        } else if (displayValue >= i + 0.5) {
+          className += ' half';
+        }
 
         return (
           <span
@@ -81,18 +90,22 @@ function Details() {
   const [errorCase, setErrorCase] = useState(null);
 
   useEffect(() => {
-    if (!movieId) return;
+    if (!movieId) {
+      return;
+    }
 
     setLoading(true);
     axios
       .get(`/api/movies/${movieId}`)
       .then((res) => setMovie(res.data))
-      .catch(() => setErrorCase("Erreur lors du chargement du film."))
+      .catch(() => setErrorCase('Erreur lors du chargement du film.'))
       .finally(() => setLoading(false));
   }, [movieId]);
 
   useEffect(() => {
-    if (!movieId) return;
+    if (!movieId) {
+      return;
+    }
 
     axios
       .get(`https://api.themoviedb.org/3/movie/${movieId}/similar`, {
@@ -108,9 +121,15 @@ function Details() {
       });
   }, [movieId]);
 
-  if (loading) return <div>Chargement...</div>;
-  if (errorCase) return <div className="error">{errorCase}</div>;
-  if (!movie) return <div>Film introuvable.</div>;
+  if (loading) {
+    return <div>Chargement...</div>;
+  }
+  if (errorCase) {
+    return <div className="error">{errorCase}</div>;
+  }
+  if (!movie) {
+    return <div>Film introuvable.</div>;
+  }
 
   const dateFr = new Date(movie.releaseDate).toLocaleDateString('fr-FR');
 
@@ -118,14 +137,19 @@ function Details() {
     <div className="App-content" key={movieId}>
       <img
         className="poster"
-        src={movie.posterPath ? posterURL + movie.posterPath : '/placeholder.png'}
+        src={
+          movie.posterPath ? posterURL + movie.posterPath : '/placeholder.png'
+        }
         alt={`Affiche de ${movie.title}`}
       />
       <div className="text-content">
         <h1>{movie.title}</h1>
         <h3>Date de sortie : {dateFr}</h3>
         {movie.genres?.length > 0 && (
-          <p><strong>Genres :</strong> {movie.genres.map((g) => g.name).join(', ')}</p>
+          <p>
+            <strong>Genres :</strong>{' '}
+            {movie.genres.map((g) => g.name).join(', ')}
+          </p>
         )}
         <p>{movie.overview}</p>
         <h4>Note des spectateurs : {(movie.voteAverage / 2).toFixed(2)} / 5</h4>
@@ -145,7 +169,11 @@ function Details() {
                 onClick={() => navigate(`/details/${film.id}`)}
               >
                 <img
-                  src={film.poster_path ? posterURL + film.poster_path : '/placeholder.png'}
+                  src={
+                    film.poster_path
+                      ? posterURL + film.poster_path
+                      : '/placeholder.png'
+                  }
                   alt={film.title}
                   className="similar-poster"
                 />
