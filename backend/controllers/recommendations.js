@@ -4,7 +4,7 @@ const { Movie } = require('../entities/movies');
 const { appDataSource } = require('../datasource.js');
 
 async function getUserGenreScores(userId) {
-  const ratingRepo =appDataSource.getRepository(Rating);
+  const ratingRepo = appDataSource.getRepository(Rating);
 
   // Trouver les notes du user avec films et genres associés
   const ratings = await ratingRepo.find({
@@ -38,30 +38,35 @@ async function recommendMovies(userId) {
 
   const genreScores = await getUserGenreScores(userId);
 
-  // Récupérer les films déjà notés (via relation)
+  // Si l'utilisateur n'a aucune note, on peut renvoyer une liste vide ou des recommandations génériques (au choix)
+  if (Object.keys(genreScores).length === 0) {
+    // Par exemple, on renvoie une liste vide :
+    return [];
+    // Ou bien une liste des films les plus populaires (exemple) :
+    // return await movieRepo.find({ order: { popularity: 'DESC' }, take: 20 });
+  }
+
   const seenRatings = await ratingRepo.find({
     where: { user: { id: userId } },
     relations: ['movie'],
   });
-  const seenMovieIds = seenRatings.map(r => r.movie.id);
+  const seenMovieIds = seenRatings.map((r) => r.movie.id);
 
-  // Récupérer les films non vus avec leurs genres
   const movies = await movieRepo.find({
     where: seenMovieIds.length > 0 ? { id: Not(In(seenMovieIds)) } : {},
     relations: ['genres'],
   });
 
-  // Calcul du score de compatibilité par genres
-  const scoredMovies = movies.map(movie => {
+  const scoredMovies = movies.map((movie) => {
     let compatibility = 0;
     for (const genre of movie.genres) {
       const gScore = genreScores[genre.id] || 0;
       compatibility += gScore;
     }
+
     return { ...movie, compatibility };
   });
 
-  // Retourner les 20 meilleurs triés par compatibilité décroissante
   return scoredMovies
     .sort((a, b) => b.compatibility - a.compatibility)
     .slice(0, 20);

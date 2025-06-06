@@ -1,7 +1,7 @@
 const { appDataSource } = require('../datasource');
-const User = require('../entities/user');
-const Movie = require('../entities/movies');
-const Rating = require('../entities/ratings');
+const { User } = require('../entities/user');
+const { Movie } = require('../entities/movies');
+const { Rating } = require('../entities/ratings');
 
 async function main() {
   await appDataSource.initialize();

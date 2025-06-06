@@ -1,6 +1,6 @@
 const express = require('express');
 const { appDataSource } = require('../datasource.js');
-const User = require('../entities/user.js');
+const { User } = require('../entities/user.js');
 
 const router = express.Router();
 

@@ -1,8 +1,8 @@
 const express = require('express');
 const axios = require('axios');
 const { appDataSource } = require('../datasource.js');
-const Movie = require('../entities/movies.js');
-const Genre = require('../entities/genres.js');
+const { Movie } = require('../entities/movies.js');
+const { Genre } = require('../entities/genres.js');
 
 const router = express.Router();
 
@@ -12,18 +12,18 @@ const TMDB_API_URL = 'https://api.themoviedb.org/3/movie';
 // Liste tous les films
 router.get('/', async function (req, res) {
   try {
-    const movieRepository = appDataSource.appDataSource.getRepository(Movie);
+    const movieRepository = appDataSource.getRepository(Movie);
     const movies = await movieRepository.find();
     res.json(movies);
   } catch (error) {
-    console.error('Error while retrieving movies :', error);
+    console.error('Error while retrieving movies:', error);
     res.status(500).json({ message: 'Server error while retrieving films' });
   }
 });
 
 // Crée un nouveau film minimal (sans TMDB)
 router.post('/new', async function (req, res) {
-  const movieRepository = appDataSource.appDataSource.getRepository(Movie);
+  const movieRepository = appDataSource.getRepository(Movie);
   const newMovie = movieRepository.create({
     title: req.body.title,
     releaseDate: req.body.releaseDate,
@@ -54,8 +54,8 @@ router.get('/:id', async function (req, res) {
     return res.status(400).json({ message: 'Invalid movie ID' });
   }
 
-  const movieRepository = appDataSource.appDataSource.getRepository(Movie);
-  const genreRepository = appDataSource.appDataSource.getRepository(Genre);
+  const movieRepository = appDataSource.getRepository(Movie);
+  const genreRepository = appDataSource.getRepository(Genre);
 
   try {
     let movie = await movieRepository.findOne({
@@ -64,16 +64,24 @@ router.get('/:id', async function (req, res) {
     });
 
     if (movie) {
+      console.log(`Movie ${movieId} found in DB.`);
       return res.status(200).json(movie);
     }
 
-    // Récupération depuis TMDB si pas trouvé en BDD
+    console.log(`Movie ${movieId} not found in DB, fetching from TMDB...`);
+
+    if (!TMDB_API_KEY) {
+      console.error('TMDB_API_KEY is not set');
+      return res.status(500).json({ message: 'TMDB API key is not configured' });
+    }
+
     const response = await axios.get(`${TMDB_API_URL}/${movieId}`, {
       headers: { Authorization: `Bearer ${TMDB_API_KEY}` },
       params: { language: 'fr-FR' },
     });
 
     const movieData = response.data;
+    console.log(`Movie ${movieId} fetched from TMDB: ${movieData.title}`);
 
     // Gestion des genres
     const genres = await Promise.all(
@@ -82,6 +90,7 @@ router.get('/:id', async function (req, res) {
         if (!genre) {
           genre = genreRepository.create({ id: g.id, name: g.name });
           await genreRepository.save(genre);
+          console.log(`Genre ${g.name} created in DB.`);
         }
         return genre;
       })
@@ -103,12 +112,18 @@ router.get('/:id', async function (req, res) {
     });
 
     await movieRepository.save(movie);
+    console.log(`Movie ${movieId} saved in DB.`);
+
     res.status(200).json(movie);
   } catch (error) {
-    console.error(
-      'Error fetching movie by id:',
-      error.response?.data || error.message
-    );
+    if (error.response) {
+      console.error(`TMDB API error (status ${error.response.status}):`, error.response.data);
+      if (error.response.status === 404) {
+        return res.status(404).json({ message: `Movie with id ${movieId} not found on TMDB.` });
+      }
+    } else {
+      console.error('Error fetching movie by id:', error.message);
+    }
     res.status(500).json({ message: 'Server error while fetching movie' });
   }
 });
@@ -120,7 +135,7 @@ router.delete('/:id', async function (req, res) {
     return res.status(400).json({ message: 'Invalid ID' });
   }
 
-  const movieRepository = appDataSource.appDataSource.getRepository(Movie);
+  const movieRepository = appDataSource.getRepository(Movie);
 
   try {
     const movie = await movieRepository.findOne({ where: { id: movieId } });
