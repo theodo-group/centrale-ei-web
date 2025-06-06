@@ -10,7 +10,7 @@ const Rating = new typeorm.EntitySchema({
       generated: true,
     },
     value: {
-      type: Number,
+      type: 'float',
       nullable: false,
     },
   },

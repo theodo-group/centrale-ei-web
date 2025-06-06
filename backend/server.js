@@ -7,7 +7,10 @@ const indexRouter = require('./routes/index.js');
 const usersRouter = require('./routes/users.js');
 const moviesRouter = require('./routes/movies.js');
 const recommendationsRouter = require('./routes/recommendations.js');
-const { routeNotFoundJsonHandler } = require('./services/routeNotFoundJsonHandler.js');
+const ratingsRouter = require('./routes/ratings');
+const {
+  routeNotFoundJsonHandler,
+} = require('./services/routeNotFoundJsonHandler.js');
 const { jsonErrorHandler } = require('./services/jsonErrorHandler.js');
 const { appDataSource } = require('./datasource.js');
 
@@ -24,6 +27,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/movies', moviesRouter);
 app.use('/api/recommendations', recommendationsRouter);
+app.use('/ratings', ratingsRouter);
 
 app.use(routeNotFoundJsonHandler);
 app.use(jsonErrorHandler);
