@@ -65,4 +65,26 @@ router.get('/prenoms', async (req, res, next) => {
   }
 });
 
+router.get('/:userId', async (req, res) => {
+  try {
+    const userRepository = appDataSource.getRepository(User);
+    const userId = parseInt(req.params.userId, 10);
+
+    const user = await userRepository.findOneBy({ id: userId });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      id: user.id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+    });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
