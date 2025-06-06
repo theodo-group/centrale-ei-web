@@ -1,25 +1,20 @@
 const express = require('express');
-const { getRecommendations } = require('../controllers/recommendations.js');
-
 const router = express.Router();
+const { recommendMovies } = require('../controllers/recommendations');
 
 router.get('/:userId', async (req, res) => {
-  try {
-    const recommendations = await getRecommendations(req.params.userId);
-    res.json(recommendations);
-  } catch (error) {
-    console.error('Erreur lors de la récupération des recommandations :', error);
-    res.status(500).json({ error: 'Erreur interne du serveur' });
-  }
-});
+  const userId = parseInt(req.params.userId, 10);
 
-router.get('/', async (req, res) => {
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+  }
+
   try {
-    const recommendations = await getRecommendations();
-    res.json(recommendations);
+    const movies = await recommendMovies(userId);
+    res.json(movies);
   } catch (error) {
-    console.error('Erreur lors de la récupération des recommandations :', error);
-    res.status(500).json({ error: 'Erreur interne du serveur' });
+    console.error('Error in recommendation:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
