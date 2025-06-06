@@ -10,7 +10,6 @@ function StarRating({ movieId }) {
   const { selectedUserId } = useContext(UserContext);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const { selectedUserId } = useContext(UserContext);
 
   const storageKey = `noteFilm-${movieId}-${selectedUserId}`;
 

@@ -1,7 +1,7 @@
 require('dotenv').config();
 require('reflect-metadata');
 const { appDataSource } = require('../datasource.js');
-const Movie = require('../entities/movies.js');
+const { Movie } = require('../entities/movies.js');
 
 // Fonction pour parser les arguments de la ligne de commande
 function parseArgs() {

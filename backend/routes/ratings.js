@@ -1,8 +1,8 @@
 const express = require('express');
 const { appDataSource } = require('../datasource.js');
-const Rating = require('../entities/ratings.js'); // attention au nom fichier
-const User = require('../entities/user.js'); // idem
-const Movie = require('../entities/movies.js');
+const { Rating } = require('../entities/ratings.js');   // attention au nom fichier
+const { User } = require('../entities/user.js');       // idem
+const { Movie } = require('../entities/movies.js');
 
 const router = express.Router();
 

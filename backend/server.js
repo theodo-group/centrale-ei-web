@@ -7,7 +7,8 @@ const indexRouter = require('./routes/index.js');
 const usersRouter = require('./routes/users.js');
 const moviesRouter = require('./routes/movies.js');
 const recommendationsRouter = require('./routes/recommendations.js');
-const ratingsRouter = require('./routes/ratings');
+const ratingsRouter = require('./routes/ratings.js');
+const tmdbProxyRouter = require('./routes/tmdbProxy.js');  // <-- nouveau
 const {
   routeNotFoundJsonHandler,
 } = require('./services/routeNotFoundJsonHandler.js');
@@ -28,6 +29,9 @@ app.use('/users', usersRouter);
 app.use('/api/movies', moviesRouter);
 app.use('/api/recommendations', recommendationsRouter);
 app.use('/ratings', ratingsRouter);
+
+// Ajout du routeur proxy TMDB
+app.use('/api/tmdb', tmdbProxyRouter);
 
 app.use(routeNotFoundJsonHandler);
 app.use(jsonErrorHandler);
