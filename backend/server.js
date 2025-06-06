@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/movies', moviesRouter);
+app.use('/api/movies', moviesRouter);
 app.use('/api/recommendations', recommendationsRouter);
 app.use('/ratings', ratingsRouter);
 

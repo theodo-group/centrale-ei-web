@@ -36,4 +36,4 @@ const Rating = new typeorm.EntitySchema({
   ],
 });
 
-module.exports = Rating;
+module.exports = { Rating };
