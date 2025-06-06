@@ -1,22 +1,26 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import './Header.css';
+import { useContext, useEffect, useState } from 'react';
+import UserContext from '../../UserContext';
 
 function Header() {
   const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState('');
+  const { selectedUserId, updateContext } = useContext(UserContext);
+  console.log(selectedUserId);
 
   useEffect(() => {
     fetch('http://localhost:8000/users/prenoms')
       .then((res) => res.json())
       .then((data) => {
-        console.log('Received data:', data);
+        console.log('Données reçues :', data);
         setUsers(data);
+        console.log(
+          'IDs des users:',
+          data.map((u) => u.id)
+        );
       })
       .catch(console.error);
   }, []);
-
-  console.log(users);
 
   return (
     <header className="Header">
@@ -42,17 +46,15 @@ function Header() {
         }}
       >
         <select
-          value={selectedUser}
-          onChange={(e) => setSelectedUser(e.target.value)}
+          value={selectedUserId ?? ''}
+          onChange={(e) => updateContext(e.target.value)}
         >
           <option value="">-- Choisir un prénom --</option>
-          {Array.isArray(users) &&
-            users.map((user, index) => (
-              <option key={index} value={user.id}>
-                {user.firstname}
-              </option>
-              // L'identifiant est stocké dans la variable selectedUser
-            ))}
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.firstname}
+            </option>
+          ))}
         </select>
       </div>
     </header>
