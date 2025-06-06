@@ -104,10 +104,18 @@ function MovieDetails() {
 
         if (response.data && response.data.movie) {
           setMovie(response.data.movie);
+
+          // Récupération des états like/dislike depuis localStorage
           const likedMovies = JSON.parse(
             localStorage.getItem('likedMovies') || '[]'
           );
+          const dislikedMovies = JSON.parse(
+            localStorage.getItem('dislikedMovies') || '[]'
+          );
+
           setIsLiked(likedMovies.includes(parseInt(movieId)));
+          setIsDisliked(dislikedMovies.includes(parseInt(movieId)));
+
           console.log('Détails du film récupérés:', response.data.movie);
         } else {
           throw new Error('Film non trouvé');
@@ -202,6 +210,9 @@ function MovieDetails() {
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     const likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
+    const dislikedMovies = JSON.parse(
+      localStorage.getItem('dislikedMovies') || '[]'
+    );
     const movieIdNum = parseInt(movieId);
 
     if (isLiked) {
@@ -212,6 +223,10 @@ function MovieDetails() {
     } else {
       // Retirer le dislike si actif
       if (isDisliked) {
+        const updatedDislikes = dislikedMovies.filter(
+          (id) => id !== movieIdNum
+        );
+        localStorage.setItem('dislikedMovies', JSON.stringify(updatedDislikes));
         setIsDisliked(false);
       }
 
@@ -225,19 +240,28 @@ function MovieDetails() {
 
   // Fonction pour gérer le dislike
   const handleDislike = () => {
+    const likedMovies = JSON.parse(localStorage.getItem('likedMovies') || '[]');
+    const dislikedMovies = JSON.parse(
+      localStorage.getItem('dislikedMovies') || '[]'
+    );
+    const movieIdNum = parseInt(movieId);
+
     if (isDisliked) {
+      // Retirer le dislike
+      const updatedDislikes = dislikedMovies.filter((id) => id !== movieIdNum);
+      localStorage.setItem('dislikedMovies', JSON.stringify(updatedDislikes));
       setIsDisliked(false);
     } else {
       // Retirer le like si actif
       if (isLiked) {
-        const likedMovies = JSON.parse(
-          localStorage.getItem('likedMovies') || '[]'
-        );
-        const movieIdNum = parseInt(movieId);
         const updatedLikes = likedMovies.filter((id) => id !== movieIdNum);
         localStorage.setItem('likedMovies', JSON.stringify(updatedLikes));
         setIsLiked(false);
       }
+
+      // Ajouter le dislike
+      const updatedDislikes = [...dislikedMovies, movieIdNum];
+      localStorage.setItem('dislikedMovies', JSON.stringify(updatedDislikes));
       setIsDisliked(true);
     }
   };
@@ -492,21 +516,6 @@ function MovieDetails() {
               )}
             </div>
           </div>
-
-          {/* Debug info - à supprimer en production */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="detail-section">
-              <h3>Debug (Development)</h3>
-              <div className="detail-list">
-                <p>
-                  <strong>Genre IDs:</strong> {JSON.stringify(movie.genre_ids)}
-                </p>
-                <p>
-                  <strong>Genres chargés:</strong> {Object.keys(genres).length}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
