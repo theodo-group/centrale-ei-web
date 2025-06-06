@@ -1,56 +1,93 @@
 import './Profil.css';
-
-const sampleMovies = [
-  {
-    id: 1,
-    title: 'Inception',
-    poster_path: '/qmDpIHrmpJINaRKAfWQfftjCdyi.jpg',
-  },
-  {
-    id: 2,
-    title: 'Interstellar',
-    poster_path: '/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
-  },
-  {
-    id: 3,
-    title: 'The Dark Knight',
-    poster_path: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
-  },
-  // Ajoute d'autres films ici
-];
+import { useContext, useEffect, useState } from 'react';
+import axios from 'axios';
+import UserContext from '../../UserContext.jsx'; // adapte le chemin
 
 const posterURL = 'https://image.tmdb.org/t/p/w500';
 
 function Profil() {
-  const user = {
-    firstName: 'Jean',
-    lastName: 'Dupont',
-    avatar: '/chat.jpg', // Assure-toi d’avoir une image dans ton dossier public
-  };
+  const { selectedUserId } = useContext(UserContext);
+  const [ratedMovies, setRatedMovies] = useState([]);
+  const [loadingMovies, setLoadingMovies] = useState(true);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    if (!selectedUserId) {
+      return;
+    }
+
+    const userId = Number(selectedUserId);
+    setLoadingUser(true);
+    setLoadingMovies(true);
+
+    // Requête pour récupérer les infos utilisateur
+    axios
+      .get(`http://localhost:8000/users/${userId}`)
+      .then((res) => {
+        console.log('User data:', res.data);
+        setUser(res.data);
+        setLoadingUser(false);
+      })
+      .catch((err) => {
+        console.error('Erreur chargement utilisateur :', err);
+        setLoadingUser(false);
+      });
+
+    // Requête pour récupérer les films notés
+    axios
+      .get(`http://localhost:8000/ratings/${userId}`)
+      .then((res) => {
+        setRatedMovies(res.data);
+        setLoadingMovies(false);
+      })
+      .catch((err) => {
+        console.error('Erreur chargement films notés :', err);
+        setLoadingMovies(false);
+      });
+  }, [selectedUserId]);
+
+  if (!selectedUserId) {
+    return <p>Aucun utilisateur sélectionné.</p>;
+  }
+
+  if (loadingUser || loadingMovies) {
+    return <p>Chargement...</p>;
+  }
+
+  if (!user) {
+    return <p>Utilisateur introuvable.</p>;
+  }
 
   return (
     <div className="profile-page">
       <div className="profile-header">
-        <img src={user.avatar} alt="Avatar" className="profile-avatar" />
+        <img src="/chat.jpg" alt="Avatar" className="profile-avatar" />
         <h1>
-          {user.firstName} {user.lastName}
+          {user.firstname} {user.lastname}
         </h1>
       </div>
 
       <div className="profile-section">
-        <h2>Votre collection :</h2>
-        <div className="profile-movie-list">
-          {sampleMovies.map((movie) => (
-            <div key={movie.id} className="profile-movie-item">
-              <img
-                src={posterURL + movie.poster_path}
-                alt={movie.title}
-                className="profile-movie-poster"
-              />
-              <p>{movie.title}</p>
-            </div>
-          ))}
-        </div>
+        <h2>Films notés :</h2>
+
+        {ratedMovies.length === 0 ? (
+          <p>Vous n'avez encore noté aucun film.</p>
+        ) : (
+          <div className="profile-movie-list">
+            {ratedMovies.map((movie) => (
+              <div key={movie.id} className="profile-movie-item">
+                <img
+                  src={posterURL + movie.poster_path}
+                  alt={movie.title}
+                  className="profile-movie-poster"
+                />
+                <p>{movie.title}</p>
+                <p className="movie-rating">Note : {movie.rating}/5</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
