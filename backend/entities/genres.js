@@ -16,4 +16,4 @@ const Genre = new EntitySchema({
   },
 });
 
-module.exports = Genre;
+module.exports = { Genre };

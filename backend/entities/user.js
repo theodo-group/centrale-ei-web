@@ -26,4 +26,4 @@ const User = new typeorm.EntitySchema({
   },
 });
 
-module.exports = User;
+module.exports = { User };

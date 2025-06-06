@@ -1,6 +1,6 @@
 const { appDataSource } = require('../datasource');
-const User = require('../entities/user');
-const Rating = require('../entities/ratings');
+const { User } = require('../entities/user');  // <-- déstructure selon export
+const { Rating } = require('../entities/ratings');
 
 async function main() {
   await appDataSource.initialize();
@@ -21,7 +21,7 @@ async function main() {
 
   console.log(`🔎 Suppression de ${user.email} (ID: ${user.id})`);
 
-  // Supprimer les notes explicitement (au cas où cascade ne suffit pas)
+  // Supprimer les notes explicitement
   await ratingRepo.delete({ user: { id: user.id } });
 
   // Supprimer l'utilisateur
