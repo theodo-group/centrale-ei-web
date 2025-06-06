@@ -80,4 +80,4 @@ const Movie = new typeorm.EntitySchema({
   },
 });
 
-module.exports = Movie;
+module.exports = { Movie };

@@ -12,7 +12,7 @@ const TMDB_API_URL = 'https://api.themoviedb.org/3/movie';
 // Liste tous les films
 router.get('/', async function (req, res) {
   try {
-    const movieRepository = appDataSource.getRepository(Movie);
+    const movieRepository = appDataSource.appDataSource.getRepository(Movie);
     const movies = await movieRepository.find();
     res.json(movies);
   } catch (error) {
@@ -23,7 +23,7 @@ router.get('/', async function (req, res) {
 
 // Crée un nouveau film minimal (sans TMDB)
 router.post('/new', async function (req, res) {
-  const movieRepository = appDataSource.getRepository(Movie);
+  const movieRepository = appDataSource.appDataSource.getRepository(Movie);
   const newMovie = movieRepository.create({
     title: req.body.title,
     releaseDate: req.body.releaseDate,
@@ -54,8 +54,8 @@ router.get('/:id', async function (req, res) {
     return res.status(400).json({ message: 'Invalid movie ID' });
   }
 
-  const movieRepository = appDataSource.getRepository(Movie);
-  const genreRepository = appDataSource.getRepository(Genre);
+  const movieRepository = appDataSource.appDataSource.getRepository(Movie);
+  const genreRepository = appDataSource.appDataSource.getRepository(Genre);
 
   try {
     let movie = await movieRepository.findOne({
@@ -120,7 +120,7 @@ router.delete('/:id', async function (req, res) {
     return res.status(400).json({ message: 'Invalid ID' });
   }
 
-  const movieRepository = appDataSource.getRepository(Movie);
+  const movieRepository = appDataSource.appDataSource.getRepository(Movie);
 
   try {
     const movie = await movieRepository.findOne({ where: { id: movieId } });

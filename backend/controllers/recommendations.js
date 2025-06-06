@@ -1,13 +1,14 @@
 const { getRepository, Not, In } = require('typeorm');
 const { Rating } = require('../entities/ratings');
 const { Movie } = require('../entities/movies');
+const { appDataSource } = require('../datasource.js');
 
 async function getUserGenreScores(userId) {
-  const ratingRepo = getRepository(Rating);
+  const ratingRepo =appDataSource.getRepository(Rating);
 
-  // Récupérer les notes avec les films associés (et leurs genres)
+  // Trouver les notes du user avec films et genres associés
   const ratings = await ratingRepo.find({
-    where: { userId },
+    where: { user: { id: userId } },
     relations: ['movie', 'movie.genres'],
   });
 
@@ -16,10 +17,9 @@ async function getUserGenreScores(userId) {
   for (const rating of ratings) {
     const movie = rating.movie;
 
-    // Score basé sur l’écart par rapport à la moyenne du film
+    // Calcul du score basé sur la note et la moyenne du film
     const score = (rating.value - movie.voteAverage) / (6 - rating.value);
 
-    // Agrégation des scores par genre
     for (const genre of movie.genres) {
       const genreId = genre.id;
       if (!genreScores[genreId]) {
@@ -33,17 +33,17 @@ async function getUserGenreScores(userId) {
 }
 
 async function recommendMovies(userId) {
-  const ratingRepo = getRepository(Rating);
-  const movieRepo = getRepository(Movie);
+  const ratingRepo = appDataSource.getRepository(Rating);
+  const movieRepo = appDataSource.getRepository(Movie);
 
   const genreScores = await getUserGenreScores(userId);
 
-  // Récupérer les IDs de films déjà notés
+  // Récupérer les films déjà notés (via relation)
   const seenRatings = await ratingRepo.find({
-    where: { userId },
-    select: ['movieId'],
+    where: { user: { id: userId } },
+    relations: ['movie'],
   });
-  const seenMovieIds = seenRatings.map(r => r.movieId);
+  const seenMovieIds = seenRatings.map(r => r.movie.id);
 
   // Récupérer les films non vus avec leurs genres
   const movies = await movieRepo.find({
@@ -51,8 +51,8 @@ async function recommendMovies(userId) {
     relations: ['genres'],
   });
 
-  // Calculer un score de compatibilité
-  const scoredMovies = movies.map((movie) => {
+  // Calcul du score de compatibilité par genres
+  const scoredMovies = movies.map(movie => {
     let compatibility = 0;
     for (const genre of movie.genres) {
       const gScore = genreScores[genre.id] || 0;
@@ -61,7 +61,7 @@ async function recommendMovies(userId) {
     return { ...movie, compatibility };
   });
 
-  // Trier et retourner les meilleurs
+  // Retourner les 20 meilleurs triés par compatibilité décroissante
   return scoredMovies
     .sort((a, b) => b.compatibility - a.compatibility)
     .slice(0, 20);
