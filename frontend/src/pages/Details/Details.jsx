@@ -7,20 +7,30 @@ import UserContext from '../../UserContext';
 const posterURL = 'https://image.tmdb.org/t/p/w500';
 
 function StarRating({ movieId }) {
+  const { selectedUserId } = useContext(UserContext);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const { selectedUserId } = useContext(UserContext);
 
-  const storageKey = `noteFilm-${movieId}`;
+  const storageKey = `noteFilm-${movieId}-${selectedUserId}`;
 
   useEffect(() => {
+    if (!selectedUserId) {
+      return;
+    } // ne rien faire si pas d'utilisateur connecté
     const saved = localStorage.getItem(storageKey);
     if (saved) {
       setRating(parseFloat(saved));
+    } else {
+      setRating(0);
     }
-  }, [storageKey]);
+  }, [storageKey, selectedUserId]);
 
   const handleClick = (e, starIndex) => {
+    if (!selectedUserId) {
+      return;
+    } // bloquer si pas d'utilisateur connecté
+
     const { left, width } = e.target.getBoundingClientRect();
     const x = e.clientX - left;
     const newRating = x < width / 2 ? starIndex + 0.5 : starIndex + 1;
@@ -38,12 +48,16 @@ function StarRating({ movieId }) {
   };
 
   useEffect(() => {
-    if (rating === 0 || !movieId || !selectedUserId) {
+    if (!selectedUserId || rating === 0 || !movieId) {
       return;
     }
 
     axios
-      .post('/api/ratings', { userId: selectedUserId, movieId, value: rating })
+      .post('/api/ratings', {
+        userId: Number(selectedUserId),
+        movieId,
+        value: rating,
+      })
       .then(() => console.log('✅ Note enregistrée'))
       .catch((err) =>
         console.error('❌ Erreur lors de l’envoi de la note', err)
@@ -69,7 +83,8 @@ function StarRating({ movieId }) {
             onClick={(e) => handleClick(e, i)}
             onMouseMove={(e) => handleMouseMove(e, i)}
             onMouseLeave={() => setHoverRating(0)}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: selectedUserId ? 'pointer' : 'not-allowed' }}
+            title={selectedUserId ? '' : 'Veuillez vous connecter pour noter'}
           >
             ★
           </span>

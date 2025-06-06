@@ -43,4 +43,29 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const ratingRepo = appDataSource.getRepository(Rating);
+
+    const ratings = await ratingRepo.find({
+      where: { user: { id: userId } },
+      relations: ['movie'],
+    });
+
+    const formatted = ratings.map((r) => ({
+      id: r.movie.id,
+      title: r.movie.title,
+      poster_path: r.movie.posterPath,
+      rating: r.value,
+    }));
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    console.error('Error fetching ratings:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

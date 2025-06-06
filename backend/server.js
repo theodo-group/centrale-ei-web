@@ -27,7 +27,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api/movies', moviesRouter);
 app.use('/api/recommendations', recommendationsRouter);
-app.use('/api/ratings', ratingsRouter);
+app.use('/ratings', ratingsRouter);
 
 app.use(routeNotFoundJsonHandler);
 app.use(jsonErrorHandler);
