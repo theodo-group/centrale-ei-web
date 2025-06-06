@@ -29,10 +29,10 @@ function Header() {
       </div>
       <nav className="NavLinks">
         <Link className="NavButton" to="/users">
-          Users
+          Utilisateurs
         </Link>
         <Link className="NavButton" to="/about">
-          About
+          A propos
         </Link>
         <Link className="NavButton" to="/profil">
           Profil
