@@ -30,6 +30,7 @@ function Home() {
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
+  // Récupérer les genres à l'initialisation
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -47,6 +48,7 @@ function Home() {
     fetchGenres();
   }, []);
 
+  // Charger les recommandations utilisateur quand selectedUserId change
   useEffect(() => {
     if (!selectedUserId) {
       setRecommendations([]);
@@ -65,9 +67,11 @@ function Home() {
         setLoadingRecommendations(false);
       }
     };
+
     fetchRecommendations();
   }, [selectedUserId]);
 
+  // Gestion du clic sur un film (vérification/ajout puis navigation)
   const handleMovieClick = async (movieId) => {
     try {
       await axios.get(`/api/movies/${movieId}`);
@@ -77,6 +81,7 @@ function Home() {
     }
   };
 
+  // Fonction fetch des films (recherche, filtres, pagination)
   const fetchMovies = async () => {
     setLoading(true);
     try {
@@ -95,15 +100,14 @@ function Home() {
         });
         setMovies(response.data.results.slice(0, 100));
       } else {
-        const genreParam =
-          selectedGenres.length > 0 ? selectedGenres.join(',') : undefined;
+        const genreParam = selectedGenres.length > 0 ? selectedGenres.join(',') : undefined;
 
         const promises = Array.from({ length: PAGES_TO_FETCH }, (_, i) =>
           axios.get(`${baseUrl}/discover/movie`, {
             headers: { Authorization: `Bearer ${apiKey}` },
             params: {
               language: 'fr-FR',
-              sort_by: sortOption + '.' + sortDirection,
+              sort_by: `${sortOption}.${sortDirection}`,
               with_genres: genreParam,
               include_adult: includeAdult,
               page: i + 1,
@@ -123,18 +127,21 @@ function Home() {
     }
   };
 
+  // Debounce de la recherche / filtres
   useEffect(() => {
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     debounceTimeout.current = setTimeout(fetchMovies, 500);
     return () => clearTimeout(debounceTimeout.current);
   }, [searchTerm, sortOption, sortDirection, selectedGenres, includeAdult]);
 
+  // Gestion sélection/désélection d’un genre
   const toggleGenre = (id) => {
     setSelectedGenres((prev) =>
       prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]
     );
   };
 
+  // Afficher plus de films (pagination simple côté client)
   const showMoreMovies = () => setVisibleCount((prev) => prev + 12);
 
   return (
@@ -148,9 +155,11 @@ function Home() {
           onChange={(e) => setSearchTerm(e.target.value)}
           disabled={loading}
         />
+
         <button onClick={() => setShowGenres((v) => !v)}>
           {showGenres ? 'Masquer les genres' : 'Afficher les genres'}
         </button>
+
         {showGenres && (
           <div className="genres">
             {genresList.map((g) => (
@@ -215,9 +224,7 @@ function Home() {
             {!loadingRecommendations && recommendations.length === 0 && (
               <p>Aucune recommandation disponible.</p>
             )}
-            <Movie
-              movies={recommendations}
-            />
+            <Movie movies={recommendations} onClick={handleMovieClick} />
           </>
         )}
 
@@ -225,9 +232,7 @@ function Home() {
 
         {!loading && !selecPerso && (
           <>
-            <Movie
-              movies={movies.slice(0, visibleCount)}
-            />
+            <Movie movies={movies.slice(0, visibleCount)} onClick={handleMovieClick} />
 
             {visibleCount < movies.length && (
               <button onClick={showMoreMovies}>Voir plus</button>
