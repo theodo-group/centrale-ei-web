@@ -6,63 +6,21 @@
  * @class
  * @implements {MigrationInterface}
  */
-export default class CreateTableMovieswithAllCriterias1749048573595 {
-    name = 'CreateTableMovieswithAllCriterias1749048573595'
+export default class CreateGenre1749115274834 {
+    name = 'CreateGenre1749115274834'
 
     async up(queryRunner) {
         await queryRunner.query(`
-            CREATE TABLE "temporary_movie" ("title" varchar PRIMARY KEY NOT NULL)
-        `);
-        await queryRunner.query(`
-            INSERT INTO "temporary_movie"("title")
-            SELECT "title"
-            FROM "movie"
-        `);
-        await queryRunner.query(`
-            DROP TABLE "movie"
-        `);
-        await queryRunner.query(`
-            ALTER TABLE "temporary_movie"
-                RENAME TO "movie"
-        `);
-        await queryRunner.query(`
-            CREATE TABLE "temporary_movie" (
-                "title" varchar NOT NULL,
-                "id" integer NOT NULL,
-                "release_date" varchar,
-                "poster_path" varchar,
-                "overview" varchar,
-                "popularity" integer,
-                "vote_average" integer,
-                "vote_count" integer,
-                "media_type" varchar,
-                "tmdb_id" integer,
-                "original_language" varchar,
-                "original_title" varchar,
-                "genre_ids" text,
-                "backdrop_path" varchar,
-                "adult" boolean DEFAULT (0),
-                "video" boolean DEFAULT (0),
-                CONSTRAINT "UQ_b3d41900d1b4729e33b691280e6" UNIQUE ("tmdb_id"),
-                PRIMARY KEY ("title", "id")
+            CREATE TABLE "genre" (
+                "tmdb_id" integer PRIMARY KEY NOT NULL,
+                "name" varchar NOT NULL,
+                CONSTRAINT "UQ_dd8cd9e50dd049656e4be1f7e8c" UNIQUE ("name")
             )
         `);
         await queryRunner.query(`
-            INSERT INTO "temporary_movie"("title")
-            SELECT "title"
-            FROM "movie"
-        `);
-        await queryRunner.query(`
-            DROP TABLE "movie"
-        `);
-        await queryRunner.query(`
-            ALTER TABLE "temporary_movie"
-                RENAME TO "movie"
-        `);
-        await queryRunner.query(`
             CREATE TABLE "temporary_movie" (
                 "title" varchar NOT NULL,
-                "id" integer PRIMARY KEY NOT NULL,
+                "id" integer PRIMARY KEY AUTOINCREMENT NOT NULL,
                 "release_date" varchar,
                 "poster_path" varchar,
                 "overview" varchar,
@@ -77,8 +35,8 @@ export default class CreateTableMovieswithAllCriterias1749048573595 {
                 "backdrop_path" varchar,
                 "adult" boolean DEFAULT (0),
                 "video" boolean DEFAULT (0),
-                CONSTRAINT "UQ_b3d41900d1b4729e33b691280e6" UNIQUE ("tmdb_id"),
-                CONSTRAINT "UQ_0e6a6ae9cd0961d172d4eaec9ce" UNIQUE ("title")
+                CONSTRAINT "UQ_0e6a6ae9cd0961d172d4eaec9ce" UNIQUE ("title"),
+                CONSTRAINT "UQ_b3d41900d1b4729e33b691280e6" UNIQUE ("tmdb_id")
             )
         `);
         await queryRunner.query(`
@@ -135,7 +93,7 @@ export default class CreateTableMovieswithAllCriterias1749048573595 {
         await queryRunner.query(`
             CREATE TABLE "movie" (
                 "title" varchar NOT NULL,
-                "id" integer NOT NULL,
+                "id" integer PRIMARY KEY NOT NULL,
                 "release_date" varchar,
                 "poster_path" varchar,
                 "overview" varchar,
@@ -150,8 +108,8 @@ export default class CreateTableMovieswithAllCriterias1749048573595 {
                 "backdrop_path" varchar,
                 "adult" boolean DEFAULT (0),
                 "video" boolean DEFAULT (0),
-                CONSTRAINT "UQ_b3d41900d1b4729e33b691280e6" UNIQUE ("tmdb_id"),
-                PRIMARY KEY ("title", "id")
+                CONSTRAINT "UQ_0e6a6ae9cd0961d172d4eaec9ce" UNIQUE ("title"),
+                CONSTRAINT "UQ_b3d41900d1b4729e33b691280e6" UNIQUE ("tmdb_id")
             )
         `);
         await queryRunner.query(`
@@ -195,40 +153,7 @@ export default class CreateTableMovieswithAllCriterias1749048573595 {
             DROP TABLE "temporary_movie"
         `);
         await queryRunner.query(`
-            ALTER TABLE "movie"
-                RENAME TO "temporary_movie"
-        `);
-        await queryRunner.query(`
-            CREATE TABLE "movie" ("title" varchar PRIMARY KEY NOT NULL)
-        `);
-        await queryRunner.query(`
-            INSERT INTO "movie"("title")
-            SELECT "title"
-            FROM "temporary_movie"
-        `);
-        await queryRunner.query(`
-            DROP TABLE "temporary_movie"
-        `);
-        await queryRunner.query(`
-            ALTER TABLE "movie"
-                RENAME TO "temporary_movie"
-        `);
-        await queryRunner.query(`
-            CREATE TABLE "movie" (
-                "title" varchar PRIMARY KEY NOT NULL,
-                "director" varchar NOT NULL,
-                "description" varchar,
-                "note" integer,
-                "releaseDate" integer NOT NULL
-            )
-        `);
-        await queryRunner.query(`
-            INSERT INTO "movie"("title")
-            SELECT "title"
-            FROM "temporary_movie"
-        `);
-        await queryRunner.query(`
-            DROP TABLE "temporary_movie"
+            DROP TABLE "genre"
         `);
     }
 }
