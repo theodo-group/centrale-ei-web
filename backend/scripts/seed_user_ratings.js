@@ -1,7 +1,7 @@
 const { appDataSource } = require('../datasource');
-const User = require('../entities/user');
-const Movie = require('../entities/movies');
-const Rating = require('../entities/ratings');
+const { User } = require('../entities/user');
+const { Movie } = require('../entities/movies');
+const { Rating } = require('../entities/ratings');
 
 async function main() {
   await appDataSource.initialize();
@@ -11,53 +11,52 @@ async function main() {
   const movieRepo = appDataSource.getRepository(Movie);
   const ratingRepo = appDataSource.getRepository(Rating);
 
-  // Créer ou récupérer un utilisateur
-  let user = await userRepo.findOneBy({ email: 'testuser@example.com' });
+  // ID fixe pour le user test
+  const fixedUserId = 9999;
 
-  if (!user) {
-    user = userRepo.create({
-      email: 'testuser@example.com',
-      firstname: 'Test',
-      lastname: 'User',
-    });
-    await userRepo.save(user);
-    console.log(`👤 Utilisateur créé : ${user.firstname} ${user.lastname} (ID: ${user.id})`);
-  } else {
-    console.log(`👤 Utilisateur déjà existant : ${user.firstname} ${user.lastname} (ID: ${user.id})`);
+  // Supprimer l'utilisateur test s'il existe déjà (et ses notes)
+  const existingUser = await userRepo.findOne({ where: { id: fixedUserId }, relations: ['ratings'] });
+  if (existingUser) {
+    await ratingRepo.delete({ user: { id: fixedUserId } });
+    await userRepo.delete(fixedUserId);
+    console.log(`🗑️ Ancien utilisateur test (ID: ${fixedUserId}) supprimé avec ses notes.`);
   }
 
-  // Récupérer quelques films
-  const movies = await movieRepo.find({ take: 10 });
+  // Créer le nouvel utilisateur avec ID fixe
+  const user = userRepo.create({
+    id: fixedUserId,
+    email: 'testuser@example.com',
+    firstname: 'Test',
+    lastname: 'User',
+  });
+  await userRepo.save(user);
+  console.log(`👤 Nouvel utilisateur créé : ${user.firstname} ${user.lastname} (ID: ${user.id})`);
 
-  if (movies.length === 0) {
+  // Récupérer tous les films
+  const allMovies = await movieRepo.find();
+  if (allMovies.length === 0) {
     console.log('❌ Aucun film trouvé. Exécute d’abord le seed TMDB.');
     return;
   }
 
-  for (const movie of movies) {
-    const existingRating = await ratingRepo.findOneBy({
-      user: { id: user.id },
-      movie: { id: movie.id },
+  // Sélectionner aléatoirement la moitié des films
+  const half = Math.floor(allMovies.length / 2);
+  const shuffled = allMovies.sort(() => 0.5 - Math.random());
+  const selectedMovies = shuffled.slice(0, half);
+
+  for (const movie of selectedMovies) {
+    const ratingValue = Math.round((Math.random() * 4 + 1) * 2) / 2; // entre 1.0 et 5.0 par pas de 0.5
+
+    const rating = ratingRepo.create({
+      user,
+      movie,
+      value: ratingValue,
     });
-
-    const ratingValue = Math.round((Math.random() * 4 + 1) * 2) / 2;
-
-    if (existingRating) {
-      existingRating.value = ratingValue;
-      await ratingRepo.save(existingRating);
-      console.log(`🔁 Note mise à jour pour "${movie.title}" : ${ratingValue}/5`);
-    } else {
-      const rating = ratingRepo.create({
-        user,
-        movie,
-        value: ratingValue,
-      });
-      await ratingRepo.save(rating);
-      console.log(`✅ Note ajoutée : "${movie.title}" - ${ratingValue}/5`);
-    }
+    await ratingRepo.save(rating);
+    console.log(`✅ Note ajoutée : "${movie.title}" - ${ratingValue}/5`);
   }
 
-  console.log('🎉 Données de test insérées avec succès.');
+  console.log(`🎉 ${selectedMovies.length} notes insérées pour l'utilisateur test.`);
   await appDataSource.destroy();
 }
 

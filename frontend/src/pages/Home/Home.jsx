@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import axios from 'axios';
 import './Home.css';
 import { useNavigate } from 'react-router-dom';
 import Movie from '../../components/Movie/Movie';
+import UserContext from '../../UserContext';
 
 const PAGES_TO_FETCH = 5;
 
 function Home() {
+  const { selectedUserId } = useContext(UserContext);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [movies, setMovies] = useState([]);
   const [sortOption, setSortOption] = useState('popularity');
@@ -16,22 +19,17 @@ function Home() {
   const [genresList, setGenresList] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [includeAdult, setIncludeAdult] = useState(false);
-  const [selecPerso, setSelecPerso] = useState(false)
+  const [selecPerso, setSelecPerso] = useState(false);
 
   const debounceTimeout = useRef(null);
   const navigate = useNavigate();
 
   const [showGenres, setShowGenres] = useState(false);
-
-
   const [visibleCount, setVisibleCount] = useState(12);
 
-  // État pour les recommandations
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
-
-  // Récupération des genres au montage
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -49,34 +47,36 @@ function Home() {
     fetchGenres();
   }, []);
 
-  // Récupération des recommandations au montage
   useEffect(() => {
+    if (!selectedUserId) {
+      setRecommendations([]);
+      return;
+    }
+
     const fetchRecommendations = async () => {
       setLoadingRecommendations(true);
       try {
-        const userId = 1; // Remplacez par l'ID de l'utilisateur actuel
-        const response = await axios.get(`/api/recommendations/${userId}`);
+        const response = await axios.get(`/api/recommendations/${selectedUserId}`);
         setRecommendations(response.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des recommandations:', error);
+        setRecommendations([]);
       } finally {
         setLoadingRecommendations(false);
       }
     };
     fetchRecommendations();
-  }, []);
+  }, [selectedUserId]);
 
-  // Fonction appelée au clic sur un film
   const handleMovieClick = async (movieId) => {
     try {
-      await axios.get(`/api/movies/${movieId}`); // adapte le chemin si besoin
+      await axios.get(`/api/movies/${movieId}`);
       navigate(`/details/${movieId}`);
     } catch (error) {
       console.error('Erreur lors de la vérification/ajout du film:', error);
     }
   };
 
-  // Fonction pour chercher des films (search ou discover selon searchTerm)
   const fetchMovies = async () => {
     setLoading(true);
     try {
@@ -84,7 +84,6 @@ function Home() {
       const baseUrl = import.meta.env.VITE_TMDB_BASE_URL;
 
       if (searchTerm.trim().length > 0) {
-        // Recherche par titre (search/movie)
         const response = await axios.get(`${baseUrl}/search/movie`, {
           headers: { Authorization: `Bearer ${apiKey}` },
           params: {
@@ -96,7 +95,6 @@ function Home() {
         });
         setMovies(response.data.results.slice(0, 100));
       } else {
-        // Découverte avec filtres
         const genreParam =
           selectedGenres.length > 0 ? selectedGenres.join(',') : undefined;
 
@@ -105,183 +103,139 @@ function Home() {
             headers: { Authorization: `Bearer ${apiKey}` },
             params: {
               language: 'fr-FR',
-              sort_by: `${sortOption}.${sortDirection}`,
-              page: i + 1,
+              sort_by: sortOption + '.' + sortDirection,
               with_genres: genreParam,
               include_adult: includeAdult,
+              page: i + 1,
             },
           })
         );
 
-        const results = await Promise.all(promises);
-        const combinedMovies = results
-          .flatMap((res) => res.data.results)
-          .slice(0, 50);
-        setMovies(combinedMovies);
+        const responses = await Promise.all(promises);
+        const allMovies = responses.flatMap((r) => r.data.results);
+        setMovies(allMovies.slice(0, 100));
       }
     } catch (error) {
-      console.error('Erreur lors de la récupération des films:', error);
+      console.error('Erreur lors du chargement des films :', error);
+      setMovies([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      const offset = window.scrollY;
-      const background = document.querySelector('.background-blur');
-      if (background) {
-        background.style.transform = `translateY(${offset * 0.4}px)`; // parallax doux
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Déclenche la recherche avec un debounce pour éviter les appels trop fréquents
-  useEffect(() => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current);
-    }
-    debounceTimeout.current = setTimeout(() => {
-      fetchMovies();
-    }, 500); // délai de 500ms après la dernière frappe
-
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(fetchMovies, 500);
     return () => clearTimeout(debounceTimeout.current);
   }, [searchTerm, sortOption, sortDirection, selectedGenres, includeAdult]);
 
-  const handleGenreChange = (genreId) => {
+  const toggleGenre = (id) => {
     setSelectedGenres((prev) =>
-      prev.includes(genreId)
-        ? prev.filter((id) => id !== genreId)
-        : [...prev, genreId]
+      prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]
     );
   };
 
-  const visibleMovies = movies.slice(0, visibleCount);
+  const showMoreMovies = () => setVisibleCount((prev) => prev + 12);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Bienvenue, que souhaitez-vous regarder ?</h1>
-      </header>
-      <section className="search-section">
-        <div className="search-bar-container">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Rechercher un film..."
-          />
-
-          <div className="genre-dropdown">
-            <button
-              className="genre-toggle"
-              onClick={() => setShowGenres((prev) => !prev)}
-            >
-              🎬 Genres
-            </button>
-
-            {showGenres && (
-              <div className="genre-menu">
-                {genresList.map((genre) => (
-                  <label key={genre.id}>
-                    <input
-                      type="checkbox"
-                      checked={selectedGenres.includes(genre.id)}
-                      onChange={() => handleGenreChange(genre.id)}
-                    />
-                    {genre.name}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+    <>
+      <h2>Home</h2>
 
       <div className="filters">
-        <div>
-          <label htmlFor="sort">Trier par :</label>
-          <select
-            id="sort"
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
-          >
-            <option value="popularity">Popularité</option>
-            <option value="release_date">Date de sortie</option>
-            <option value="title">Titre (alphabétique)</option>
-            <option value="vote_average">Note moyenne</option>
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="direction">Ordre :</label>
-          <select
-            id="direction"
-            value={sortDirection}
-            onChange={(e) => setSortDirection(e.target.value)}
-          >
-            <option value="desc">Décroissant</option>
-            <option value="asc">Croissant</option>
-          </select>
-        </div>
+        <input
+          placeholder="Rechercher un film..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          disabled={loading}
+        />
+        <button onClick={() => setShowGenres((v) => !v)}>
+          {showGenres ? 'Masquer les genres' : 'Afficher les genres'}
+        </button>
+        {showGenres && (
+          <div className="genres">
+            {genresList.map((g) => (
+              <label key={g.id}>
+                <input
+                  type="checkbox"
+                  checked={selectedGenres.includes(g.id)}
+                  onChange={() => toggleGenre(g.id)}
+                />
+                {g.name}
+              </label>
+            ))}
+          </div>
+        )}
 
         <label>
           <input
             type="checkbox"
             checked={includeAdult}
-            onChange={() => setIncludeAdult(!includeAdult)}
-          />
-          Inclure les films adultes
+            onChange={() => setIncludeAdult((v) => !v)}
+          />{' '}
+          Inclure films pour adultes
         </label>
+
         <label>
           <input
-            type ="checkbox"
+            type="checkbox"
             checked={selecPerso}
-            onChange={() => setSelecPerso(!selecPerso)}
-          />
-          Sélection personalisée
+            onChange={() => setSelecPerso((v) => !v)}
+          />{' '}
+          Utiliser recommandation personnalisée
         </label>
+
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          disabled={loading}
+        >
+          <option value="popularity">Popularité</option>
+          <option value="release_date">Date de sortie</option>
+          <option value="vote_average">Note moyenne</option>
+          <option value="title">Titre (alphabétique)</option>
+        </select>
+
+        <select
+          value={sortDirection}
+          onChange={(e) => setSortDirection(e.target.value)}
+          disabled={loading}
+        >
+          <option value="desc">Descendant</option>
+          <option value="asc">Ascendant</option>
+        </select>
       </div>
 
-      {/* Section des recommandations */}
-      <section className="recommendations-section">
-        <h2>Recommandations pour vous</h2>
-        {loadingRecommendations ? (
-          <p>Chargement des recommandations...</p>
-        ) : recommendations.length > 0 ? (
-          <div className="Movie-grid">
-            <Movie movies={recommendations} onMovieClick={handleMovieClick} />
-          </div>
-        ) : (
-          <p>Aucune recommandation disponible.</p>
+      <section className="movie-list">
+        {loading && <div>Chargement des films...</div>}
+
+        {!loading && selecPerso && (
+          <>
+            <h3>Recommandations pour l’utilisateur #{selectedUserId}</h3>
+            {loadingRecommendations && <p>Chargement des recommandations...</p>}
+            {!loadingRecommendations && recommendations.length === 0 && (
+              <p>Aucune recommandation disponible.</p>
+            )}
+            <Movie
+              movies={recommendations}
+            />
+          </>
+        )}
+
+        {!loading && !selecPerso && movies.length === 0 && <p>Aucun film trouvé.</p>}
+
+        {!loading && !selecPerso && (
+          <>
+            <Movie
+              movies={movies.slice(0, visibleCount)}
+            />
+
+            {visibleCount < movies.length && (
+              <button onClick={showMoreMovies}>Voir plus</button>
+            )}
+          </>
         )}
       </section>
-
-      <h2>
-        {searchTerm.trim()
-          ? `Résultats de la recherche pour "${searchTerm}"`
-          : 'Films'}
-      </h2>
-
-      {loading ? (
-        <p>Chargement...</p>
-      ) : (
-        <div className="Movie-grid">
-          <Movie movies={visibleMovies} onMovieClick={handleMovieClick} />
-          {visibleCount < movies.length && (
-            <div className="load-more-container">
-              <button className="load-more-btn" onClick={() => setVisibleCount(visibleCount + 12)}>
-                Afficher plus
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 
