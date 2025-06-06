@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import './Details.css';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import UserContext from '../../UserContext';
 
 const posterURL = 'https://image.tmdb.org/t/p/w500';
 
 function StarRating({ movieId }) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const { selectedUserId } = useContext(UserContext);
 
   const storageKey = `noteFilm-${movieId}`;
 
@@ -34,14 +36,13 @@ function StarRating({ movieId }) {
   };
 
   useEffect(() => {
-    if (rating === 0 || !movieId) return;
+    if (rating === 0 || !movieId || !selectedUserId) return;
 
-    const userId = 1; // TODO: Remplacer par l'utilisateur connecté
     axios
-      .post('/api/ratings', { userId, movieId, value: rating })
+      .post('/api/ratings', { userId: selectedUserId, movieId, value: rating })
       .then(() => console.log('✅ Note enregistrée'))
       .catch((err) => console.error('❌ Erreur lors de l’envoi de la note', err));
-  }, [rating, movieId]);
+  }, [rating, movieId, selectedUserId]);
 
   const displayValue = hoverRating || rating;
 
@@ -72,6 +73,7 @@ function StarRating({ movieId }) {
 function Details() {
   const { id: movieId } = useParams();
   const navigate = useNavigate();
+  const { selectedUserId } = useContext(UserContext);
 
   const [movie, setMovie] = useState(null);
   const [similarMovies, setSimilarMovies] = useState([]);
