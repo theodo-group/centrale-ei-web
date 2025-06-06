@@ -8,54 +8,70 @@ const posterURL = 'https://image.tmdb.org/t/p/w500';
 function Profil() {
   const { selectedUserId } = useContext(UserContext);
   const [ratedMovies, setRatedMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingMovies, setLoadingMovies] = useState(true);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (!selectedUserId) {
-      setLoading(false);
-
       return;
     }
 
     const userId = Number(selectedUserId);
-    if (isNaN(userId)) {
-      console.error('User ID invalide:', selectedUserId);
-      setLoading(false);
+    setLoadingUser(true);
+    setLoadingMovies(true);
 
-      return;
-    }
+    // Requête pour récupérer les infos utilisateur
+    axios
+      .get(`http://localhost:8000/users/${userId}`)
+      .then((res) => {
+        console.log('User data:', res.data);
+        setUser(res.data);
+        setLoadingUser(false);
+      })
+      .catch((err) => {
+        console.error('Erreur chargement utilisateur :', err);
+        setLoadingUser(false);
+      });
 
-    setLoading(true);
+    // Requête pour récupérer les films notés
     axios
       .get(`http://localhost:8000/ratings/${userId}`)
       .then((res) => {
         setRatedMovies(res.data);
-        setLoading(false);
+        setLoadingMovies(false);
       })
       .catch((err) => {
-        console.error('Erreur lors du chargement des films notés :', err);
-        setLoading(false);
+        console.error('Erreur chargement films notés :', err);
+        setLoadingMovies(false);
       });
   }, [selectedUserId]);
 
   if (!selectedUserId) {
-    return <p>Chargement des informations utilisateur...</p>;
+    return <p>Aucun utilisateur sélectionné.</p>;
+  }
+
+  if (loadingUser || loadingMovies) {
+    return <p>Chargement...</p>;
+  }
+
+  if (!user) {
+    return <p>Utilisateur introuvable.</p>;
   }
 
   return (
     <div className="profile-page">
       <div className="profile-header">
-        {/* Si tu as l’avatar dans les données utilisateur, adapte ici */}
         <img src="/chat.jpg" alt="Avatar" className="profile-avatar" />
-        <h1>Utilisateur ID : {selectedUserId}</h1>
+        <h1>
+          {user.firstname} {user.lastname}
+        </h1>
       </div>
 
       <div className="profile-section">
         <h2>Films notés :</h2>
 
-        {loading ? (
-          <p>Chargement...</p>
-        ) : ratedMovies.length === 0 ? (
+        {ratedMovies.length === 0 ? (
           <p>Vous n'avez encore noté aucun film.</p>
         ) : (
           <div className="profile-movie-list">
