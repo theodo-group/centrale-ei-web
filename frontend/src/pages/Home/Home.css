@@ -1,7 +1,7 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: transparent;
+  background-color: #1e1e1e;
   color: #333;
 } 
 
@@ -146,7 +146,7 @@ h2 {
 .App{
   position: relative;
   z-index: 1;
-  background-color: rgb(44, 40, 49);
+  background-color: #1e1e1e
 }
 
 
@@ -155,4 +155,25 @@ body, html {
   padding: 0;
   height: 100%;
   overflow-x: hidden;
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.load-more-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #1f1f1f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.load-more-btn:hover {
+  background-color: #333;
 }

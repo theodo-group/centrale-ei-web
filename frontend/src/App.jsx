@@ -5,6 +5,7 @@ import Layout from './components/Layout/Layout';
 import Counter from './pages/Counter/Counter';
 import Users from './pages/Users/Users';
 import Details from './pages/Details/Details';
+import Profil from './pages/Profil/Profil'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="details/:id" element={<Details />} />
         <Route path="users" element={<Users />} />
         <Route path="about" element={<About />} />
+        <Route path="profil" element={<Profil />}/>
       </Routes>
     </Layout>
   );

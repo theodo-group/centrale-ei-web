@@ -16,11 +16,20 @@ function Home() {
   const [genresList, setGenresList] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [includeAdult, setIncludeAdult] = useState(false);
+  const [selecPerso, setSelecPerso] = useState(false)
 
   const debounceTimeout = useRef(null);
   const navigate = useNavigate();
 
   const [showGenres, setShowGenres] = useState(false);
+
+
+  const [visibleCount, setVisibleCount] = useState(12);
+
+  // État pour les recommandations
+  const [recommendations, setRecommendations] = useState([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+
 
   // Récupération des genres au montage
   useEffect(() => {
@@ -38,6 +47,23 @@ function Home() {
       }
     };
     fetchGenres();
+  }, []);
+
+  // Récupération des recommandations au montage
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      setLoadingRecommendations(true);
+      try {
+        const userId = 1; // Remplacez par l'ID de l'utilisateur actuel
+        const response = await axios.get(`/api/recommendations/${userId}`);
+        setRecommendations(response.data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des recommandations:', error);
+      } finally {
+        setLoadingRecommendations(false);
+      }
+    };
+    fetchRecommendations();
   }, []);
 
   // Fonction appelée au clic sur un film
@@ -68,7 +94,7 @@ function Home() {
             page: 1,
           },
         });
-        setMovies(response.data.results.slice(0, 50));
+        setMovies(response.data.results.slice(0, 100));
       } else {
         // Découverte avec filtres
         const genreParam =
@@ -133,6 +159,8 @@ function Home() {
         : [...prev, genreId]
     );
   };
+
+  const visibleMovies = movies.slice(0, visibleCount);
 
   return (
     <div className="App">
@@ -209,7 +237,29 @@ function Home() {
           />
           Inclure les films adultes
         </label>
+        <label>
+          <input
+            type ="checkbox"
+            checked={selecPerso}
+            onChange={() => setSelecPerso(!selecPerso)}
+          />
+          Sélection personalisée
+        </label>
       </div>
+
+      {/* Section des recommandations */}
+      <section className="recommendations-section">
+        <h2>Recommandations pour vous</h2>
+        {loadingRecommendations ? (
+          <p>Chargement des recommandations...</p>
+        ) : recommendations.length > 0 ? (
+          <div className="Movie-grid">
+            <Movie movies={recommendations} onMovieClick={handleMovieClick} />
+          </div>
+        ) : (
+          <p>Aucune recommandation disponible.</p>
+        )}
+      </section>
 
       <h2>
         {searchTerm.trim()
@@ -221,7 +271,14 @@ function Home() {
         <p>Chargement...</p>
       ) : (
         <div className="Movie-grid">
-          <Movie movies={movies} onMovieClick={handleMovieClick} />
+          <Movie movies={visibleMovies} onMovieClick={handleMovieClick} />
+          {visibleCount < movies.length && (
+            <div className="load-more-container">
+              <button className="load-more-btn" onClick={() => setVisibleCount(visibleCount + 12)}>
+                Afficher plus
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
