@@ -6,8 +6,8 @@
  * @class
  * @implements {MigrationInterface}
  */
-module.exports = class Migration202506060627196491749191241511 {
-    name = 'Migration202506060627196491749191241511'
+module.exports = class Migration202506060657247331749193046209 {
+    name = 'Migration202506060657247331749193046209'
 
     async up(queryRunner) {
         await queryRunner.query(`
